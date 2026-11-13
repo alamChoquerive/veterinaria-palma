@@ -7,9 +7,13 @@ import { Button } from "@/components/ui/button";
 
 export default function RegistroPage() {
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(formData: FormData) {
+    setLoading(true);
+    setError(null);
     const result = await registroAction(formData);
+    setLoading(false);
     if (!result.ok) setError(result.error);
   }
 
@@ -21,7 +25,9 @@ export default function RegistroPage() {
         <Input name="apellido" placeholder="Apellido" required />
         <Input name="email" type="email" placeholder="Email" required />
         <Input name="password" type="password" placeholder="Contraseña" required />
-        <Button type="submit" className="w-full">Crear cuenta</Button>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Creando..." : "Crear cuenta"}
+        </Button>
         {error && <p className="text-sm text-destructive">{error}</p>}
       </form>
     </main>
