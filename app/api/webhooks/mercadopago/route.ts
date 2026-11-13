@@ -6,6 +6,7 @@ export async function POST(request: Request) {
 
   // TODO: validar firma del webhook de Mercado Pago
   const admin = createAdminClient();
+  // @ts-ignore — tipos de Supabase pendientes de generar con `supabase gen types`
   await admin.from("pagos").insert({
     proveedor_pago_id: body.data?.id,
     estado: body.status,
