@@ -11,7 +11,9 @@ import { ZONAS_ENVIO } from "@/lib/constants";
 
 export default function CheckoutPage() {
   const { items, limpiar, cantidadTotal } = useCart();
-  const [metodo, setMetodo] = useState<string>("retiro_tienda");
+  const [metodo, setMetodo] = useState<
+    "retiro_tienda" | "envio_local" | "envio_provincial"
+  >("retiro_tienda");
   const [direccion, setDireccion] = useState<string>("");
   const [costoEnvio, setCostoEnvio] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
@@ -62,12 +64,12 @@ export default function CheckoutPage() {
 
     setProcesando(false);
 
-    if (!resultado.ok) {
+    if ("ok" in resultado && !resultado.ok) {
       setError(resultado.error ?? "Error al crear el pedido");
       return;
     }
 
-    setPedidoCreado(resultado.data as { id: string });
+    setPedidoCreado((resultado.data as { id: string }) ?? { id: "" });
   }
 
   async function handlePagoMercadoPago() {
@@ -88,10 +90,14 @@ export default function CheckoutPage() {
 
     setProcesando(false);
 
-    if (resultado.ok && resultado.data?.initPoint) {
-      window.location.href = resultado.data.initPoint;
+    if ("ok" in resultado && resultado.ok && "initPoint" in (resultado.data ?? {})) {
+      window.location.href = (resultado.data as { initPoint: string }).initPoint;
     } else {
-      setError(resultado.error ?? "Error al iniciar el pago");
+      setError(
+        "ok" in resultado && !resultado.ok
+          ? resultado.error
+          : "Error al iniciar el pago"
+      );
     }
   }
 
