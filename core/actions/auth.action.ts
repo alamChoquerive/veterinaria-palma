@@ -4,14 +4,32 @@ import { createClient } from "@/core/supabase/server";
 import type { ActionResult } from "@/types/api";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import {
+  loginSchema,
+  registroSchema,
+  type LoginInput,
+  type RegistroInput,
+} from "@/core/actions/schemas";
 
 /**
  * Inicia sesión con email y contraseña.
  */
 export async function loginAction(formData: FormData): Promise<ActionResult> {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const redirectTo = (formData.get("redirect") as string) || "/";
+  const rawInput: LoginInput = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    redirect: (formData.get("redirect") as string) || undefined,
+  };
+
+  const parsed = loginSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.errors[0]?.message ?? "Datos inválidos",
+    };
+  }
+
+  const { email, password, redirect: redirectTo } = parsed.data;
 
   const supabase = await createClient();
 
@@ -24,17 +42,29 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: error.message };
   }
 
-  redirect(redirectTo);
+  redirect(redirectTo ?? "/");
 }
 
 /**
  * Registra un nuevo cliente (rol minorista por defecto).
  */
 export async function registroAction(formData: FormData): Promise<ActionResult> {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const nombre = formData.get("nombre") as string;
-  const apellido = formData.get("apellido") as string;
+  const rawInput: RegistroInput = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    nombre: formData.get("nombre") as string,
+    apellido: formData.get("apellido") as string,
+  };
+
+  const parsed = registroSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.errors[0]?.message ?? "Datos inválidos",
+    };
+  }
+
+  const { email, password, nombre, apellido } = parsed.data;
 
   const supabase = await createClient();
 

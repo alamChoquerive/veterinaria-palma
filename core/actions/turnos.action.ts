@@ -1,13 +1,29 @@
 "use server";
 
 import { createClient } from "@/core/supabase/server";
-import type { ActionResult, CreateTurnoInput } from "@/types/api";
+import type { ActionResult } from "@/types/api";
 import { revalidatePath } from "next/cache";
+import {
+  crearTurnoSchema,
+  type CrearTurnoInput,
+} from "@/core/actions/schemas";
 
 /**
  * Crea un turno para el cliente autenticado.
  */
-export async function crearTurno(datos: CreateTurnoInput): Promise<ActionResult> {
+export async function crearTurno(
+  datos: CrearTurnoInput,
+): Promise<ActionResult> {
+  const parsed = crearTurnoSchema.safeParse(datos);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.errors[0]?.message ?? "Datos de turno inválidos",
+    };
+  }
+
+  const { fecha, horaInicio, horaFin, motivo } = parsed.data;
+
   const supabase = await createClient();
 
   const {
@@ -21,10 +37,10 @@ export async function crearTurno(datos: CreateTurnoInput): Promise<ActionResult>
 
   const { error } = await supabase.from("turnos").insert({
     perfil_id: user.id,
-    fecha: datos.fecha,
-    hora_inicio: datos.horaInicio,
-    hora_fin: datos.horaFin,
-    motivo: datos.motivo ?? null,
+    fecha,
+    hora_inicio: horaInicio,
+    hora_fin: horaFin,
+    motivo: motivo ?? null,
     estado: "pendiente",
   });
 
