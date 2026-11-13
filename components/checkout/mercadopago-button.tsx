@@ -6,15 +6,11 @@ import { crearPreferenciaPago } from "@/core/actions/pago.action";
 
 interface MercadoPagoButtonProps {
   pedidoId: string;
-  total: number;
-  descripcion: string;
   onPagoExitoso: () => void;
 }
 
 export function MercadoPagoButton({
   pedidoId,
-  total,
-  descripcion,
   onPagoExitoso,
 }: MercadoPagoButtonProps) {
   const [procesando, setProcesando] = useState(false);
@@ -24,10 +20,9 @@ export function MercadoPagoButton({
     setProcesando(true);
     setError(null);
 
+    // Solo se envía el id del pedido: el monto lo lee el servidor de la DB
     const resultado = await crearPreferenciaPago({
       pedidoId,
-      total,
-      descripcion: "Compra en Veterinaria Palma - Pedido #" + pedidoId.slice(0, 8),
     });
 
     setProcesando(false);

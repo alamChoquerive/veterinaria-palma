@@ -85,8 +85,6 @@ export default function CheckoutPage() {
 
     const resultado = await crearPreferenciaPago({
       pedidoId: pedidoCreado.id,
-      total,
-      descripcion: "Compra en Veterinaria Palma",
     });
 
     setProcesando(false);
