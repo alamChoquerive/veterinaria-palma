@@ -32,10 +32,20 @@ export function MercadoPagoButton({
 
     setProcesando(false);
 
-    if (resultado.ok && resultado.data?.initPoint) {
-      window.location.href = resultado.data.initPoint;
+    if (
+      "ok" in resultado &&
+      resultado.ok &&
+      resultado.data &&
+      typeof resultado.data === "object" &&
+      "initPoint" in resultado.data
+    ) {
+      window.location.href = (resultado.data as { initPoint: string }).initPoint;
     } else {
-      setError(resultado.error ?? "Error al iniciar el pago");
+      setError(
+        "ok" in resultado && !resultado.ok
+          ? resultado.error
+          : "Error al iniciar el pago"
+      );
     }
   }
 

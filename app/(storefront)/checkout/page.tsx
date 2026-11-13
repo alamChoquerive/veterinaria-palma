@@ -90,7 +90,13 @@ export default function CheckoutPage() {
 
     setProcesando(false);
 
-    if ("ok" in resultado && resultado.ok && "initPoint" in (resultado.data ?? {})) {
+    if (
+      "ok" in resultado &&
+      resultado.ok &&
+      resultado.data &&
+      typeof resultado.data === "object" &&
+      "initPoint" in resultado.data
+    ) {
       window.location.href = (resultado.data as { initPoint: string }).initPoint;
     } else {
       setError(
@@ -145,7 +151,7 @@ export default function CheckoutPage() {
               zonas={zonas as any}
               subtotal={subtotal}
               onChange={({ metodo: m, direccion: d, costoEnvio: c }) => {
-                setMetodo(m);
+                setMetodo(m as "retiro_tienda" | "envio_local" | "envio_provincial");
                 setDireccion(d);
                 setCostoEnvio(c);
               }}

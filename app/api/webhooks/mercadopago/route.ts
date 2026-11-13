@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
   }
 
-  const admin = createAdminClient();
+  const admin = createAdminClient() as any;
 
   try {
     // Registrar el pago en la tabla pagos
@@ -45,10 +45,7 @@ export async function POST(request: Request) {
           nuevoEstado = "pago_pendiente";
       }
 
-      await admin
-        .from("pedidos")
-        .update({ estado: nuevoEstado })
-        .eq("id", externalReference);
+      await admin.from("pedidos").update({ estado: nuevoEstado }).eq("id", externalReference);
     }
 
     return NextResponse.json({ received: true });
