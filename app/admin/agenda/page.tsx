@@ -18,7 +18,9 @@ interface TurnoRow {
 export default function AdminAgendaPage() {
   const [turnos, setTurnos] = useState<TurnoRow[]>([]);
   const [cargando, setCargando] = useState(false);
-  const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [filtroEstado, setFiltroEstado] = useState<
+    "todos" | "pendiente" | "confirmado" | "atendido" | "cancelado"
+  >("todos");
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   async function cargarTurnos() {
@@ -70,12 +72,22 @@ export default function AdminAgendaPage() {
           <p className="text-[#64748b]">Gestión de turnos de clientes.</p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setFiltroEstado("todos")}
+            className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
+              filtroEstado === "todos"
+                ? "bg-[#1e293b] text-white"
+                : "bg-white border border-[#e2e8f0] text-[#64748b] hover:bg-[#f8fafc]"
+            }`}
+          >
+            Todos
+          </button>
           {ESTADOS.map((e) => (
             <button
               key={e}
-              onClick={() => setFiltroEstado(e === "todos" ? "todos" : e)}
+              onClick={() => setFiltroEstado(e)}
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
-                filtroEstado === (e === "todos" ? "todos" : e)
+                filtroEstado === e
                   ? "bg-[#1e293b] text-white"
                   : "bg-white border border-[#e2e8f0] text-[#64748b] hover:bg-[#f8fafc]"
               }`}
