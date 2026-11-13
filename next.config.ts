@@ -8,8 +8,11 @@ const nextConfig: NextConfig = {
   // cacheComponents desactivado temporalmente para evitar datos desactualizados
   // en rutas dinámicas (turnos, pedidos, stock). Reevaluar al definir estrategia
   // de revalidación.
+  // NOTA: partialPrefetching exige cacheComponents en Next 16 (dev y build
+  // fallan en la validación de config si falta), así que no se puede activar
+  // por separado.
   // cacheComponents: true,
-  partialPrefetching: true,
+  // partialPrefetching: true,
   turbopack: {
     rules: {
       "*.css": {
