@@ -1,7 +1,6 @@
 "use client";
 
 import type { Especialidad } from "@/lib/data/especialidades";
-import { DIAS_SEMANA } from "@/lib/data/especialidades";
 
 interface FechaHoraSelectorProps {
   especialidad: Especialidad;
@@ -38,8 +37,8 @@ function generarFechas(dias: string[]): string[] {
 function generarHorarios(): string[] {
   const horarios: string[] = [];
   for (let h = 9; h < 17; h++) {
-    horarios.push(`${h.toString().padStart(2, "0)}:00`);
-    horarios.push(`${h.toString().padStart(2, "0)}:30`);
+    horarios.push(`${h.toString().padStart(2, "0")}:00`);
+    horarios.push(`${h.toString().padStart(2, "0")}:30`);
   }
   return horarios;
 }
