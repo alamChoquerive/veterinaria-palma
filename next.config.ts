@@ -5,7 +5,10 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
-  cacheComponents: true,
+  // cacheComponents desactivado temporalmente para evitar datos desactualizados
+  // en rutas dinámicas (turnos, pedidos, stock). Reevaluar al definir estrategia
+  // de revalidación.
+  // cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
     rules: {
