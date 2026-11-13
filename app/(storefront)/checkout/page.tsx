@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/carrito/cart-context";
 import { DeliveryForm } from "@/components/checkout/delivery-form";
-import { MercadoPagoButton } from "@/components/checkout/mercadopago-button";
 import { crearPedido } from "@/core/actions/pedido.action";
 import { formatearMoneda } from "@/lib/utils";
 import { ZONAS_ENVIO } from "@/lib/constants";

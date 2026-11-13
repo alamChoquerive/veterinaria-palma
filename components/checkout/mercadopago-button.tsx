@@ -6,13 +6,9 @@ import { crearPreferenciaPago } from "@/core/actions/pago.action";
 
 interface MercadoPagoButtonProps {
   pedidoId: string;
-  onPagoExitoso: () => void;
 }
 
-export function MercadoPagoButton({
-  pedidoId,
-  onPagoExitoso,
-}: MercadoPagoButtonProps) {
+export function MercadoPagoButton({ pedidoId }: MercadoPagoButtonProps) {
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

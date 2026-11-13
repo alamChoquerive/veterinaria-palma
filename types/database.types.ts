@@ -78,7 +78,7 @@ export type Pago = {
   proveedor_pago_id?: string;
   estado: string;
   monto: number;
-  raw?: any;
+  raw?: unknown;
   created_at: string;
 };
 
