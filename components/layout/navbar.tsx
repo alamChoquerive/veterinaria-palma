@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useCart } from "@/components/carrito/cart-context";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { cantidadTotal } = useCart();
 
   return (
     <nav className="sticky top-0 z-40 border-b border-[#e2e8f0] bg-white/95 backdrop-blur">
       <div className="px-4 md:px-6 py-3 flex items-center justify-between">
-        {/* Marca */}
         <Link
           href="/"
           className="flex items-center gap-2 font-bold text-[#1e293b] tracking-tight text-lg"
@@ -21,7 +22,6 @@ export function Navbar() {
           <span className="hidden sm:inline">Veterinaria Palma</span>
         </Link>
 
-        {/* Centro */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-[#64748b]">
           <Link href="/" className="hover:text-[#1e293b] transition-colors">Inicio</Link>
           <Link href="/catalogo" className="hover:text-[#1e293b] transition-colors">Tienda</Link>
@@ -29,7 +29,6 @@ export function Navbar() {
           <Link href="/contacto" className="hover:text-[#1e293b] transition-colors">Contacto</Link>
         </div>
 
-        {/* Derecha */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -70,8 +69,8 @@ export function Navbar() {
             Pedir turno
           </Link>
 
-          {/* Carrito */}
-          <button
+          <Link
+            href="/carrito"
             className="relative w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
             aria-label="Carrito de compras"
           >
@@ -89,12 +88,13 @@ export function Navbar() {
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 110 4 2 2 0 010-4z"
               />
             </svg>
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#ef4444] text-[10px] text-white flex items-center justify-center font-bold">
-              0
-            </span>
+            {cantidadTotal > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ef4444] text-[10px] text-white flex items-center justify-center font-bold">
+                {cantidadTotal > 9 ? "9+" : cantidadTotal}
+              </span>
+            )}
           </button>
 
-          {/* Menú móvil */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
