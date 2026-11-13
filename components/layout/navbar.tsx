@@ -93,7 +93,7 @@ export function Navbar() {
                 {cantidadTotal > 9 ? "9+" : cantidadTotal}
               </span>
             )}
-          </button>
+          </Link>
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
