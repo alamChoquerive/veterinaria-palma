@@ -37,3 +37,21 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type RegistroInput = z.infer<typeof registroSchema>;
 export type CrearTurnoInput = z.infer<typeof crearTurnoSchema>;
 export type ActualizarStockInput = z.infer<typeof actualizarStockSchema>;
+
+export const crearPedidoSchema = z.object({
+  perfilId: z.string().uuid("ID de perfil inválido").optional(),
+  metodoEntrega: z.enum(["retiro_tienda", "envio_local", "envio_provincial"]),
+  direccionEnvio: z.string().optional(),
+  costoEnvio: z.number().nonnegative("El costo de envío debe ser positivo"),
+  total: z.number().nonnegative("El total debe ser positivo"),
+  items: z.array(
+    z.object({
+      productoId: z.string().uuid(),
+      cantidad: z.number().int().positive("La cantidad debe ser positiva"),
+      precioUnitario: z.number().nonnegative(),
+      subtotal: z.number().nonnegative(),
+    })
+  ),
+});
+
+export type CrearPedidoInput = z.infer<typeof crearPedidoSchema>;
