@@ -10,7 +10,11 @@ export const metadata: Metadata = {
   description: "Veterinaria y tienda para mascotas — turnos y e-commerce 24/7",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
