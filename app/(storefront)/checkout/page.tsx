@@ -19,9 +19,10 @@ export default function CheckoutPage() {
   const [total, setTotal] = useState<number>(0);
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pedidoCreado, setPedidoCreado] = useState<{ id: string } | null>(
-    null
-  );
+  const [pedidoCreado, setPedidoCreado] = useState<{
+    id: string;
+    total: number;
+  } | null>(null);
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.producto.precioMinorista * item.cantidad,
@@ -47,18 +48,16 @@ export default function CheckoutPage() {
     setProcesando(true);
     setError(null);
 
+    // Solo se envían los productos y el método de entrega: precios, envío
+    // y total los calcula el servidor (RPC crear_pedido).
     const itemsPayload = items.map((item) => ({
       productoId: item.producto.id,
       cantidad: item.cantidad,
-      precioUnitario: item.producto.precioMinorista,
-      subtotal: item.producto.precioMinorista * item.cantidad,
     }));
 
     const resultado = await crearPedido({
       metodoEntrega: metodo,
       direccionEnvio: direccion || undefined,
-      costoEnvio,
-      total,
       items: itemsPayload,
     });
 
@@ -69,7 +68,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    setPedidoCreado((resultado.data as { id: string }) ?? { id: "" });
+    const data = resultado.data as { pedido_id: string; total: number };
+    setPedidoCreado({ id: data.pedido_id, total: data.total });
+    setTotal(data.total);
   }
 
   async function handlePagoMercadoPago() {
@@ -134,7 +135,7 @@ export default function CheckoutPage() {
             Pedido creado #{pedidoCreado.id.slice(0, 8)}
           </h2>
           <p className="text-[#64748b] mb-4">
-            Total: {formatearMoneda(total)}
+            Total: {formatearMoneda(pedidoCreado.total)}
           </p>
           <button
             onClick={handlePagoMercadoPago}

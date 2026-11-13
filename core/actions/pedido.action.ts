@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/core/supabase/server";
+import { createAdminClient } from "@/core/supabase/admin";
 import type { ActionResult } from "@/types/api";
 import { revalidatePath } from "next/cache";
 import {
@@ -8,12 +9,25 @@ import {
   type CrearPedidoInput,
 } from "@/core/actions/schemas";
 
+type CrearPedidoResultado = {
+  pedido_id: string;
+  subtotal: number;
+  costo_envio: number;
+  total: number;
+};
+
 /**
- * Crea un pedido con sus ítems y registra el pago pendiente.
+ * Crea un pedido de forma transaccional en el servidor.
+ *
+ * Los precios, el costo de envío y el total NUNCA vienen del cliente:
+ * la RPC `crear_pedido` (ejecutada con service_role) los calcula en la
+ * base de datos según el rol del usuario y la tabla `zonas_envio`, y
+ * descuenta el stock de forma atómica. El perfil del pedido es siempre
+ * el del usuario autenticado.
  */
 export async function crearPedido(
   input: CrearPedidoInput,
-): Promise<ActionResult> {
+): Promise<ActionResult<CrearPedidoResultado>> {
   const parsed = crearPedidoSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -22,11 +36,10 @@ export async function crearPedido(
     };
   }
 
-  const { metodoEntrega, direccionEnvio, costoEnvio, total, items, perfilId } =
-    parsed.data;
+  const { metodoEntrega, direccionEnvio, items } = parsed.data;
 
+  // 1) Sesión del usuario con el client normal (RLS aplica)
   const supabase = await createClient();
-
   const {
     data: { user },
     error: authError,
@@ -36,54 +49,42 @@ export async function crearPedido(
     return { ok: false, error: "Usuario no autenticado" };
   }
 
-  // Usar el perfil del usuario autenticado si no se pasa uno explícito
-  const perfil_id = perfilId ?? user.id;
+  // 2) La creación la hace la RPC con service_role: el servidor es la
+  //    única fuente de verdad de precios, envío y stock.
+  const admin = createAdminClient();
+  const direccion = direccionEnvio?.trim() ? direccionEnvio.trim() : null;
 
-  // Crear el pedido
-  const { data: pedido, error: pedidoError } = await supabase
-    .from("pedidos")
-    .insert({
-      perfil_id,
-      estado: "pago_pendiente",
-      metodo_entrega: metodoEntrega,
-      direccion_envio: direccionEnvio ?? null,
-      costo_envio: costoEnvio,
-      total,
-    })
-    .select()
-    .single();
+  const { data, error } = await admin.rpc("crear_pedido", {
+    p_perfil_id: user.id,
+    p_metodo_entrega: metodoEntrega,
+    p_direccion_envio: direccion,
+    p_items: items.map((i) => ({
+      producto_id: i.productoId,
+      cantidad: i.cantidad,
+    })),
+  });
 
-  if (pedidoError || !pedido) {
+  if (error || !data) {
+    // El detalle queda en el log del servidor; al cliente un mensaje genérico
+    console.error("[crearPedido] Error en la RPC crear_pedido:", error?.message);
     return {
       ok: false,
-      error: pedidoError?.message ?? "Error al crear el pedido",
+      error: "No se pudo crear el pedido. Intentá de nuevo.",
     };
   }
 
-  // Crear los ítems del pedido
-  const itemsConPedido = items.map((item) => ({
-    pedido_id: pedido.id,
-    producto_id: item.productoId,
-    cantidad: item.cantidad,
-    precio_unitario: item.precioUnitario,
-    subtotal: item.subtotal,
-  }));
-
-  const { error: itemsError } = await supabase
-    .from("pedido_items")
-    .insert(itemsConPedido);
-
-  if (itemsError) {
-    // Si fallan los ítems, borramos el pedido para no dejar datos huérfanos
-    await supabase.from("pedidos").delete().eq("id", pedido.id);
-    return { ok: false, error: itemsError.message };
-  }
+  const resultado = data as CrearPedidoResultado;
 
   revalidatePath("/carrito");
   revalidatePath("/admin/dashboard");
 
   return {
     ok: true,
-    data: { pedidoId: pedido.id, estado: pedido.estado },
+    data: {
+      pedido_id: resultado.pedido_id,
+      subtotal: resultado.subtotal,
+      costo_envio: resultado.costo_envio,
+      total: resultado.total,
+    },
   };
 }

@@ -38,20 +38,47 @@ export type RegistroInput = z.infer<typeof registroSchema>;
 export type CrearTurnoInput = z.infer<typeof crearTurnoSchema>;
 export type ActualizarStockInput = z.infer<typeof actualizarStockSchema>;
 
-export const crearPedidoSchema = z.object({
-  perfilId: z.string().uuid("ID de perfil inválido").optional(),
-  metodoEntrega: z.enum(["retiro_tienda", "envio_local", "envio_provincial"]),
-  direccionEnvio: z.string().optional(),
-  costoEnvio: z.number().nonnegative("El costo de envío debe ser positivo"),
-  total: z.number().nonnegative("El total debe ser positivo"),
-  items: z.array(
-    z.object({
-      productoId: z.string().uuid(),
-      cantidad: z.number().int().positive("La cantidad debe ser positiva"),
-      precioUnitario: z.number().nonnegative(),
-      subtotal: z.number().nonnegative(),
-    })
-  ),
+/**
+ * Creación de pedido: el cliente SOLO envía qué productos quiere y el método
+ * de entrega. Precios, costo de envío y total los calcula el servidor
+ * (RPC crear_pedido), nunca se aceptan del cliente.
+ */
+export const crearPedidoSchema = z
+  .object({
+    metodoEntrega: z.enum(["retiro_tienda", "envio_local", "envio_provincial"]),
+    direccionEnvio: z
+      .string()
+      .max(200, "La dirección es demasiado larga")
+      .optional(),
+    items: z
+      .array(
+        z.object({
+          productoId: z.string().uuid("ID de producto inválido"),
+          cantidad: z
+            .number()
+            .int("La cantidad debe ser un número entero")
+            .positive("La cantidad debe ser positiva")
+            .max(9999, "Cantidad demasiado alta"),
+        })
+      )
+      .min(1, "El pedido debe tener al menos un producto"),
+  })
+  .refine(
+    (d) =>
+      d.metodoEntrega === "retiro_tienda" ||
+      (d.direccionEnvio ?? "").trim().length > 0,
+    {
+      message: "La dirección de envío es obligatoria para este método de entrega",
+      path: ["direccionEnvio"],
+    }
+  );
+
+/**
+ * Inicio de pago: solo el id del pedido. El monto se lee de la base de datos.
+ */
+export const preferenciaPagoSchema = z.object({
+  pedidoId: z.string().uuid("ID de pedido inválido"),
 });
 
 export type CrearPedidoInput = z.infer<typeof crearPedidoSchema>;
+export type PreferenciaPagoInput = z.infer<typeof preferenciaPagoSchema>;
