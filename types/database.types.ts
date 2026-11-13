@@ -93,14 +93,36 @@ export type ZonaEnvio = {
 export type Database = {
   public: {
     Tables: {
-      perfiles: { Row: Perfil; Insert: Omit<Perfil, "created_at" | "updated_at">; Update: Partial<Perfil> };
-      categorias: { Row: Categoria; Insert: Omit<Categoria, "created_at">; Update: Partial<Categoria> };
-      productos: { Row: Producto; Insert: Omit<Producto, "created_at" | "updated_at">; Update: Partial<Producto> };
-      turnos: { Row: Turno; Insert: Omit<Turno, "created_at">; Update: Partial<Turno> };
-      pedidos: { Row: Pedido; Insert: Omit<Pedido, "created_at" | "updated_at">; Update: Partial<Pedido> };
-      pedido_items: { Row: PedidoItem; Insert: Omit<PedidoItem, "id">; Update: Partial<PedidoItem> };
-      pagos: { Row: Pago; Insert: Omit<Pago, "id" | "created_at">; Update: Partial<Pago> };
-      zonas_envio: { Row: ZonaEnvio; Insert: Omit<ZonaEnvio, "id">; Update: Partial<ZonaEnvio> };
+      perfiles: { Row: Perfil; Insert: Omit<Perfil, "created_at" | "updated_at">; Update: Partial<Perfil>; Relationships: [] };
+      categorias: { Row: Categoria; Insert: Omit<Categoria, "created_at">; Update: Partial<Categoria>; Relationships: [] };
+      productos: { Row: Producto; Insert: Omit<Producto, "created_at" | "updated_at">; Update: Partial<Producto>; Relationships: [] };
+      turnos: { Row: Turno; Insert: Omit<Turno, "created_at">; Update: Partial<Turno>; Relationships: [] };
+      pedidos: { Row: Pedido; Insert: Omit<Pedido, "created_at" | "updated_at">; Update: Partial<Pedido>; Relationships: [] };
+      pedido_items: { Row: PedidoItem; Insert: Omit<PedidoItem, "id">; Update: Partial<PedidoItem>; Relationships: [] };
+      pagos: { Row: Pago; Insert: Omit<Pago, "id" | "created_at">; Update: Partial<Pago>; Relationships: [] };
+      zonas_envio: { Row: ZonaEnvio; Insert: Omit<ZonaEnvio, "id">; Update: Partial<ZonaEnvio>; Relationships: [] };
     };
+    Views: Record<string, never>;
+    Functions: {
+      // Solo la ejecuta el servidor (service_role) — ver migración 0003.
+      crear_pedido: {
+        Args: {
+          p_perfil_id: string;
+          p_metodo_entrega: string;
+          p_direccion_envio: string | null;
+          p_items: unknown; // jsonb: [{ producto_id, cantidad }]
+        };
+        Returns: {
+          pedido_id: string;
+          subtotal: number;
+          costo_envio: number;
+          total: number;
+        };
+      };
+      es_admin: { Args: Record<string, never>; Returns: boolean };
+      rol_usuario_actual: { Args: Record<string, never>; Returns: string };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };
