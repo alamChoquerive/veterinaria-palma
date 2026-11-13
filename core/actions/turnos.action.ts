@@ -18,7 +18,7 @@ export async function crearTurno(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.errors[0]?.message ?? "Datos de turno inválidos",
+      error: parsed.error.issues[0]?.message ?? "Datos de turno inválidos",
     };
   }
 

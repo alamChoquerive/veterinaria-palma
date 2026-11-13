@@ -19,7 +19,7 @@ export async function actualizarStock(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.errors[0]?.message ?? "Datos de stock inválidos",
+      error: parsed.error.issues[0]?.message ?? "Datos de stock inválidos",
     };
   }
 

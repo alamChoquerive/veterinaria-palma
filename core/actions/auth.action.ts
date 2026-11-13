@@ -25,7 +25,7 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.errors[0]?.message ?? "Datos inválidos",
+      error: parsed.error.issues[0]?.message ?? "Datos inválidos",
     };
   }
 
@@ -60,7 +60,7 @@ export async function registroAction(formData: FormData): Promise<ActionResult> 
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.errors[0]?.message ?? "Datos inválidos",
+      error: parsed.error.issues[0]?.message ?? "Datos inválidos",
     };
   }
 
