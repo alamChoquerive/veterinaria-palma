@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/core/supabase/server";
+import { logoutAction } from "@/core/actions/auth.action";
 import { formatearFecha, formatearMoneda } from "@/lib/utils";
 
 const COLOR_ESTADO: Record<string, string> = {
@@ -52,12 +53,22 @@ export default async function CuentaPage() {
 
   return (
     <main className="max-w-3xl mx-auto py-10 px-4 space-y-8">
-      <div>
-        <h2 className="text-2xl font-semibold mb-1">Mi cuenta</h2>
-        <p className="text-[#64748b] text-sm">
-          {nombreCompleto} · {perfil?.email ?? user.email} · rol{" "}
-          <span className="font-medium">{perfil?.rol ?? "minorista"}</span>
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold mb-1">Mi cuenta</h2>
+          <p className="text-[#64748b] text-sm">
+            {nombreCompleto} · {perfil?.email ?? user.email} · rol{" "}
+            <span className="font-medium">{perfil?.rol ?? "minorista"}</span>
+          </p>
+        </div>
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="border border-[#e2e8f0] rounded-lg px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+          >
+            Cerrar sesión
+          </button>
+        </form>
       </div>
 
       <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">

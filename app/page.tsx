@@ -1,6 +1,12 @@
 import Link from "next/link";
+import { createClient } from "@/core/supabase/server";
 
-export default function GatewayPage() {
+export default async function GatewayPage() {
+  // Icono de usuario según sesión: logueado → /cuenta, sin sesión → /login
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return (
     <div className="flex flex-col min-h-screen bg-[#f8fafc] text-[#1e293b]">
       {/* Barra de emergencias */}
@@ -34,9 +40,9 @@ export default function GatewayPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/login"
+            href={user ? "/cuenta" : "/login"}
             className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
-            aria-label="Iniciar sesión o registrarse"
+            aria-label={user ? "Ir a mi cuenta" : "Iniciar sesión o registrarse"}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
