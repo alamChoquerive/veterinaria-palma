@@ -5,6 +5,7 @@ import type { ActionResult } from "@/types/api";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { esRedirectInterno } from "@/lib/redirect";
+import { ipDelCliente, verificarRateLimit } from "@/core/rate-limit";
 import {
   loginSchema,
   registroSchema,
@@ -31,6 +32,16 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
   }
 
   const { email, password, redirect: redirectTo } = parsed.data;
+
+  // Rate limit por IP: 5 intentos de login cada 15 minutos
+  const ip = await ipDelCliente();
+  const permitido = await verificarRateLimit(`login:${ip}`, 5, 15 * 60);
+  if (!permitido) {
+    return {
+      ok: false,
+      error: "Demasiados intentos. Probá de nuevo en unos minutos.",
+    };
+  }
 
   const supabase = await createClient();
 
@@ -75,6 +86,16 @@ export async function registroAction(formData: FormData): Promise<ActionResult> 
   }
 
   const { email, password, nombre, apellido } = parsed.data;
+
+  // Rate limit por IP: 5 registros cada 15 minutos
+  const ip = await ipDelCliente();
+  const permitido = await verificarRateLimit(`registro:${ip}`, 5, 15 * 60);
+  if (!permitido) {
+    return {
+      ok: false,
+      error: "Demasiados intentos. Probá de nuevo en unos minutos.",
+    };
+  }
 
   const supabase = await createClient();
 
