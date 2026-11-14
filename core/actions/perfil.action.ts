@@ -10,7 +10,10 @@ export async function obtenerPerfilAction(): Promise<ActionResult> {
   const { perfil, error } = await getPerfilActual();
 
   if (error || !perfil) {
-    return { ok: false, error: error ?? "Usuario no autenticado" };
+    if (error && error !== "Usuario no autenticado") {
+      console.error("[obtenerPerfilAction] Error:", error);
+    }
+    return { ok: false, error: "No se pudo obtener el perfil" };
   }
 
   return { ok: true, data: perfil };
