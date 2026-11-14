@@ -142,11 +142,15 @@ export async function registroAction(formData: FormData): Promise<ActionResult> 
     // Supabase Auth rechaza dominios reservados (RFC 2606: .test, .example,
     // .invalid, .localhost) con email_address_invalid
     const emailInvalido = error.code === "email_address_invalid";
+    // El proyecto de Supabase tiene el proveedor Email desactivado
+    const emailDesactivado = error.code === "email_provider_disabled";
     const mensaje = yaRegistrado
       ? "Ya existe una cuenta con ese email. Probá iniciar sesión."
       : emailInvalido
         ? "Ese email no es válido o usa un dominio no permitido (ej. .test). Probá con un dominio real como gmail.com."
-        : "No se pudo completar el registro. Verificá los datos o probá con otro email.";
+        : emailDesactivado
+          ? "El registro con email está desactivado en el proyecto de Supabase (Authentication → Providers → Email)."
+          : "No se pudo completar el registro. Verificá los datos o probá con otro email.";
     return { ok: false, error: mensaje + detalleAuthDev(error) };
   }
 
