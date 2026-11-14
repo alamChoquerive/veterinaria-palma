@@ -103,6 +103,6 @@ export async function cancelarTurno(turnoId: string): Promise<ActionResult> {
   }
 
   revalidatePath("/turnos");
-  revalidatePath("/admin/agenda");
+  revalidatePath("/admin/turnos");
   return { ok: true, data: { cancelado: true } };
 }
