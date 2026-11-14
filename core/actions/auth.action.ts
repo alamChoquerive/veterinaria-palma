@@ -113,11 +113,16 @@ export async function registroAction(formData: FormData): Promise<ActionResult> 
     const yaRegistrado =
       error.code === "user_already_registered" ||
       error.message.toLowerCase().includes("already registered");
+    // Supabase Auth rechaza dominios reservados (RFC 2606: .test, .example,
+    // .invalid, .localhost) con email_address_invalid
+    const emailInvalido = error.code === "email_address_invalid";
     return {
       ok: false,
       error: yaRegistrado
         ? "Ya existe una cuenta con ese email. Probá iniciar sesión."
-        : "No se pudo completar el registro. Verificá los datos o probá con otro email.",
+        : emailInvalido
+          ? "Ese email no es válido o usa un dominio no permitido (ej. .test). Probá con un dominio real como gmail.com."
+          : "No se pudo completar el registro. Verificá los datos o probá con otro email.",
     };
   }
 
