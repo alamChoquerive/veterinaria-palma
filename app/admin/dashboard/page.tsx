@@ -1,4 +1,5 @@
 import { createClient } from "@/core/supabase/server";
+import type { Pedido, Turno } from "@/types/database.types";
 
 function ListaVacia({ mensaje }: { mensaje: string }) {
   return (
@@ -8,7 +9,7 @@ function ListaVacia({ mensaje }: { mensaje: string }) {
   );
 }
 
-function TurnoItem({ turno }: { turno: any }) {
+function TurnoItem({ turno }: { turno: Pick<Turno, "fecha" | "estado"> }) {
   return (
     <div className="flex justify-between items-center p-2 border rounded-lg text-sm">
       <div>
@@ -22,7 +23,11 @@ function TurnoItem({ turno }: { turno: any }) {
   );
 }
 
-function PedidoItem({ pedido }: { pedido: any }) {
+function PedidoItem({
+  pedido,
+}: {
+  pedido: Pick<Pedido, "id" | "metodo_entrega" | "total">;
+}) {
   return (
     <div className="flex justify-between items-center p-2 border rounded-lg text-sm">
       <div>

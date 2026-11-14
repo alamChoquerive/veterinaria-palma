@@ -1,26 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { loginAction } from "@/core/actions/auth.action";
 import { esRedirectInterno } from "@/lib/redirect";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [redirectDestino, setRedirectDestino] = useState("/");
+function LoginForm() {
+  // useSearchParams dentro de Suspense: en build estático el formulario se
+  // renderiza en el cliente, así no hay setState en efecto ni mismatch de hidratación
+  const searchParams = useSearchParams();
+  const errorDesdeUrl = searchParams.get("error");
+  // Solo se propaga si es una ruta interna (anti open redirect)
+  const redirectDesdeUrl = searchParams.get("redirect");
+  const redirectDestino = esRedirectInterno(redirectDesdeUrl)
+    ? redirectDesdeUrl
+    : "/";
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const errorDesdeUrl = params.get("error");
-    if (errorDesdeUrl) setError(errorDesdeUrl);
-    // Solo se propaga si es una ruta interna (anti open redirect)
-    const redirectDesdeUrl = params.get("redirect");
-    if (esRedirectInterno(redirectDesdeUrl)) {
-      setRedirectDestino(redirectDesdeUrl);
-    }
-  }, []);
+  const [error, setError] = useState<string | null>(errorDesdeUrl);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
@@ -49,5 +48,13 @@ export default function LoginPage() {
         </a>
       </p>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
