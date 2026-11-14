@@ -2,19 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { loginAction } from "@/core/actions/auth.action";
+import { esRedirectInterno } from "@/lib/redirect";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function LoginPage({ searchParams }: { searchParams?: { [key: string]: string } }) {
+export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [redirectDestino, setRedirectDestino] = useState("/");
 
   useEffect(() => {
-    const errorDesdeUrl = searchParams?.error;
-    if (errorDesdeUrl) {
-      setError(decodeURIComponent(errorDesdeUrl));
+    const params = new URLSearchParams(window.location.search);
+    const errorDesdeUrl = params.get("error");
+    if (errorDesdeUrl) setError(errorDesdeUrl);
+    // Solo se propaga si es una ruta interna (anti open redirect)
+    const redirectDesdeUrl = params.get("redirect");
+    if (esRedirectInterno(redirectDesdeUrl)) {
+      setRedirectDestino(redirectDesdeUrl);
     }
-  }, [searchParams]);
+  }, []);
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
@@ -30,7 +36,7 @@ export default function LoginPage({ searchParams }: { searchParams?: { [key: str
       <form action={handleSubmit} className="w-full max-w-sm space-y-4">
         <Input name="email" type="email" placeholder="Email" required />
         <Input name="password" type="password" placeholder="Contraseña" required />
-        <input type="hidden" name="redirect" value="/" />
+        <input type="hidden" name="redirect" value={redirectDestino} />
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Entrando..." : "Entrar"}
         </Button>
