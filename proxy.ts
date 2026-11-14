@@ -76,7 +76,6 @@ export function proxy(request: NextRequest) {
     .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
 
   const isProtected = pathname.startsWith("/admin") || pathname.startsWith("/cuenta");
-  const isAuthPage = pathname === "/login" || pathname === "/registro";
 
   if (isProtected && !hasSession) {
     const url = request.nextUrl.clone();
@@ -85,11 +84,11 @@ export function proxy(request: NextRequest) {
     return aplicarHeadersSeguridad(NextResponse.redirect(url));
   }
 
-  if (isAuthPage && hasSession) {
-    return aplicarHeadersSeguridad(
-      NextResponse.redirect(new URL("/", request.url)),
-    );
-  }
-
+  // OJO: no se redirige /login o /registro cuando ya hay cookie de sesión.
+  // El chequeo de arriba es solo "existe la cookie", y una cookie vencida o
+  // de un usuario borrado haría que /login rebotara a / (pareciendo que el
+  // botón de login "no hace nada"). La sesión real se valida en el layout /
+  // en las Server Actions con getUser(); además permitir /login con sesión
+  // sirve para cambiar de usuario en las pruebas.
   return aplicarHeadersSeguridad(NextResponse.next());
 }
