@@ -260,3 +260,23 @@ export const aplicarMargenGlobalSchema = z.object({
 
 export type ActualizarPreciosProductoInput = z.infer<typeof actualizarPreciosProductoSchema>;
 export type AplicarMargenGlobalInput = z.infer<typeof aplicarMargenGlobalSchema>;
+
+/**
+ * Habilitar/deshabilitar un medio de pago (solo admin).
+ */
+export const toggleMedioPagoSchema = z.object({
+  medioPagoId: z.string().uuid("ID inválido"),
+  activo: z.boolean(),
+});
+
+/**
+ * Editar costo y estado de una zona de envío (solo admin).
+ */
+export const actualizarZonaEnvioSchema = z.object({
+  zonaId: z.string().uuid("ID de zona inválido"),
+  costo: z.number().min(0, "El costo no puede ser negativo"),
+  activo: z.boolean(),
+});
+
+export type ToggleMedioPagoInput = z.infer<typeof toggleMedioPagoSchema>;
+export type ActualizarZonaEnvioInput = z.infer<typeof actualizarZonaEnvioSchema>;

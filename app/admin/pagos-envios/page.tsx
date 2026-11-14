@@ -1,9 +1,26 @@
-export default function AdminPagosEnviosPage() {
+import { createClient } from "@/core/supabase/server";
+import { PagosEnviosPanel } from "@/components/admin/pagos-envios-panel";
+import type { MedioPago, ZonaEnvio } from "@/types/database.types";
+
+export default async function AdminPagosEnviosPage() {
+  const supabase = await createClient();
+
+  // El admin ve todos (activos e inactivos): policy "admin lectura"
+  const [medios, zonas] = await Promise.all([
+    supabase.from("medios_pago").select("*").order("nombre"),
+    supabase.from("zonas_envio").select("*").order("nombre"),
+  ]);
+
   return (
-    <div className="space-y-2">
-      <h2 className="text-2xl font-bold text-[#1e293b]">Pagos y envíos</h2>
-      <p className="text-[#64748b]">Medios de pago habilitados y opciones de envío.</p>
-      <p className="text-sm text-[#94a3b8] pt-6">Sección en construcción.</p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Pagos y envíos</h2>
+        <p className="text-[#64748b]">Medios de pago habilitados y opciones de envío.</p>
+      </div>
+      <PagosEnviosPanel
+        medios={(medios.data ?? []) as MedioPago[]}
+        zonas={(zonas.data ?? []) as ZonaEnvio[]}
+      />
     </div>
   );
 }
