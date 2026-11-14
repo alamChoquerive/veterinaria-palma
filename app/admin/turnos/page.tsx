@@ -1,22 +1,24 @@
 import { createClient } from "@/core/supabase/server";
-import { AgendaTable, type TurnoFila } from "@/components/admin/agenda-table";
+import { TurnosPanel, type TurnoFila } from "@/components/admin/turnos-panel";
+import type { Turno } from "@/types/database.types";
 
-export default async function AdminAgendaPage() {
+export default async function AdminTurnosPage() {
   const supabase = await createClient();
 
   const { data: turnos } = await supabase
     .from("turnos")
     .select("*")
-    .order("fecha", { ascending: true });
+    .order("fecha", { ascending: false })
+    .order("hora_inicio", { ascending: true });
 
   const { data: perfiles } = await supabase
     .from("perfiles")
     .select("id, nombre, apellido, email");
 
   const filas: TurnoFila[] = (turnos ?? []).map((t) => ({
-    ...t,
+    ...(t as Turno),
     perfiles: perfiles?.find((p) => p.id === t.perfil_id) ?? null,
   }));
 
-  return <AgendaTable turnos={filas} />;
+  return <TurnosPanel turnos={filas} />;
 }
