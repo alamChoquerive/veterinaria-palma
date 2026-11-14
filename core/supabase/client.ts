@@ -15,5 +15,14 @@ export function createClient() {
   return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookieOptions: {
+        path: "/",
+        sameSite: "lax",
+        // En producción la cookie de sesión solo viaja por HTTPS.
+        // En dev (http://localhost) secure:true rompería el login.
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   );
 }

@@ -29,6 +29,13 @@ export async function createClient() {
           }
         },
       },
+      cookieOptions: {
+        path: "/",
+        sameSite: "lax",
+        // En producción la cookie de sesión solo viaja por HTTPS.
+        // En dev (http://localhost) secure:true rompería el login.
+        secure: process.env.NODE_ENV === "production",
+      },
     },
   );
 }
