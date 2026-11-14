@@ -33,6 +33,13 @@ export async function verificarRateLimit(
   maxIntentos: number,
   ventanaSegundos: number,
 ): Promise<boolean> {
+  // En desarrollo NO aplica: en localhost no hay x-forwarded-for y todas las
+  // peticiones comparten la IP "desconocido", así que un único bucket
+  // bloquearía enseguida las pruebas manuales. En producción sí aplica.
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
+
   try {
     const admin = createAdminClient();
     const { data, error } = await admin.rpc("verificar_rate_limit", {
