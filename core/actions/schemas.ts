@@ -38,10 +38,37 @@ export const actualizarStockSchema = z.object({
   cantidad: z.number().int("La cantidad debe ser un número entero"),
 });
 
+/**
+ * Edición de un producto desde el panel admin.
+ * La autorización real es RLS ("productos admin escritura"): solo un admin
+ * puede escribir; la action además verifica que haya sesión.
+ */
+export const actualizarProductoSchema = z.object({
+  productoId: z.string().uuid("ID de producto inválido"),
+  nombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(120, "El nombre es demasiado largo"),
+  descripcion: z.string().trim().max(500, "La descripción es demasiado larga").optional(),
+  precioMinorista: z.number().min(0, "El precio no puede ser negativo"),
+  precioMayorista: z.number().min(0, "El precio no puede ser negativo"),
+  stock: z
+    .number()
+    .int("El stock debe ser un número entero")
+    .min(0, "El stock no puede ser negativo"),
+  stockMinimo: z
+    .number()
+    .int("El stock mínimo debe ser un número entero")
+    .min(0, "El stock mínimo no puede ser negativo"),
+  activo: z.boolean(),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegistroInput = z.infer<typeof registroSchema>;
 export type CrearTurnoInput = z.infer<typeof crearTurnoSchema>;
 export type ActualizarStockInput = z.infer<typeof actualizarStockSchema>;
+export type ActualizarProductoInput = z.infer<typeof actualizarProductoSchema>;
 
 /**
  * Creación de pedido: el cliente SOLO envía qué productos quiere y el método
