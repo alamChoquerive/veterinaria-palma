@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/components/carrito/cart-context";
+import { logoutAction } from "@/core/actions/auth.action";
 
-export function Navbar() {
+export function Navbar({ userEmail }: { userEmail: string | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { cantidadTotal } = useCart();
@@ -30,37 +31,86 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
-            aria-label="Cuenta de usuario"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {/* relative para anclar el desplegable DEBAJO del icono */}
+          <div className="relative">
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+              aria-label="Cuenta de usuario"
+              aria-expanded={userMenuOpen}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5.121 17.804A13.9 13.9 0 015 20c-1 0 1.954.177 3.857.586M11 9.885V14m4 0v4.111m-10 .111v1.766c0 .832.096 1.653.274 2.454-.365.05-.73.095-1.095.095-1.886 0-3.427-1.4-3.857-3.172A14.6 14.6 0 0111 9.885zM16.564 16.564a1 1 0 01-1.414 0l-2.829-2.829a1 1 0 011.414-1.414l2.829 2.829a1 1 0 010 1.414z"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5.121 17.804A13.9 13.9 0 015 20c-1 0 1.954.177 3.857.586M11 9.885V14m4 0v4.111m-10 .111v1.766c0 .832.096 1.653.274 2.454-.365.05-.73.095-1.095.095-1.886 0-3.427-1.4-3.857-3.172A14.6 14.6 0 0111 9.885zM16.564 16.564a1 1 0 01-1.414 0l-2.829-2.829a1 1 0 011.414-1.414l2.829 2.829a1 1 0 010 1.414z"
+                />
+              </svg>
+            </button>
 
-          {userMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-[#e2e8f0] rounded-lg shadow-lg py-2 z-50">
-              <button className="w-full text-left px-4 py-2 text-sm text-[#64748b] hover:bg-[#f1f5f9] transition-colors">
-                Mi cuenta
-              </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-[#64748b] hover:bg-[#f1f5f9] transition-colors">
-                Cerrar sesión
-              </button>
-            </div>
-          )}
+            {userMenuOpen && (
+              <>
+                {/* backdrop para cerrar al hacer clic fuera */}
+                <button
+                  className="fixed inset-0 z-40 cursor-default"
+                  aria-label="Cerrar menú de usuario"
+                  onClick={() => setUserMenuOpen(false)}
+                />
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#e2e8f0] rounded-lg shadow-lg py-2 z-50">
+                  {userEmail ? (
+                    <>
+                      <div className="px-4 py-2 text-xs text-[#64748b] border-b border-[#e2e8f0] truncate">
+                        {userEmail}
+                      </div>
+                      <Link
+                        href="/cuenta"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="block px-4 py-2 text-sm text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                      >
+                        Mi cuenta
+                      </Link>
+                      <form
+                        action={async () => {
+                          await logoutAction();
+                        }}
+                      >
+                        <button
+                          type="submit"
+                          className="w-full text-left px-4 py-2 text-sm text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                        >
+                          Cerrar sesión
+                        </button>
+                      </form>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="block px-4 py-2 text-sm text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                      >
+                        Iniciar sesión
+                      </Link>
+                      <Link
+                        href="/registro"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="block px-4 py-2 text-sm text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                      >
+                        Registrarse
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
 
           <Link
             href="/turnos"
