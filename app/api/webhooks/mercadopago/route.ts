@@ -50,6 +50,18 @@ function verificarFirmaMP(
   });
 }
 
+type NotificacionMP = {
+  type?: string;
+  id?: string | number;
+  data?: { id?: string | number };
+};
+
+interface PagoMP {
+  status: string;
+  external_reference?: string | null;
+  transaction_details?: { total_paid_amount?: number };
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -58,7 +70,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
   }
 
-  const b = body as Record<string, any>;
+  const b = body as NotificacionMP;
 
   // Mercado Pago envía varios tipos de notificación; solo procesamos pagos.
   if (b?.type && b.type !== "payment") {
@@ -91,7 +103,7 @@ export async function POST(request: Request) {
   }
 
   // 2) Fuente de verdad: el pago real en la API de Mercado Pago
-  let pago: Record<string, any>;
+  let pago: PagoMP;
   try {
     const res = await fetch(
       `https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentIdStr)}`,
