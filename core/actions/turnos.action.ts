@@ -7,11 +7,36 @@ import { revalidatePath } from "next/cache";
 import { verificarRateLimit } from "@/core/rate-limit";
 import {
   crearTurnoSchema,
+  crearTurnoPresencialSchema,
   type CrearTurnoInput,
+  type CrearTurnoPresencialInput,
 } from "@/core/actions/schemas";
 
 /**
- * Crea un turno para el cliente autenticado.
+ * Lee el rol del usuario autenticado con service_role (server-side),
+ * sin depender de que la sesión se propague a una query RLS.
+ */
+async function rolDelUsuario(userId: string): Promise<string | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("perfiles")
+    .select("rol")
+    .eq("id", userId)
+    .maybeSingle();
+  return data?.rol ?? null;
+}
+
+/**
+ * Normaliza los campos opcionales de texto a null para la RPC
+ * (la DB guarda null, no string vacío).
+ */
+function limpio(v: string | undefined): string | null {
+  const t = (v ?? "").trim();
+  return t.length > 0 ? t : null;
+}
+
+/**
+ * Crea un turno para el cliente autenticado (reserva online).
  *
  * Toda la validación de negocio (fecha futura, horario de atención,
  * intervalo, solapamiento, límite por día) la hace la RPC `crear_turno`
@@ -28,7 +53,17 @@ export async function crearTurno(
     };
   }
 
-  const { fecha, horaInicio, horaFin, motivo } = parsed.data;
+  const {
+    fecha,
+    horaInicio,
+    horaFin,
+    motivo,
+    especialidad,
+    mascotaNombre,
+    mascotaEspecie,
+    responsableNombre,
+    responsableTelefono,
+  } = parsed.data;
 
   const supabase = await createClient();
 
@@ -56,7 +91,12 @@ export async function crearTurno(
     p_fecha: fecha,
     p_hora_inicio: horaInicio,
     p_hora_fin: horaFin,
-    p_motivo: motivo ?? null,
+    p_motivo: limpio(motivo),
+    p_especialidad: limpio(especialidad),
+    p_mascota_nombre: limpio(mascotaNombre),
+    p_mascota_especie: limpio(mascotaEspecie),
+    p_responsable_nombre: limpio(responsableNombre),
+    p_responsable_telefono: limpio(responsableTelefono),
   });
 
   if (error || !data) {
@@ -70,6 +110,92 @@ export async function crearTurno(
   }
 
   revalidatePath("/turnos");
+  return {
+    ok: true,
+    data: { turno_id: (data as { turno_id: string }).turno_id },
+  };
+}
+
+/**
+ * Crea un turno presencial desde el panel admin (sin cuenta de cliente).
+ * Solo rol admin; la RPC (service_role) valida fecha/horario/solapamiento
+ * y exige el nombre del responsable cuando no hay perfil.
+ */
+export async function crearTurnoPresencial(
+  datos: CrearTurnoPresencialInput,
+): Promise<ActionResult<{ turno_id: string }>> {
+  const parsed = crearTurnoPresencialSchema.safeParse(datos);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Datos de turno inválidos",
+    };
+  }
+
+  const {
+    fecha,
+    horaInicio,
+    horaFin,
+    especialidad,
+    mascotaNombre,
+    mascotaEspecie,
+    responsableNombre,
+    responsableTelefono,
+    motivo,
+  } = parsed.data;
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { ok: false, error: "Usuario no autenticado" };
+  }
+
+  const rol = await rolDelUsuario(user.id);
+  if (rol !== "admin") {
+    return { ok: false, error: "Solo un administrador puede crear turnos presenciales" };
+  }
+
+  // Rate limit por usuario: 5 turnos cada 5 minutos
+  const permitido = await verificarRateLimit(`turno:${user.id}`, 5, 5 * 60);
+  if (!permitido) {
+    return {
+      ok: false,
+      error: "Demasiadas solicitudes. Probá de nuevo en unos minutos.",
+    };
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("crear_turno", {
+    p_perfil_id: null, // presencial: sin cuenta
+    p_fecha: fecha,
+    p_hora_inicio: horaInicio,
+    p_hora_fin: horaFin,
+    p_motivo: limpio(motivo),
+    p_especialidad: limpio(especialidad),
+    p_mascota_nombre: limpio(mascotaNombre),
+    p_mascota_especie: limpio(mascotaEspecie),
+    p_responsable_nombre: limpio(responsableNombre),
+    p_responsable_telefono: limpio(responsableTelefono),
+  });
+
+  if (error || !data) {
+    console.error(
+      "[crearTurnoPresencial] Error en la RPC crear_turno:",
+      error?.message,
+    );
+    const mensaje =
+      (error as { code?: string } | null)?.code === "P0001"
+        ? (error?.message ?? "No se pudo crear el turno")
+        : "No se pudo crear el turno. Intentá de nuevo.";
+    return { ok: false, error: mensaje };
+  }
+
+  revalidatePath("/admin/turnos");
   return {
     ok: true,
     data: { turno_id: (data as { turno_id: string }).turno_id },
@@ -105,4 +231,48 @@ export async function cancelarTurno(turnoId: string): Promise<ActionResult> {
   revalidatePath("/turnos");
   revalidatePath("/admin/turnos");
   return { ok: true, data: { cancelado: true } };
+}
+
+/**
+ * Cambia el estado de un turno desde el panel admin
+ * (confirmar, marcar atendido, cancelar). Solo rol admin: RLS dejaría
+ * también al dueño, pero esta action es exclusiva del panel.
+ */
+export async function actualizarEstadoTurno(
+  turnoId: string,
+  estado: "pendiente" | "confirmado" | "atendido" | "cancelado",
+): Promise<ActionResult> {
+  if (!["pendiente", "confirmado", "atendido", "cancelado"].includes(estado)) {
+    return { ok: false, error: "Estado inválido" };
+  }
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { ok: false, error: "Usuario no autenticado" };
+  }
+
+  const rol = await rolDelUsuario(user.id);
+  if (rol !== "admin") {
+    return { ok: false, error: "Solo un administrador puede cambiar el estado de un turno" };
+  }
+
+  const { error } = await supabase
+    .from("turnos")
+    .update({ estado })
+    .eq("id", turnoId);
+
+  if (error) {
+    console.error("[actualizarEstadoTurno] Error:", error.message);
+    return { ok: false, error: "No se pudo actualizar el turno" };
+  }
+
+  revalidatePath("/admin/turnos");
+  revalidatePath("/turnos");
+  return { ok: true, data: { estado } };
 }

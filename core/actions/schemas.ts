@@ -19,6 +19,9 @@ export const registroSchema = z.object({
   apellido: z.string().trim().min(2, "El apellido debe tener al menos 2 caracteres"),
 });
 
+const textoOpcional = (max: number, mensaje: string) =>
+  z.string().trim().max(max, mensaje).optional().or(z.literal(""));
+
 export const crearTurnoSchema = z.object({
   fecha: z
     .string()
@@ -30,7 +33,45 @@ export const crearTurnoSchema = z.object({
   horaFin: z
     .string()
     .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (HH:MM)"),
-  motivo: z.string().max(300, "El motivo es demasiado largo").optional(),
+  motivo: textoOpcional(300, "El motivo es demasiado largo"),
+  // Datos del turno que el flujo online ya recolecta (se guardan en la DB)
+  especialidad: textoOpcional(80, "Especialidad inválida"),
+  mascotaNombre: textoOpcional(80, "El nombre de la mascota es demasiado largo"),
+  mascotaEspecie: textoOpcional(30, "Especie inválida"),
+  responsableNombre: textoOpcional(120, "El nombre del responsable es demasiado largo"),
+  responsableTelefono: textoOpcional(30, "El teléfono es demasiado largo"),
+});
+
+/**
+ * Turno presencial (atención en el local, sin cuenta de cliente).
+ * Lo crea un admin desde el panel; el responsable es obligatorio.
+ */
+export const crearTurnoPresencialSchema = z.object({
+  fecha: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida (AAAA-MM-DD)")
+    .refine((d) => !isNaN(Date.parse(d + "T00:00:00")), "Fecha inválida"),
+  horaInicio: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (HH:MM)"),
+  horaFin: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (HH:MM)"),
+  especialidad: z
+    .string()
+    .trim()
+    .min(2, "Elegí una especialidad")
+    .max(80, "Especialidad inválida"),
+  mascotaNombre: textoOpcional(80, "El nombre de la mascota es demasiado largo"),
+  mascotaEspecie: z
+    .enum(["perro", "gato", "otro"], { message: "Elegí la especie de la mascota" }),
+  responsableNombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre del responsable es obligatorio")
+    .max(120, "El nombre del responsable es demasiado largo"),
+  responsableTelefono: textoOpcional(30, "El teléfono es demasiado largo"),
+  motivo: textoOpcional(300, "El motivo es demasiado largo"),
 });
 
 export const actualizarStockSchema = z.object({
@@ -67,6 +108,7 @@ export const actualizarProductoSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegistroInput = z.infer<typeof registroSchema>;
 export type CrearTurnoInput = z.infer<typeof crearTurnoSchema>;
+export type CrearTurnoPresencialInput = z.infer<typeof crearTurnoPresencialSchema>;
 export type ActualizarStockInput = z.infer<typeof actualizarStockSchema>;
 export type ActualizarProductoInput = z.infer<typeof actualizarProductoSchema>;
 

@@ -41,6 +41,7 @@ export function TurnFlow() {
   const [datos, setDatos] = useState<DatosFormulario>(DATOS_INICIALES);
   const [enviando, setEnviando] = useState(false);
   const [turnoCreado, setTurnoCreado] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const especialidad = ESPECIALIDADES.find((e) => e.id === especialidadSeleccionada?.id) ?? undefined;
 
@@ -51,6 +52,7 @@ export function TurnFlow() {
   const manejarCrearTurno = async () => {
     if (!especialidad || !fechaSeleccionada || !horaSeleccionada) return;
     setEnviando(true);
+    setError(null);
 
     const horaFin = new Date(`1970-01-01T${horaSeleccionada}:00`);
     horaFin.setMinutes(horaFin.getMinutes() + (especialidad.duracion ?? 30));
@@ -61,6 +63,11 @@ export function TurnFlow() {
       horaInicio: horaSeleccionada,
       horaFin: horaFinStr,
       motivo: datos.motivo || undefined,
+      especialidad: especialidad.nombre,
+      mascotaNombre: datos.mascotaNombre || undefined,
+      mascotaEspecie: datos.mascotaEspecie || undefined,
+      responsableNombre: datos.responsableNombre || undefined,
+      responsableTelefono: datos.responsableTelefono || undefined,
     });
 
     setEnviando(false);
@@ -68,7 +75,7 @@ export function TurnFlow() {
     if (resultado.ok) {
       setTurnoCreado(true);
     } else {
-      alert(resultado.error || "No se pudo crear el turno");
+      setError(resultado.error || "No se pudo crear el turno");
     }
   };
 
@@ -202,6 +209,11 @@ export function TurnFlow() {
       {paso === 4 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Confirmar turno</h2>
+          {error && (
+            <div className="p-3 rounded-lg bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca]">
+              {error}
+            </div>
+          )}
           <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-6 space-y-4">
             <div className="flex justify-between text-sm">
               <span className="text-[#64748b]">Especialidad</span>

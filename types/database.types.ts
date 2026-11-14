@@ -40,13 +40,19 @@ export type Producto = {
 
 export type Turno = {
   id: string;
-  perfil_id: string;
+  /** Null en turnos presenciales (sin cuenta de cliente) — migración 0008 */
+  perfil_id: string | null;
   fecha: string;
   hora_inicio: string;
   hora_fin: string;
-  motivo?: string;
+  motivo?: string | null;
   estado: "pendiente" | "confirmado" | "atendido" | "cancelado";
-  notas?: string;
+  notas?: string | null;
+  especialidad?: string | null;
+  mascota_nombre?: string | null;
+  mascota_especie?: string | null;
+  responsable_nombre?: string | null;
+  responsable_telefono?: string | null;
   created_at: string;
 };
 
@@ -124,14 +130,19 @@ export type Database = {
       };
       es_admin: { Args: Record<string, never>; Returns: boolean };
       rol_usuario_actual: { Args: Record<string, never>; Returns: string };
-      // Solo la ejecuta el servidor (service_role) — ver migración 0005.
+      // Solo la ejecuta el servidor (service_role) — ver migraciones 0005 y 0008.
       crear_turno: {
         Args: {
-          p_perfil_id: string;
+          p_perfil_id: string | null; // null = turno presencial
           p_fecha: string; // date AAAA-MM-DD
           p_hora_inicio: string; // time HH:MM
           p_hora_fin: string; // time HH:MM
           p_motivo: string | null;
+          p_especialidad: string | null;
+          p_mascota_nombre: string | null;
+          p_mascota_especie: string | null;
+          p_responsable_nombre: string | null;
+          p_responsable_telefono: string | null;
         };
         Returns: { turno_id: string };
       };
