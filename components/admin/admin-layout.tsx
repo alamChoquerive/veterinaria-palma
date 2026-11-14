@@ -1,17 +1,52 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { logoutAction } from "@/core/actions/auth.action";
 
+interface ItemMenu {
+  href: string;
+  label: string;
+}
+
+interface SeccionMenu {
+  titulo: string;
+  items: ItemMenu[];
+}
+
+const SECCIONES: SeccionMenu[] = [
+  {
+    titulo: "Principal",
+    items: [
+      { href: "/admin/dashboard", label: "Dashboard" },
+      { href: "/admin/ventas", label: "Ventas" },
+      { href: "/admin/turnos", label: "Turnos" },
+      { href: "/admin/catalogo", label: "Catálogo" },
+      { href: "/admin/inventario", label: "Inventario" },
+      { href: "/admin/pedidos", label: "Pedidos" },
+    ],
+  },
+  {
+    titulo: "Gestión",
+    items: [
+      { href: "/admin/proveedores", label: "Proveedores" },
+      { href: "/admin/precios", label: "Precios" },
+      { href: "/admin/pagos-envios", label: "Pagos y envíos" },
+    ],
+  },
+  {
+    titulo: "Sistema",
+    items: [
+      { href: "/admin/sesiones", label: "Sesiones" },
+      { href: "/admin/perfil", label: "Perfil/Ajustes" },
+    ],
+  },
+];
+
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const menu = [
-    { href: "/admin/dashboard", label: "Dashboard" },
-    { href: "/admin/inventario", label: "Inventario" },
-    { href: "/admin/turnos", label: "Turnos" },
-  ];
+  const pathname = usePathname();
 
   return (
     <div className="flex h-screen bg-[#f8fafc]">
@@ -29,15 +64,32 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <span className="font-bold text-[#1e293b] tracking-tight">Admin Palma</span>
           </div>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {menu.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#1e293b] transition-colors"
-            >
-              {item.label}
-            </Link>
+        <nav className="flex-1 p-4 space-y-5 overflow-auto">
+          {SECCIONES.map((seccion) => (
+            <div key={seccion.titulo}>
+              <div className="px-3 mb-1 text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
+                {seccion.titulo}
+              </div>
+              <div className="space-y-1">
+                {seccion.items.map((item) => {
+                  const activo = pathname === item.href || pathname.startsWith(item.href + "/");
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                        activo
+                          ? "bg-[#1e293b] text-white"
+                          : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#1e293b]"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </nav>
         <div className="p-4 border-t border-[#e2e8f0]">
