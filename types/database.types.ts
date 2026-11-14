@@ -28,6 +28,8 @@ export type Producto = {
   categoria_id: string | null;
   nombre: string;
   descripcion?: string;
+  /** Costo de compra (nullable en productos viejos) — migración 0009 */
+  precio_costo?: number | null;
   precio_minorista: number;
   precio_mayorista: number;
   stock: number;
@@ -36,6 +38,44 @@ export type Producto = {
   activo: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type Proveedor = {
+  id: string;
+  nombre: string;
+  contacto_nombre?: string | null;
+  email?: string | null;
+  telefono?: string | null;
+  categoria: string;
+  descripcion?: string | null;
+  activo: boolean;
+  monto_pendiente: number;
+  ultimo_pedido_fecha?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MedioPago = {
+  id: string;
+  clave: string;
+  nombre: string;
+  activo: boolean;
+  created_at: string;
+};
+
+export type ConfigTienda = {
+  clave: string;
+  valor: string;
+  updated_at: string;
+};
+
+export type LogAcceso = {
+  id: string;
+  perfil_id: string | null;
+  email: string;
+  exito: boolean;
+  ip?: string | null;
+  created_at: string;
 };
 
 export type Turno = {
@@ -110,6 +150,11 @@ export type Database = {
       pedido_items: { Row: PedidoItem; Insert: Omit<PedidoItem, "id">; Update: Partial<PedidoItem>; Relationships: [] };
       pagos: { Row: Pago; Insert: Omit<Pago, "id" | "created_at">; Update: Partial<Pago>; Relationships: [] };
       zonas_envio: { Row: ZonaEnvio; Insert: Omit<ZonaEnvio, "id">; Update: Partial<ZonaEnvio>; Relationships: [] };
+      // Tablas del panel admin — migración 0009
+      proveedores: { Row: Proveedor; Insert: Omit<Proveedor, "id" | "created_at" | "updated_at">; Update: Partial<Proveedor>; Relationships: [] };
+      medios_pago: { Row: MedioPago; Insert: Omit<MedioPago, "id" | "created_at">; Update: Partial<MedioPago>; Relationships: [] };
+      config_tienda: { Row: ConfigTienda; Insert: Omit<ConfigTienda, "updated_at">; Update: Partial<ConfigTienda>; Relationships: [] };
+      logs_acceso: { Row: LogAcceso; Insert: Omit<LogAcceso, "id" | "created_at">; Update: Partial<LogAcceso>; Relationships: [] };
     };
     Views: Record<string, never>;
     Functions: {
