@@ -61,7 +61,7 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -81,10 +81,19 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: mensaje + detalleAuthDev(error) };
   }
 
-  // Open redirect: solo se redirige a rutas internas de la app;
-  // cualquier otra cosa cae en "/".
-  const destino = esRedirectInterno(redirectTo) ? redirectTo : "/";
-  redirect(destino);
+  // Open redirect: solo se redirige a rutas internas de la app.
+  if (esRedirectInterno(redirectTo)) {
+    redirect(redirectTo);
+  }
+
+  // Sin redirect pedido: el admin va directo a su panel; el resto, al inicio.
+  const { data: perfil } = await supabase
+    .from("perfiles")
+    .select("rol")
+    .eq("id", authData.user?.id ?? "")
+    .maybeSingle();
+
+  redirect(perfil?.rol === "admin" ? "/admin/dashboard" : "/");
 }
 
 /**
@@ -160,7 +169,7 @@ export async function registroAction(formData: FormData): Promise<ActionResult> 
 /**
  * Cierra la sesión del usuario.
  */
-export async function logoutAction(): Promise<ActionResult> {
+export async function logoutAction(): Promise<void> {
   const cookieStore = await cookies();
   const supabase = await createClient();
 
