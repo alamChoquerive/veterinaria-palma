@@ -15,8 +15,8 @@ export const loginSchema = z.object({
 export const registroSchema = z.object({
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  nombre: z.string().min(1, "El nombre es requerido"),
-  apellido: z.string().min(1, "El apellido es requerido"),
+  nombre: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres"),
+  apellido: z.string().trim().min(2, "El apellido debe tener al menos 2 caracteres"),
 });
 
 export const crearTurnoSchema = z.object({

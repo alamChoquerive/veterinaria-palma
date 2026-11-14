@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { loginAction } from "@/core/actions/auth.action";
 import { esRedirectInterno } from "@/lib/redirect";
@@ -43,9 +44,9 @@ function LoginForm() {
       </form>
       <p className="mt-4 text-sm">
         ¿No tenés cuenta?{" "}
-        <a href="/registro" className="text-[#1e293b] hover:underline">
+        <Link href="/registro" className="text-[#1e293b] hover:underline">
           Registrate
-        </a>
+        </Link>
       </p>
     </main>
   );

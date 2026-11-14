@@ -109,10 +109,15 @@ export async function registroAction(formData: FormData): Promise<ActionResult> 
 
   if (error) {
     console.error("[registroAction] Error de Supabase Auth:", error.message);
+    // Email ya registrado: mensaje específico para no dejar al usuario en duda
+    const yaRegistrado =
+      error.code === "user_already_registered" ||
+      error.message.toLowerCase().includes("already registered");
     return {
       ok: false,
-      error:
-        "No se pudo completar el registro. Verificá los datos o probá con otro email.",
+      error: yaRegistrado
+        ? "Ya existe una cuenta con ese email. Probá iniciar sesión."
+        : "No se pudo completar el registro. Verificá los datos o probá con otro email.",
     };
   }
 
