@@ -125,6 +125,18 @@ supabase/migrations/0006_rate_limit.sql              -- tabla + RPC verificar_ra
 
 Tablas: `perfiles`, `categorias`, `productos`, `turnos`, `pedidos`, `pedido_items`, `pagos`, `zonas_envio`, `rate_limit_eventos`.
 
+### Usuarios de prueba
+
+1. Activar el proveedor Email: **Authentication → Providers → Email → Enable Email provider** (para pruebas, desactivar "Confirm email").
+2. Registrarse desde `/registro` con emails de dominio real (Supabase Auth rechaza `.test`/`.example`): ej. `cliente.palma@gmail.com`, `mayorista.palma@gmail.com`, `admin.palma@gmail.com`.
+3. Cargar datos de ejemplo: ejecutar `supabase/seed_datos_prueba.sql` en el SQL Editor (idempotente).
+4. Promover roles (solo el operador de la base puede, vía SQL Editor, tras aplicar la migración 0007):
+
+```sql
+select public.asignar_rol('mayorista.palma@gmail.com', 'mayorista');
+select public.asignar_rol('admin.palma@gmail.com', 'admin');
+```
+
 ## Webhook de Mercado Pago
 
 Configurar en el panel de Mercado Pago → Tus integraciones → Webhooks una URL pública apuntando a:
