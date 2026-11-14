@@ -144,6 +144,11 @@ export type Database = {
         };
         Returns: boolean;
       };
+      // Solo la ejecuta el operador de la base (postgres, SQL Editor) — 0007.
+      asignar_rol: {
+        Args: { p_email: string; p_rol: string };
+        Returns: undefined;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

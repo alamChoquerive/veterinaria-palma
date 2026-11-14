@@ -52,9 +52,10 @@ where not exists (select 1 from public.productos p where p.nombre = v.nombre);
 --      cliente.palma@gmail.com    (queda con rol 'minorista' automático)
 --      mayorista.palma@gmail.com
 --      admin.palma@gmail.com
--- 2) Promover roles (la auto-promoción está bloqueada a propósito, migración 0002):
--- update public.perfiles set rol = 'mayorista' where email = 'mayorista.palma@gmail.com';
--- update public.perfiles set rol = 'admin'     where email = 'admin.palma@gmail.com';
+-- 2) Promover roles DESPUÉS de aplicar la migración 0007 (la auto-promoción
+--    desde la app sigue bloqueada; el operador usa la función asignar_rol):
+-- select public.asignar_rol('mayorista.palma@gmail.com', 'mayorista');
+-- select public.asignar_rol('admin.palma@gmail.com', 'admin');
 
 -- ---------- Utilidades para pruebas ----------
 -- Resetear el rate limit si te bloquea mientras probás:
