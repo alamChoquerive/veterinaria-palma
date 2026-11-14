@@ -4,6 +4,7 @@ import { createClient } from "@/core/supabase/server";
 import type { ActionResult } from "@/types/api";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { esRedirectInterno } from "@/lib/redirect";
 import {
   loginSchema,
   registroSchema,
@@ -42,7 +43,10 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: error.message };
   }
 
-  redirect(redirectTo ?? "/");
+  // Open redirect: solo se redirige a rutas internas de la app;
+  // cualquier otra cosa cae en "/".
+  const destino = esRedirectInterno(redirectTo) ? redirectTo : "/";
+  redirect(destino);
 }
 
 /**

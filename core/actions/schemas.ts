@@ -8,7 +8,8 @@ import { z } from "zod";
 export const loginSchema = z.object({
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  redirect: z.string().optional(),
+  // Solo rutas internas; la validación fina está en lib/redirect.ts
+  redirect: z.string().max(500, "Redirección inválida").optional(),
 });
 
 export const registroSchema = z.object({
