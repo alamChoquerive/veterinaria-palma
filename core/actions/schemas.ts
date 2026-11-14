@@ -186,3 +186,47 @@ export const actualizarEstadoPedidoSchema = z.object({
 });
 
 export type ActualizarEstadoPedidoInput = z.infer<typeof actualizarEstadoPedidoSchema>;
+
+/**
+ * Datos de un proveedor (crear/editar desde el panel admin).
+ */
+export const proveedorSchema = z.object({
+  nombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre del proveedor debe tener al menos 2 caracteres")
+    .max(120, "El nombre es demasiado largo"),
+  contactoNombre: textoOpcional(120, "El nombre del contacto es demasiado largo"),
+  email: z
+    .string()
+    .trim()
+    .email("Email inválido")
+    .max(200, "El email es demasiado largo")
+    .optional()
+    .or(z.literal("")),
+  telefono: textoOpcional(30, "El teléfono es demasiado largo"),
+  categoria: z
+    .string()
+    .trim()
+    .min(2, "Indicá qué provee (alimentos, farmacia, accesorios...)")
+    .max(80, "La categoría es demasiado larga"),
+  descripcion: textoOpcional(1000, "La descripción es demasiado larga"),
+  activo: z.boolean(),
+  montoPendiente: z
+    .number()
+    .min(0, "El monto no puede ser negativo")
+    .max(99999999, "Monto demasiado alto"),
+  ultimoPedidoFecha: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida (AAAA-MM-DD)")
+    .optional()
+    .or(z.literal("")),
+});
+
+export const crearProveedorSchema = proveedorSchema;
+export const actualizarProveedorSchema = proveedorSchema.extend({
+  proveedorId: z.string().uuid("ID de proveedor inválido"),
+});
+
+export type CrearProveedorInput = z.infer<typeof crearProveedorSchema>;
+export type ActualizarProveedorInput = z.infer<typeof actualizarProveedorSchema>;
