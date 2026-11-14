@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/components/carrito/cart-context";
+import { formatearMoneda } from "@/lib/utils";
 
 export default function CarritoPage() {
   const { items, disminuir, aumentar, eliminar, total, limpiar } = useCart();
@@ -36,7 +37,7 @@ export default function CarritoPage() {
           </div>
           {items.map((item) => {
             const producto = item.producto;
-            const subtotal = producto.precioMinorista * item.cantidad;
+            const subtotal = Number(producto.precio_minorista) * item.cantidad;
             return (
               <div
                 key={producto.id}
@@ -44,16 +45,18 @@ export default function CarritoPage() {
               >
                 <div className="col-span-4 flex items-center gap-3">
                   <img
-                    src={producto.imagen}
+                    src={producto.imagen_url ?? "/placeholder.svg"}
                     alt={producto.nombre}
                     className="w-12 h-12 object-cover rounded"
                   />
                   <div>
                     <div className="font-medium">{producto.nombre}</div>
-                    <div className="text-xs text-muted-foreground">{producto.sku}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {producto.stock > 0 ? `${producto.stock} en stock` : "Sin stock"}
+                    </div>
                   </div>
                 </div>
-                <div className="col-span-2 text-right font-medium">$ {producto.precioMinorista}</div>
+                <div className="col-span-2 text-right font-medium">{formatearMoneda(Number(producto.precio_minorista))}</div>
                 <div className="col-span-2 flex items-center justify-end gap-2">
                   <button
                     onClick={() => disminuir(producto.id)}
@@ -69,7 +72,7 @@ export default function CarritoPage() {
                     +
                   </button>
                 </div>
-                <div className="col-span-2 text-right font-medium">$ {subtotal}</div>
+                <div className="col-span-2 text-right font-medium">{formatearMoneda(subtotal)}</div>
                 <div className="col-span-2 text-right">
                   <button
                     onClick={() => eliminar(producto.id)}
@@ -84,7 +87,7 @@ export default function CarritoPage() {
           <div className="mt-8 flex justify-between items-center border-t pt-6">
             <div>
               <div className="text-sm text-muted-foreground">Total</div>
-              <div className="text-2xl font-bold">$ {total}</div>
+              <div className="text-2xl font-bold">{formatearMoneda(total)}</div>
             </div>
             <div className="flex gap-3">
               <button

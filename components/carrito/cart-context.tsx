@@ -1,16 +1,16 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import type { ProductoMock } from "@/lib/data/productos";
+import type { Producto } from "@/types/database.types";
 
 interface CartItem {
-  producto: ProductoMock;
+  producto: Producto;
   cantidad: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  agregar: (producto: ProductoMock) => void;
+  agregar: (producto: Producto) => void;
   aumentar: (id: string) => void;
   disminuir: (id: string) => void;
   eliminar: (id: string) => void;
@@ -25,12 +25,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const total = items.reduce(
-    (sum, item) => sum + item.producto.precioMinorista * item.cantidad,
+    (sum, item) => sum + Number(item.producto.precio_minorista) * item.cantidad,
     0
   );
   const cantidadTotal = items.reduce((sum, item) => sum + item.cantidad, 0);
 
-  const agregar = useCallback((producto: ProductoMock) => {
+  const agregar = useCallback((producto: Producto) => {
     setItems((prev) => {
       const existente = prev.find((i) => i.producto.id === producto.id);
       if (existente) {

@@ -24,7 +24,7 @@ export default function CheckoutPage() {
   } | null>(null);
 
   const subtotal = items.reduce(
-    (sum, item) => sum + item.producto.precioMinorista * item.cantidad,
+    (sum, item) => sum + Number(item.producto.precio_minorista) * item.cantidad,
     0
   );
 
@@ -171,7 +171,7 @@ export default function CheckoutPage() {
                     </div>
                     <span className="font-medium">
                       {formatearMoneda(
-                        item.producto.precioMinorista * item.cantidad
+                        Number(item.producto.precio_minorista) * item.cantidad
                       )}
                     </span>
                   </div>
