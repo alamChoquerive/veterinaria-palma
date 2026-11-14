@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/carrito/cart-context";
 import { DeliveryForm } from "@/components/checkout/delivery-form";
@@ -9,11 +9,10 @@ import { formatearMoneda } from "@/lib/utils";
 import type { MetodoEntrega, ZonaEnvio } from "@/types/database.types";
 
 export function CheckoutFlow({ zonas }: { zonas: ZonaEnvio[] }) {
-  const { items, limpiar, cantidadTotal } = useCart();
+  const { items, cantidadTotal } = useCart();
   const [metodo, setMetodo] = useState<MetodoEntrega>("retiro_tienda");
   const [direccion, setDireccion] = useState<string>("");
   const [costoEnvio, setCostoEnvio] = useState<number>(0);
-  const [total, setTotal] = useState<number>(0);
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pedidoCreado, setPedidoCreado] = useState<{
@@ -27,9 +26,8 @@ export function CheckoutFlow({ zonas }: { zonas: ZonaEnvio[] }) {
     0
   );
 
-  useEffect(() => {
-    setTotal(subtotal + costoEnvio);
-  }, [subtotal, costoEnvio]);
+  // Antes de crear el pedido es la estimación; después, el total real del servidor
+  const total = pedidoCreado ? pedidoCreado.total : subtotal + costoEnvio;
 
   async function handleCrearPedido() {
     if (items.length === 0) {
@@ -62,7 +60,6 @@ export function CheckoutFlow({ zonas }: { zonas: ZonaEnvio[] }) {
 
     const data = resultado.data as { pedido_id: string; total: number };
     setPedidoCreado({ id: data.pedido_id, total: data.total });
-    setTotal(data.total);
   }
 
   async function handlePagoMercadoPago() {
