@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/core/supabase/server";
+import { createAdminClient } from "@/core/supabase/admin";
 import type { ActionResult } from "@/types/api";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -82,12 +83,19 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
   }
 
   // Open redirect: solo se redirige a rutas internas de la app.
-  if (esRedirectInterno(redirectTo)) {
-    redirect(redirectTo);
+  // OJO: el formulario manda redirect="/" por defecto, y "/" es interno:
+  // hay que tratarlo como "sin redirect pedido" para no pisar el default
+  // del admin (ver abajo).
+  const redirectPedido =
+    esRedirectInterno(redirectTo) && redirectTo !== "/" ? redirectTo : null;
+  if (redirectPedido) {
+    redirect(redirectPedido);
   }
 
   // Sin redirect pedido: el admin va directo a su panel; el resto, al inicio.
-  const { data: perfil } = await supabase
+  // El rol se lee con service_role para no depender de la sesión recién creada.
+  const admin = createAdminClient();
+  const { data: perfil } = await admin
     .from("perfiles")
     .select("rol")
     .eq("id", authData.user?.id ?? "")
