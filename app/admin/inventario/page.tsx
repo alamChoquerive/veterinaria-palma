@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { actualizarStock } from "@/core/actions/stock.action";
+import { createClient } from "@/core/supabase/client";
 import { formatearMoneda } from "@/lib/utils";
 
 interface ProductoRow {
@@ -20,31 +21,30 @@ export default function AdminInventarioPage() {
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
 
-  async function cargarProductos() {
+  const cargarProductos = useCallback(async () => {
     setCargando(true);
-    const { createClient } = await import("@/core/supabase/server");
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data } = await supabase
       .from("productos")
       .select("*")
       .order("nombre");
     setProductos((data ?? []) as ProductoRow[]);
     setCargando(false);
-  }
+  }, []);
+
+  useEffect(() => {
+    cargarProductos();
+  }, [cargarProductos]);
 
   async function ajustarStock(id: string, cantidad: number) {
     setMensaje(null);
     const resultado = await actualizarStock({ productoId: id, cantidad });
     if (resultado.ok) {
       setMensaje("Stock actualizado correctamente");
-      cargarProductos();
+      await cargarProductos();
     } else {
       setMensaje(resultado.error);
     }
-  }
-
-  if (productos.length === 0 && !cargando) {
-    cargarProductos();
   }
 
   return (
