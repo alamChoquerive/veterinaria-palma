@@ -15,7 +15,7 @@ export function StepIndicator({ pasoActual }: StepIndicatorProps) {
   return (
     <div className="w-full max-w-md mx-auto mb-8">
       <div className="flex justify-between items-end mb-2">
-        {steps.map((step, i) => {
+        {steps.map((step) => {
           const completado = step.numero < pasoActual;
           const activo = step.numero === pasoActual;
           return (
