@@ -36,14 +36,10 @@ export const ESTADOS_PEDIDO = {
 } as const;
 
 /**
- * Zonas de envío con su costo base.
- * Estos valores se sincronizan con la tabla `zonas_envio` de Supabase.
+ * Zonas de envío: viven en la tabla `zonas_envio` de Supabase
+ * (se leen en el checkout y las usa la RPC crear_pedido).
+ * Acá solo quedan los métodos de entrega posibles.
  */
-export const ZONAS_ENVIO = {
-  RETIRO_TIENDA: { id: "retiro-tienda", nombre: "Retiro en tienda", tipo: "local" as const, costo: 0 },
-  ENVIO_LOCAL: { id: "envio-local", nombre: "Envío local (ciudad)", tipo: "local" as const, costo: 3000 },
-  ENVIO_PROVINCIAL: { id: "envio-provincial", nombre: "Envío provincial", tipo: "provincial" as const, costo: 8000 },
-} as const;
 
 export const LIMITE_STOCK_BAJO = 5;
 
