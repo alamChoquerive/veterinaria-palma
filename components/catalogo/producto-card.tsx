@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { Producto } from "@/types/database.types";
 import { useCart } from "@/components/carrito/cart-context";
 import { formatearMoneda } from "@/lib/utils";
@@ -24,9 +25,11 @@ export function ProductoCard({ producto, categoria }: ProductoCardProps) {
 
   return (
     <article className="border rounded-xl p-4 flex flex-col">
-      <img
+      <Image
         src={producto.imagen_url ?? "/placeholder.svg"}
         alt={producto.nombre}
+        width={400}
+        height={144}
         className="w-full h-36 object-cover rounded-lg mb-3"
       />
       <h3 className="font-semibold">{producto.nombre}</h3>

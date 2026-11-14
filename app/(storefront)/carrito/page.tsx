@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/components/carrito/cart-context";
 import { formatearMoneda } from "@/lib/utils";
 
@@ -44,9 +45,11 @@ export default function CarritoPage() {
                 className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-3 border rounded-lg"
               >
                 <div className="col-span-4 flex items-center gap-3">
-                  <img
+                  <Image
                     src={producto.imagen_url ?? "/placeholder.svg"}
                     alt={producto.nombre}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 object-cover rounded"
                   />
                   <div>

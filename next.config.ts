@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+    ],
+  },
   // cacheComponents desactivado temporalmente para evitar datos desactualizados
   // en rutas dinámicas (turnos, pedidos, stock). Reevaluar al definir estrategia
   // de revalidación.
