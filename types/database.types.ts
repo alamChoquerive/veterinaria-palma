@@ -135,6 +135,15 @@ export type Database = {
         };
         Returns: { turno_id: string };
       };
+      // Solo la ejecuta el servidor (service_role) — ver migración 0006.
+      verificar_rate_limit: {
+        Args: {
+          p_clave: string;
+          p_max: number;
+          p_ventana: string; // interval como texto, ej. "900 seconds"
+        };
+        Returns: boolean;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
