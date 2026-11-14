@@ -67,7 +67,8 @@ export async function crearTurno(
 }
 
 /**
- * Cancela un turno (solo el dueño o un admin).
+ * Cancela un turno. RLS define quién puede: el dueño o un admin.
+ * Solo se pueden cancelar turnos activos (pendiente/confirmado).
  */
 export async function cancelarTurno(turnoId: string): Promise<ActionResult> {
   const supabase = await createClient();
@@ -84,10 +85,11 @@ export async function cancelarTurno(turnoId: string): Promise<ActionResult> {
     .from("turnos")
     .update({ estado: "cancelado" })
     .eq("id", turnoId)
-    .eq("perfil_id", user.id);
+    .in("estado", ["pendiente", "confirmado"]);
 
   if (error) {
-    return { ok: false, error: error.message };
+    console.error("[cancelarTurno] Error:", error.message);
+    return { ok: false, error: "No se pudo cancelar el turno" };
   }
 
   revalidatePath("/turnos");
