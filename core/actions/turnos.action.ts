@@ -4,6 +4,7 @@ import { createClient } from "@/core/supabase/server";
 import { createAdminClient } from "@/core/supabase/admin";
 import type { ActionResult } from "@/types/api";
 import { revalidatePath } from "next/cache";
+import { verificarRateLimit } from "@/core/rate-limit";
 import {
   crearTurnoSchema,
   type CrearTurnoInput,
@@ -38,6 +39,15 @@ export async function crearTurno(
 
   if (authError || !user) {
     return { ok: false, error: "Usuario no autenticado" };
+  }
+
+  // Rate limit por usuario: 5 intentos de reserva cada 5 minutos
+  const permitido = await verificarRateLimit(`turno:${user.id}`, 5, 5 * 60);
+  if (!permitido) {
+    return {
+      ok: false,
+      error: "Demasiadas solicitudes. Probá de nuevo en unos minutos.",
+    };
   }
 
   const admin = createAdminClient();

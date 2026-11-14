@@ -4,6 +4,7 @@ import { createClient } from "@/core/supabase/server";
 import { createAdminClient } from "@/core/supabase/admin";
 import type { ActionResult } from "@/types/api";
 import { revalidatePath } from "next/cache";
+import { verificarRateLimit } from "@/core/rate-limit";
 import {
   crearPedidoSchema,
   type CrearPedidoInput,
@@ -47,6 +48,15 @@ export async function crearPedido(
 
   if (authError || !user) {
     return { ok: false, error: "Usuario no autenticado" };
+  }
+
+  // Rate limit por usuario: 10 pedidos por minuto
+  const permitido = await verificarRateLimit(`pedido:${user.id}`, 10, 60);
+  if (!permitido) {
+    return {
+      ok: false,
+      error: "Demasiadas solicitudes. Probá de nuevo en unos minutos.",
+    };
   }
 
   // 2) La creación la hace la RPC con service_role: el servidor es la
