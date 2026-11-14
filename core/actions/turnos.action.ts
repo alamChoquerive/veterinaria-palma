@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/core/supabase/server";
+import { createAdminClient } from "@/core/supabase/admin";
 import type { ActionResult } from "@/types/api";
 import { revalidatePath } from "next/cache";
 import {
@@ -10,10 +11,14 @@ import {
 
 /**
  * Crea un turno para el cliente autenticado.
+ *
+ * Toda la validación de negocio (fecha futura, horario de atención,
+ * intervalo, solapamiento, límite por día) la hace la RPC `crear_turno`
+ * con service_role, nunca el cliente.
  */
 export async function crearTurno(
   datos: CrearTurnoInput,
-): Promise<ActionResult> {
+): Promise<ActionResult<{ turno_id: string }>> {
   const parsed = crearTurnoSchema.safeParse(datos);
   if (!parsed.success) {
     return {
@@ -35,21 +40,30 @@ export async function crearTurno(
     return { ok: false, error: "Usuario no autenticado" };
   }
 
-  const { error } = await supabase.from("turnos").insert({
-    perfil_id: user.id,
-    fecha,
-    hora_inicio: horaInicio,
-    hora_fin: horaFin,
-    motivo: motivo ?? null,
-    estado: "pendiente",
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("crear_turno", {
+    p_perfil_id: user.id,
+    p_fecha: fecha,
+    p_hora_inicio: horaInicio,
+    p_hora_fin: horaFin,
+    p_motivo: motivo ?? null,
   });
 
-  if (error) {
-    return { ok: false, error: error.message };
+  if (error || !data) {
+    console.error("[crearTurno] Error en la RPC crear_turno:", error?.message);
+    // Los errores P0001 son validaciones de negocio de la RPC (mensaje nuestro)
+    const mensaje =
+      (error as { code?: string } | null)?.code === "P0001"
+        ? (error?.message ?? "No se pudo crear el turno")
+        : "No se pudo crear el turno. Intentá de nuevo.";
+    return { ok: false, error: mensaje };
   }
 
   revalidatePath("/turnos");
-  return { ok: true, data: { creado: true } };
+  return {
+    ok: true,
+    data: { turno_id: (data as { turno_id: string }).turno_id },
+  };
 }
 
 /**
