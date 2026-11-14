@@ -167,3 +167,22 @@ export const preferenciaPagoSchema = z.object({
 
 export type CrearPedidoInput = z.infer<typeof crearPedidoSchema>;
 export type PreferenciaPagoInput = z.infer<typeof preferenciaPagoSchema>;
+
+/**
+ * Cambio de estado de un pedido desde el panel admin (solo admin).
+ */
+export const actualizarEstadoPedidoSchema = z.object({
+  pedidoId: z.string().uuid("ID de pedido inválido"),
+  estado: z.enum([
+    "pendiente",
+    "pago_pendiente",
+    "pagado",
+    "preparando",
+    "enviado",
+    "entregado",
+    "retiro_pendiente",
+    "cancelado",
+  ]),
+});
+
+export type ActualizarEstadoPedidoInput = z.infer<typeof actualizarEstadoPedidoSchema>;
