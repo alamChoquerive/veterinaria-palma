@@ -230,3 +230,33 @@ export const actualizarProveedorSchema = proveedorSchema.extend({
 
 export type CrearProveedorInput = z.infer<typeof crearProveedorSchema>;
 export type ActualizarProveedorInput = z.infer<typeof actualizarProveedorSchema>;
+
+/**
+ * Precios de un producto desde la sección Precios (costo + precios de venta).
+ */
+export const actualizarPreciosProductoSchema = z.object({
+  productoId: z.string().uuid("ID de producto inválido"),
+  precioCosto: z
+    .number()
+    .min(0, "El costo no puede ser negativo")
+    .max(99999999, "Costo demasiado alto")
+    .nullable()
+    .optional(),
+  precioMinorista: z.number().min(0, "El precio no puede ser negativo"),
+  precioMayorista: z.number().min(0, "El precio no puede ser negativo"),
+});
+
+/**
+ * Aplica un margen global sobre el precio de costo de TODOS los productos
+ * que tengan costo cargado. El margen también se guarda en config_tienda.
+ */
+export const aplicarMargenGlobalSchema = z.object({
+  tipo: z.enum(["minorista", "mayorista"]),
+  porcentaje: z
+    .number()
+    .min(0, "El margen no puede ser negativo")
+    .max(500, "Margen demasiado alto"),
+});
+
+export type ActualizarPreciosProductoInput = z.infer<typeof actualizarPreciosProductoSchema>;
+export type AplicarMargenGlobalInput = z.infer<typeof aplicarMargenGlobalSchema>;
