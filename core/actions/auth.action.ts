@@ -40,7 +40,13 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
   });
 
   if (error) {
-    return { ok: false, error: error.message };
+    // El detalle queda en el log; al cliente nunca le mostramos el mensaje de Supabase
+    console.error("[loginAction] Error de Supabase Auth:", error.message);
+    const mensaje =
+      error.code === "invalid_credentials"
+        ? "Email o contraseña incorrectos"
+        : "No se pudo iniciar sesión. Intentá de nuevo.";
+    return { ok: false, error: mensaje };
   }
 
   // Open redirect: solo se redirige a rutas internas de la app;
@@ -81,7 +87,12 @@ export async function registroAction(formData: FormData): Promise<ActionResult> 
   });
 
   if (error) {
-    return { ok: false, error: error.message };
+    console.error("[registroAction] Error de Supabase Auth:", error.message);
+    return {
+      ok: false,
+      error:
+        "No se pudo completar el registro. Verificá los datos o probá con otro email.",
+    };
   }
 
   return { ok: true, data: { email } };
