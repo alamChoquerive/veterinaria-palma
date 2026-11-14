@@ -45,13 +45,16 @@ join (values
 where not exists (select 1 from public.productos p where p.nombre = v.nombre);
 
 -- ---------- Usuarios de prueba (ejecutar DESPUÉS de registrarse en la app) ----------
+-- OJO: Supabase Auth RECHAZA dominios reservados (RFC 2606: .test, .example,
+-- .invalid, .localhost) con error email_address_invalid (HTTP 400 en /signup).
+-- Por eso las cuentas de prueba usan dominios reales, ej. gmail:
 -- 1) Crear las cuentas desde /registro con estos emails:
---      cliente@palma.test    (queda con rol 'minorista' automático)
---      mayorista@palma.test
---      admin@palma.test
+--      cliente.palma@gmail.com    (queda con rol 'minorista' automático)
+--      mayorista.palma@gmail.com
+--      admin.palma@gmail.com
 -- 2) Promover roles (la auto-promoción está bloqueada a propósito, migración 0002):
--- update public.perfiles set rol = 'mayorista' where email = 'mayorista@palma.test';
--- update public.perfiles set rol = 'admin'     where email = 'admin@palma.test';
+-- update public.perfiles set rol = 'mayorista' where email = 'mayorista.palma@gmail.com';
+-- update public.perfiles set rol = 'admin'     where email = 'admin.palma@gmail.com';
 
 -- ---------- Utilidades para pruebas ----------
 -- Resetear el rate limit si te bloquea mientras probás:
