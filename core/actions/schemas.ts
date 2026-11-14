@@ -92,6 +92,17 @@ export const actualizarProductoSchema = z.object({
     .min(2, "El nombre debe tener al menos 2 caracteres")
     .max(120, "El nombre es demasiado largo"),
   descripcion: z.string().trim().max(500, "La descripción es demasiado larga").optional(),
+  categoriaId: z
+    .string()
+    .uuid("Categoría inválida")
+    .nullable()
+    .optional(),
+  imagenUrl: z
+    .string()
+    .trim()
+    .max(500, "La URL de la imagen es demasiado larga")
+    .optional()
+    .or(z.literal("")),
   precioMinorista: z.number().min(0, "El precio no puede ser negativo"),
   precioMayorista: z.number().min(0, "El precio no puede ser negativo"),
   stock: z

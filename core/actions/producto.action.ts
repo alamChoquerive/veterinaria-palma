@@ -40,6 +40,8 @@ export async function actualizarProducto(
     productoId,
     nombre,
     descripcion,
+    categoriaId,
+    imagenUrl,
     precioMinorista,
     precioMayorista,
     stock,
@@ -52,6 +54,8 @@ export async function actualizarProducto(
     .update({
       nombre,
       descripcion: descripcion ? descripcion : null,
+      categoria_id: categoriaId ?? null,
+      imagen_url: imagenUrl?.trim() ? imagenUrl.trim() : null,
       precio_minorista: precioMinorista,
       precio_mayorista: precioMayorista,
       stock,
@@ -67,6 +71,8 @@ export async function actualizarProducto(
   }
 
   revalidatePath("/admin/inventario");
+  revalidatePath("/admin/catalogo");
+  revalidatePath("/admin/precios");
   revalidatePath("/admin/dashboard");
   revalidatePath("/catalogo");
 
