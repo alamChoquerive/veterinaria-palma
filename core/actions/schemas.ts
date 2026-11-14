@@ -20,13 +20,17 @@ export const registroSchema = z.object({
 });
 
 export const crearTurnoSchema = z.object({
-  fecha: z.string().refine(
-    (d) => !isNaN(Date.parse(d)),
-    "Fecha inválida",
-  ),
-  horaInicio: z.string().regex(/^\d{2}:\d{2}$/, "Hora inválida (HH:MM)"),
-  horaFin: z.string().regex(/^\d{2}:\d{2}$/, "Hora inválida (HH:MM)"),
-  motivo: z.string().optional(),
+  fecha: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida (AAAA-MM-DD)")
+    .refine((d) => !isNaN(Date.parse(d + "T00:00:00")), "Fecha inválida"),
+  horaInicio: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (HH:MM)"),
+  horaFin: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (HH:MM)"),
+  motivo: z.string().max(300, "El motivo es demasiado largo").optional(),
 });
 
 export const actualizarStockSchema = z.object({
