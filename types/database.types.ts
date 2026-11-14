@@ -82,10 +82,13 @@ export type Pago = {
   created_at: string;
 };
 
+export type MetodoEntrega = "retiro_tienda" | "envio_local" | "envio_provincial";
+
 export type ZonaEnvio = {
   id: string;
   nombre: string;
   tipo: "local" | "provincial";
+  metodo_entrega: MetodoEntrega;
   costo: number;
   activo: boolean;
 };
