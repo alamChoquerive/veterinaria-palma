@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { cancelarTurno } from "@/core/actions/turnos.action";
+import { createClient } from "@/core/supabase/client";
 import { formatearFecha } from "@/lib/utils";
 
 interface TurnoRow {
@@ -23,28 +24,27 @@ export default function AdminAgendaPage() {
   >("todos");
   const [mensaje, setMensaje] = useState<string | null>(null);
 
-  async function cargarTurnos() {
+  const cargarTurnos = useCallback(async () => {
     setCargando(true);
-    const { createClient } = await import("@/core/supabase/server");
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data } = await supabase
       .from("turnos")
       .select("*, perfiles(nombre, apellido, email)")
       .order("fecha", { ascending: true });
     setTurnos((data ?? []) as TurnoRow[]);
     setCargando(false);
-  }
+  }, []);
 
-  if (turnos.length === 0 && !cargando) {
+  useEffect(() => {
     cargarTurnos();
-  }
+  }, [cargarTurnos]);
 
   async function cambiarEstado(id: string, nuevoEstado: string) {
     if (nuevoEstado === "cancelado") {
       const resultado = await cancelarTurno(id);
       if (resultado.ok) {
         setMensaje("Turno cancelado");
-        cargarTurnos();
+        await cargarTurnos();
       } else {
         setMensaje(resultado.error);
       }
