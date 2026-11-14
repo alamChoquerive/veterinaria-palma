@@ -124,6 +124,17 @@ export type Database = {
       };
       es_admin: { Args: Record<string, never>; Returns: boolean };
       rol_usuario_actual: { Args: Record<string, never>; Returns: string };
+      // Solo la ejecuta el servidor (service_role) — ver migración 0005.
+      crear_turno: {
+        Args: {
+          p_perfil_id: string;
+          p_fecha: string; // date AAAA-MM-DD
+          p_hora_inicio: string; // time HH:MM
+          p_hora_fin: string; // time HH:MM
+          p_motivo: string | null;
+        };
+        Returns: { turno_id: string };
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
