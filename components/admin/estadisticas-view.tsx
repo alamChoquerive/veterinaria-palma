@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ESPECIALIDADES } from "@/lib/data/especialidades";
+import { FilaBarra, PanelGrafico } from "@/components/admin/grafico-barras";
 import type { TurnoFila } from "@/components/admin/turnos-panel";
 
 type Periodo = "semana" | "mes" | "año" | "todo";
@@ -39,44 +40,6 @@ function especialidadDe(t: TurnoFila): string {
 function profesionalDe(t: TurnoFila): string {
   const esp = ESPECIALIDADES.find((e) => e.nombre === t.especialidad);
   return esp?.profesional ?? "Sin asignar";
-}
-
-/** Fila de gráfico de barras horizontal (CSS puro) */
-function FilaBarra({
-  etiqueta,
-  valor,
-  max,
-  color,
-}: {
-  etiqueta: string;
-  valor: number;
-  max: number;
-  color: string;
-}) {
-  const porcentaje = max > 0 ? Math.max((valor / max) * 100, valor > 0 ? 5 : 0) : 0;
-  return (
-    <div className="flex items-center gap-3">
-      <span className="w-36 shrink-0 text-xs text-[#64748b] truncate" title={etiqueta}>
-        {etiqueta}
-      </span>
-      <div className="flex-1 h-5 bg-[#f1f5f9] rounded-md overflow-hidden">
-        <div
-          className="h-full rounded-md transition-all"
-          style={{ width: `${porcentaje}%`, backgroundColor: color }}
-        />
-      </div>
-      <span className="w-8 shrink-0 text-right text-xs font-bold text-[#1e293b]">{valor}</span>
-    </div>
-  );
-}
-
-function PanelGrafico({ titulo, children }: { titulo: string; children: React.ReactNode }) {
-  return (
-    <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-      <h3 className="font-semibold text-[#1e293b] mb-4">{titulo}</h3>
-      <div className="space-y-2.5">{children}</div>
-    </section>
-  );
 }
 
 export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
