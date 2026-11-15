@@ -132,6 +132,26 @@ export type Pago = {
 
 export type MetodoEntrega = "retiro_tienda" | "envio_local" | "envio_provincial";
 
+/** Venta presencial (POS) — migración 0011 */
+export type Venta = {
+  id: string;
+  perfil_id: string;
+  cliente_nombre?: string | null;
+  metodo_pago: "efectivo" | "mercadopago";
+  estado: "pagada" | "pago_pendiente" | "cancelado";
+  total: number;
+  created_at: string;
+};
+
+export type VentaItem = {
+  id: string;
+  venta_id: string;
+  producto_id: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+};
+
 export type ZonaEnvio = {
   id: string;
   nombre: string;
@@ -157,6 +177,9 @@ export type Database = {
       medios_pago: { Row: MedioPago; Insert: Omit<MedioPago, "id" | "created_at">; Update: Partial<MedioPago>; Relationships: [] };
       config_tienda: { Row: ConfigTienda; Insert: Omit<ConfigTienda, "updated_at">; Update: Partial<ConfigTienda>; Relationships: [] };
       logs_acceso: { Row: LogAcceso; Insert: Omit<LogAcceso, "id" | "created_at">; Update: Partial<LogAcceso>; Relationships: [] };
+      // Ventas presenciales (POS) — migración 0011
+      ventas: { Row: Venta; Insert: Omit<Venta, "id" | "created_at">; Update: Partial<Venta>; Relationships: [] };
+      venta_items: { Row: VentaItem; Insert: Omit<VentaItem, "id">; Update: Partial<VentaItem>; Relationships: [] };
     };
     Views: Record<string, never>;
     Functions: {
@@ -205,6 +228,26 @@ export type Database = {
       // Solo la ejecuta el operador de la base (postgres, SQL Editor) — 0007.
       asignar_rol: {
         Args: { p_email: string; p_rol: string };
+        Returns: undefined;
+      };
+      es_staff: { Args: Record<string, never>; Returns: boolean };
+      // Solo la ejecuta el servidor (service_role) — migración 0011 (POS).
+      crear_venta_presencial: {
+        Args: {
+          p_perfil_id: string;
+          p_cliente_nombre: string | null;
+          p_metodo_pago: string;
+          p_items: unknown; // jsonb: [{ producto_id, cantidad }]
+        };
+        Returns: { venta_id: string; total: number };
+      };
+      // Solo la ejecuta el servidor (service_role) — 0011 (empleado edita nombre/foto).
+      actualizar_producto_basico: {
+        Args: {
+          p_producto_id: string;
+          p_nombre: string;
+          p_imagen_url: string | null;
+        };
         Returns: undefined;
       };
     };
