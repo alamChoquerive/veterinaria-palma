@@ -150,7 +150,7 @@ export function AuthModal({
           type="button"
           onClick={onClose}
           aria-label="Cerrar"
-          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+          className="absolute top-3 right-3 w-11 h-11 rounded-full flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

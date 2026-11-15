@@ -56,7 +56,7 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
           {userEmail ? (
             <Link
               href="/cuenta"
-              className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+              className="w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
               aria-label={`Mi cuenta (${userEmail})`}
               title={userEmail}
             >
@@ -65,8 +65,11 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
           ) : (
             <button
               type="button"
-              onClick={() => setAuthOpen(true)}
-              className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+              onClick={() => {
+                setMenuOpen(false);
+                setAuthOpen(true);
+              }}
+              className="w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
               aria-label="Iniciar sesión o registrarse"
             >
               {iconoUsuario}
@@ -82,7 +85,7 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
 
           <Link
             href="/carrito"
-            className="relative w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+            className="relative w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
             aria-label="Carrito de compras"
           >
             <svg
@@ -108,7 +111,7 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+            className="md:hidden w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
             aria-label="Menú"
           >
             <svg
@@ -127,44 +130,29 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
       {menuOpen && (
         <div className="md:hidden border-t border-[#e2e8f0] bg-white py-4">
           <Link
-            href="/"
-            className="block px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
-          >
-            Inicio
-          </Link>
-          <Link
             href="/catalogo"
-            className="block px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
+            className="block px-4 py-3 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
           >
             Tienda
           </Link>
           <Link
             href="/nosotros"
-            className="block px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
+            className="block px-4 py-3 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
           >
             Nosotros
           </Link>
           <Link
             href="/contacto"
-            className="block px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
+            className="block px-4 py-3 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
           >
             Contacto
           </Link>
           <Link
             href="/turnos"
-            className="block px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9] font-bold"
+            className="block px-4 py-3 text-sm font-bold text-white bg-[#1e293b] hover:bg-[#0f172a]"
           >
             Pedir turno
           </Link>
-          {!userEmail && (
-            <button
-              type="button"
-              onClick={() => setAuthOpen(true)}
-              className="block w-full text-left px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
-            >
-              Iniciar sesión
-            </button>
-          )}
         </div>
       )}
       </nav>

@@ -37,7 +37,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-[#e2e8f0] pt-4 text-xs text-[#94a3b8] text-center">
-          © 2026 Veterinaria Palma · Proyecto final ITU UNCUYO — Desarrollo de Software
+          © 2026 Veterinaria Palma · Emergencias 24/7: +54 261 555-1234
         </div>
       </div>
     </footer>
