@@ -3,7 +3,7 @@
  * Sincronizar con `supabase/migrations/0001_schema_inicial.sql` (o con
  * `npx supabase gen types typescript --local` si usas Supabase CLI local).
  */
-export type Role = "minorista" | "mayorista" | "admin";
+export type Role = "minorista" | "mayorista" | "admin" | "empleado";
 
 export type Perfil = {
   id: string;
@@ -11,6 +11,8 @@ export type Perfil = {
   nombre?: string;
   apellido?: string;
   telefono?: string;
+  /** Foto de perfil — migración 0010 (el email no se edita, ver trigger) */
+  foto_url?: string | null;
   rol: Role;
   created_at: string;
   updated_at: string;
