@@ -8,6 +8,34 @@ import {
 } from "@/core/actions/schemas";
 
 /**
+ * Devuelve la origin de la URL si es PÚBLICA (https y no localhost):
+ * Mercado Pago rechaza notification_url apuntando a localhost/127.0.0.1
+ * porque sus servidores no pueden llegar a nuestra máquina en local.
+ * En ese caso se omite la notification_url y el pago se verifica al
+ * volver de MP en /checkout/exito (consulta directa a la API de MP).
+ */
+function urlPublica(raw: string | undefined): string | null {
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:") return null;
+    const host = url.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "[::1]" ||
+      host.endsWith(".local") ||
+      host.endsWith(".internal")
+    ) {
+      return null;
+    }
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Crea una preferencia de pago en Mercado Pago para un pedido propio.
  *
  * El monto NUNCA viene del cliente: se lee de `pedidos.total` en la base
@@ -62,6 +90,41 @@ export async function crearPreferenciaPago(
   // Fuente de verdad del monto: la base de datos, no el cliente
   const total = pedido.total;
 
+  // En local (localhost) MP no acepta notification_url: se omite y el pago
+  // se verifica al volver a /checkout/exito. En producción (https público)
+  // sí se envía y el webhook confirma la operación.
+  const appUrl = urlPublica(process.env.NEXT_PUBLIC_APP_URL);
+  const baseUrl = appUrl ?? "http://localhost:3000";
+  if (!appUrl) {
+    console.warn(
+      "[crearPreferenciaPago] NEXT_PUBLIC_APP_URL no es una URL pública: " +
+        "se omite notification_url (el webhook no llega en local; el pago se verifica en /checkout/exito)",
+    );
+  }
+
+  const preferencia: Record<string, unknown> = {
+    items: [
+      {
+        id: pedido.id,
+        title:
+          "Compra en Veterinaria Palma - Pedido #" + pedido.id.slice(0, 8),
+        quantity: 1,
+        currency_id: "ARS",
+        unit_price: total,
+      },
+    ],
+    external_reference: pedido.id,
+    back_urls: {
+      success: `${baseUrl}/checkout/exito`,
+      failure: `${baseUrl}/checkout/fallo`,
+      pending: `${baseUrl}/checkout/fallo`,
+    },
+    auto_return: "approved",
+  };
+  if (appUrl) {
+    preferencia.notification_url = `${appUrl}/api/webhooks/mercadopago`;
+  }
+
   try {
     const response = await fetch(
       "https://api.mercadopago.com/checkout/preferences",
@@ -71,26 +134,7 @@ export async function crearPreferenciaPago(
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          items: [
-            {
-              id: pedido.id,
-              title:
-                "Compra en Veterinaria Palma - Pedido #" + pedido.id.slice(0, 8),
-              quantity: 1,
-              currency_id: "ARS",
-              unit_price: total,
-            },
-          ],
-          external_reference: pedido.id,
-          notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
-          back_urls: {
-            success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/exito`,
-            failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/fallo`,
-            pending: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/fallo`,
-          },
-          auto_return: "approved",
-        }),
+        body: JSON.stringify(preferencia),
       },
     );
 

@@ -116,6 +116,14 @@ export function CheckoutFlow({ zonas }: { zonas: ZonaEnvio[] }) {
     <main className="max-w-4xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
 
+      {/* El error se muestra SIEMPRE: también cuando el pedido ya está creado
+          y falla el inicio del pago (antes quedaba oculto en ese caso) */}
+      {error && (
+        <div className="p-3 rounded bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca] mb-6">
+          {error}
+        </div>
+      )}
+
       {pedidoCreado ? (
         <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl p-6 text-center mb-8">
           <h2 className="text-xl font-bold text-[#065f46] mb-2">
@@ -182,12 +190,6 @@ export function CheckoutFlow({ zonas }: { zonas: ZonaEnvio[] }) {
                 </div>
               </div>
             </div>
-
-            {error && (
-              <div className="p-3 rounded bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca]">
-                {error}
-              </div>
-            )}
 
             <button
               onClick={handleCrearPedido}
