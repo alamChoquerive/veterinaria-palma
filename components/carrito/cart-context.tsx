@@ -92,10 +92,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
   const cantidadTotal = items.reduce((sum, item) => sum + item.cantidad, 0);
 
+  // Todas las altas tienen tope de stock: nunca se agrega más unidades de las
+  // que hay (el stock del producto viaja con el item; el servidor igual valida
+  // al crear el pedido).
   const agregar = useCallback((producto: Producto) => {
+    const stock = Number(producto.stock ?? 0);
+    if (stock <= 0) return;
     actualizar((prev) => {
       const existente = prev.find((i) => i.producto.id === producto.id);
       if (existente) {
+        const max = Math.max(0, Math.min(Number(existente.producto.stock ?? 0), stock));
+        if (existente.cantidad >= max) return prev;
         return prev.map((i) =>
           i.producto.id === producto.id
             ? { ...i, cantidad: i.cantidad + 1 }
@@ -108,19 +115,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const aumentar = useCallback((id: string) => {
     actualizar((prev) =>
-      prev.map((i) =>
-        i.producto.id === id ? { ...i, cantidad: i.cantidad + 1 } : i,
-      ),
+      prev.map((i) => {
+        if (i.producto.id !== id) return i;
+        const max = Number(i.producto.stock ?? 0);
+        if (i.cantidad + 1 > max) return i;
+        return { ...i, cantidad: i.cantidad + 1 };
+      }),
     );
   }, []);
 
+  // disminuir en cantidad 1 NO borra el ítem: para sacarlo está eliminar()
+  // (que en la UI pide confirmación). Así un tap de más no destruye la fila.
   const disminuir = useCallback((id: string) => {
     actualizar((prev) => {
       const existente = prev.find((i) => i.producto.id === id);
-      if (!existente) return prev;
-      if (existente.cantidad <= 1) {
-        return prev.filter((i) => i.producto.id !== id);
-      }
+      if (!existente || existente.cantidad <= 1) return prev;
       return prev.map((i) =>
         i.producto.id === id ? { ...i, cantidad: i.cantidad - 1 } : i,
       );
