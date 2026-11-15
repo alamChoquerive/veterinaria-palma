@@ -337,3 +337,35 @@ export type DatosTiendaInput = z.infer<typeof datosTiendaSchema>;
 export type NotificacionesInput = z.infer<typeof notificacionesSchema>;
 export type CrearEmpleadoInput = z.infer<typeof crearEmpleadoSchema>;
 export type EliminarUsuarioInput = z.infer<typeof eliminarUsuarioSchema>;
+
+/**
+ * Venta presencial (POS): el empleado SOLO envía cliente (opcional),
+ * método de pago e items. El total y el descuento de stock los calcula
+ * la RPC crear_venta_presencial (service_role), nunca el cliente.
+ */
+export const crearVentaPresencialSchema = z.object({
+  clienteNombre: textoOpcional(120, "El nombre del cliente es demasiado largo"),
+  metodoPago: z.enum(["efectivo", "mercadopago"], {
+    message: "Elegí el método de pago",
+  }),
+  items: z
+    .array(
+      z.object({
+        productoId: z.string().uuid("ID de producto inválido"),
+        cantidad: z
+          .number()
+          .int("La cantidad debe ser un número entero")
+          .positive("La cantidad debe ser positiva")
+          .max(9999, "Cantidad demasiado alta"),
+      }),
+    )
+    .min(1, "Agregá al menos un producto al ticket"),
+});
+
+export const actualizarEstadoVentaSchema = z.object({
+  ventaId: z.string().uuid("ID de venta inválido"),
+  estado: z.enum(["pagada", "pago_pendiente", "cancelado"]),
+});
+
+export type CrearVentaPresencialInput = z.infer<typeof crearVentaPresencialSchema>;
+export type ActualizarEstadoVentaInput = z.infer<typeof actualizarEstadoVentaSchema>;

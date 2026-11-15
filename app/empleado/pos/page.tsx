@@ -1,9 +1,52 @@
-export default function EmpleadoPosPage() {
+import { createClient } from "@/core/supabase/server";
+import {
+  PosPanel,
+  type ProductoPos,
+  type VentaDelDia,
+} from "@/components/empleado/pos-panel";
+import type { Venta, MedioPago } from "@/types/database.types";
+
+export default async function EmpleadoPosPage() {
+  const supabase = await createClient();
+
+  const [productos, medios, ventas, perfiles] = await Promise.all([
+    supabase
+      .from("productos")
+      .select("id, nombre, precio_minorista, stock, imagen_url, activo")
+      .eq("activo", true)
+      .order("nombre"),
+    supabase
+      .from("medios_pago")
+      .select("clave, nombre, activo")
+      .eq("activo", true)
+      .order("nombre"),
+    supabase
+      .from("ventas")
+      .select("*")
+      .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString())
+      .order("created_at", { ascending: false }),
+    supabase.from("perfiles").select("id, nombre, apellido, email"),
+  ]);
+
+  // Solo efectivo y mercadopago aplican al POS
+  const mediosPos = (medios.data ?? []).filter((m) =>
+    ["efectivo", "mercadopago"].includes(m.clave),
+  ) as MedioPago[];
+
+  const mapaPerfiles = new Map((perfiles.data ?? []).map((p) => [p.id, p]));
+  const filasVentas: VentaDelDia[] = (ventas.data ?? []).map((v) => ({
+    ...(v as Venta),
+    vendedor:
+      mapaPerfiles.get(v.perfil_id)?.nombre ??
+      mapaPerfiles.get(v.perfil_id)?.email ??
+      "—",
+  }));
+
   return (
-    <div className="space-y-2">
-      <h2 className="text-2xl font-bold text-[#1e293b]">Venta presencial</h2>
-      <p className="text-[#64748b]">Punto de venta (POS).</p>
-      <p className="text-sm text-[#94a3b8] pt-6">Sección en construcción.</p>
-    </div>
+    <PosPanel
+      productos={(productos.data ?? []) as ProductoPos[]}
+      medios={mediosPos}
+      ventasHoy={filasVentas}
+    />
   );
 }
