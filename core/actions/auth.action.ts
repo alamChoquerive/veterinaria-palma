@@ -112,7 +112,14 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     ip,
   });
 
-  redirect(perfil?.rol === "admin" ? "/admin/dashboard" : "/");
+  // Sin redirect pedido: admin y empleado van a su panel; el resto, al inicio
+  redirect(
+    perfil?.rol === "admin"
+      ? "/admin/dashboard"
+      : perfil?.rol === "empleado"
+        ? "/empleado/dashboard"
+        : "/",
+  );
 }
 
 /**

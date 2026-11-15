@@ -39,13 +39,24 @@ export async function verificarRol(rolRequerido: string): Promise<{
   autorizado: boolean;
   error: string | null;
 }> {
+  return verificarRolEn([rolRequerido]);
+}
+
+/**
+ * Verifica si el usuario autenticado tiene alguno de los roles dados
+ * (ej. el panel del empleado lo ven empleado y admin).
+ */
+export async function verificarRolEn(roles: string[]): Promise<{
+  autorizado: boolean;
+  error: string | null;
+}> {
   const { perfil, error } = await getPerfilActual();
 
   if (error || !perfil) {
     return { autorizado: false, error: error ?? "Usuario no autenticado" };
   }
 
-  if (perfil.rol !== rolRequerido) {
+  if (!roles.includes(perfil.rol)) {
     return {
       autorizado: false,
       error: "No tenés permisos para acceder a esta sección",

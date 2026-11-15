@@ -26,6 +26,10 @@ async function rolDelUsuario(userId: string): Promise<string | null> {
   return data?.rol ?? null;
 }
 
+function esStaff(rol: string | null): boolean {
+  return rol === "admin" || rol === "empleado";
+}
+
 /**
  * Normaliza los campos opcionales de texto a null para la RPC
  * (la DB guarda null, no string vacío).
@@ -117,9 +121,9 @@ export async function crearTurno(
 }
 
 /**
- * Crea un turno presencial desde el panel admin (sin cuenta de cliente).
- * Solo rol admin; la RPC (service_role) valida fecha/horario/solapamiento
- * y exige el nombre del responsable cuando no hay perfil.
+ * Crea un turno presencial desde el panel (sin cuenta de cliente).
+ * Solo staff (admin o empleado); la RPC (service_role) valida
+ * fecha/horario/solapamiento y exige el responsable cuando no hay perfil.
  */
 export async function crearTurnoPresencial(
   datos: CrearTurnoPresencialInput,
@@ -156,8 +160,8 @@ export async function crearTurnoPresencial(
   }
 
   const rol = await rolDelUsuario(user.id);
-  if (rol !== "admin") {
-    return { ok: false, error: "Solo un administrador puede crear turnos presenciales" };
+  if (!esStaff(rol)) {
+    return { ok: false, error: "Solo el personal de la tienda puede crear turnos presenciales" };
   }
 
   // Rate limit por usuario: 5 turnos cada 5 minutos
@@ -234,9 +238,9 @@ export async function cancelarTurno(turnoId: string): Promise<ActionResult> {
 }
 
 /**
- * Cambia el estado de un turno desde el panel admin
- * (confirmar, marcar atendido, cancelar). Solo rol admin: RLS dejaría
- * también al dueño, pero esta action es exclusiva del panel.
+ * Cambia el estado de un turno desde el panel
+ * (confirmar, marcar atendido, cancelar). Solo staff (admin o empleado):
+ * RLS dejaría también al dueño, pero esta action es exclusiva del panel.
  */
 export async function actualizarEstadoTurno(
   turnoId: string,
@@ -258,8 +262,8 @@ export async function actualizarEstadoTurno(
   }
 
   const rol = await rolDelUsuario(user.id);
-  if (rol !== "admin") {
-    return { ok: false, error: "Solo un administrador puede cambiar el estado de un turno" };
+  if (!esStaff(rol)) {
+    return { ok: false, error: "Solo el personal de la tienda puede cambiar el estado de un turno" };
   }
 
   const { error } = await supabase

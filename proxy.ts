@@ -75,7 +75,10 @@ export function proxy(request: NextRequest) {
     .getAll()
     .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
 
-  const isProtected = pathname.startsWith("/admin") || pathname.startsWith("/cuenta");
+  const isProtected =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/empleado") ||
+    pathname.startsWith("/cuenta");
 
   if (isProtected && !hasSession) {
     const url = request.nextUrl.clone();
