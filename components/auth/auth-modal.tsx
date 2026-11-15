@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginAction, registroAction } from "@/core/actions/auth.action";
 import { Input } from "@/components/ui/input";
@@ -41,13 +42,48 @@ export function AuthModal({
   const [loading, setLoading] = useState(false);
   const [registroExitoso, setRegistroExitoso] = useState(false);
 
-  // Cierre con tecla Escape
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const focoPrevio = useRef<HTMLElement | null>(null);
+
+  // Escape para cerrar + focus trap: al abrir, el foco va al diálogo y Tab
+  // queda ciclando dentro; al cerrar se restaura el foco anterior.
   useEffect(() => {
+    focoPrevio.current = document.activeElement as HTMLElement | null;
+    const root = dialogRef.current;
+    const enfocables = () =>
+      root
+        ? Array.from(
+            root.querySelectorAll<HTMLElement>(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            ),
+          ).filter((el) => !el.hasAttribute("disabled"))
+        : [];
+    enfocables()[0]?.focus();
+
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !root) return;
+      const items = enfocables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const activo = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (activo === first || !root.contains(activo))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (activo === last || !root.contains(activo))) {
+        e.preventDefault();
+        first.focus();
+      }
     }
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      focoPrevio.current?.focus?.();
+    };
   }, [onClose]);
 
   async function handleLogin(formData: FormData) {
@@ -103,9 +139,10 @@ export function AuthModal({
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Iniciar sesión o crear cuenta"
+      aria-labelledby="auth-modal-titulo"
     >
       <div
+        ref={dialogRef}
         className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
@@ -131,7 +168,7 @@ export function AuthModal({
           </svg>
         </button>
 
-        <h2 className="text-xl font-bold text-[#1e293b] mb-4 pr-8">
+        <h2 id="auth-modal-titulo" className="text-xl font-bold text-[#1e293b] mb-4 pr-8">
           {tab === "login" ? "Iniciar sesión" : "Crear cuenta"}
         </h2>
 
@@ -154,34 +191,64 @@ export function AuthModal({
         </div>
 
         {errorInicial && (
-          <p className="text-sm text-destructive mb-3">{errorInicial}</p>
+          <p className="text-sm text-destructive mb-3" aria-live="polite">
+            {errorInicial}
+          </p>
         )}
 
         {tab === "login" ? (
           <form action={handleLogin} className="space-y-3">
-            <Input
-              name="email"
-              type="email"
-              placeholder="Email"
-              required
-              autoComplete="email"
-            />
-            <Input
-              name="password"
-              type="password"
-              placeholder="Contraseña"
-              required
-              autoComplete="current-password"
-            />
-            <Button type="submit" className="w-full" disabled={loading}>
+            <div>
+              <label htmlFor="auth-login-email" className="sr-only">
+                Email
+              </label>
+              <Input
+                id="auth-login-email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                required
+                autoComplete="email"
+              />
+            </div>
+            <div>
+              <label htmlFor="auth-login-password" className="sr-only">
+                Contraseña
+              </label>
+              <Input
+                id="auth-login-password"
+                name="password"
+                type="password"
+                placeholder="Contraseña"
+                required
+                autoComplete="current-password"
+              />
+            </div>
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full"
+              disabled={loading}
+            >
               {loading ? "Entrando..." : "Entrar"}
             </Button>
+            <p className="text-xs text-[#94a3b8]">
+              ¿Olvidaste tu contraseña?{" "}
+              <Link
+                href="/contacto"
+                onClick={onClose}
+                className="text-[#1e293b] hover:underline"
+              >
+                Contactanos
+              </Link>{" "}
+              y te ayudamos a recuperarla.
+            </p>
           </form>
         ) : registroExitoso ? (
           <div className="space-y-4 text-center">
             <p className="text-sm text-[#065f46] bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg p-3">
-              Cuenta creada correctamente. Si tu proyecto de Supabase tiene la
-              confirmación de email activada, revisá tu correo antes de entrar.
+              Cuenta creada correctamente. Si tenés la confirmación de email
+              activada, revisá tu correo antes de entrar.
             </p>
             <Button
               type="button"
@@ -193,30 +260,73 @@ export function AuthModal({
           </div>
         ) : (
           <form action={handleRegistro} className="space-y-3">
-            <Input name="nombre" placeholder="Nombre" required minLength={2} />
-            <Input name="apellido" placeholder="Apellido" required minLength={2} />
-            <Input
-              name="email"
-              type="email"
-              placeholder="Email"
-              required
-              autoComplete="email"
-            />
-            <Input
-              name="password"
-              type="password"
-              placeholder="Contraseña (mínimo 6 caracteres)"
-              required
-              minLength={6}
-              autoComplete="new-password"
-            />
-            <Button type="submit" className="w-full" disabled={loading}>
+            <div>
+              <label htmlFor="auth-registro-nombre" className="sr-only">
+                Nombre
+              </label>
+              <Input
+                id="auth-registro-nombre"
+                name="nombre"
+                placeholder="Nombre"
+                required
+                minLength={2}
+              />
+            </div>
+            <div>
+              <label htmlFor="auth-registro-apellido" className="sr-only">
+                Apellido
+              </label>
+              <Input
+                id="auth-registro-apellido"
+                name="apellido"
+                placeholder="Apellido"
+                required
+                minLength={2}
+              />
+            </div>
+            <div>
+              <label htmlFor="auth-registro-email" className="sr-only">
+                Email
+              </label>
+              <Input
+                id="auth-registro-email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                required
+                autoComplete="email"
+              />
+            </div>
+            <div>
+              <label htmlFor="auth-registro-password" className="sr-only">
+                Contraseña
+              </label>
+              <Input
+                id="auth-registro-password"
+                name="password"
+                type="password"
+                placeholder="Contraseña (mínimo 6 caracteres)"
+                required
+                minLength={6}
+                autoComplete="new-password"
+              />
+            </div>
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full"
+              disabled={loading}
+            >
               {loading ? "Creando..." : "Crear cuenta"}
             </Button>
           </form>
         )}
 
-        {error && <p className="text-sm text-destructive mt-3">{error}</p>}
+        {error && (
+          <p className="text-sm text-destructive mt-3" aria-live="polite">
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
