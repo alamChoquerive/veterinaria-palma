@@ -90,15 +90,16 @@ export async function crearPreferenciaPago(
   // Fuente de verdad del monto: la base de datos, no el cliente
   const total = pedido.total;
 
-  // En local (localhost) MP no acepta notification_url: se omite y el pago
-  // se verifica al volver a /checkout/exito. En producción (https público)
-  // sí se envía y el webhook confirma la operación.
+  // En local (localhost) MP rechaza auto_return y notification_url con
+  // back_url localhost (error 400 invalid_auto_return): se omiten y el pago
+  // se verifica al volver a /checkout/exito vía el botón "Volver al sitio".
+  // En producción (https público) sí se envían: retorno automático + webhook.
   const appUrl = urlPublica(process.env.NEXT_PUBLIC_APP_URL);
   const baseUrl = appUrl ?? "http://localhost:3000";
   if (!appUrl) {
     console.warn(
       "[crearPreferenciaPago] NEXT_PUBLIC_APP_URL no es una URL pública: " +
-        "se omite notification_url (el webhook no llega en local; el pago se verifica en /checkout/exito)",
+        "se omiten auto_return y notification_url (en local el pago se verifica en /checkout/exito)",
     );
   }
 
@@ -119,9 +120,9 @@ export async function crearPreferenciaPago(
       failure: `${baseUrl}/checkout/fallo`,
       pending: `${baseUrl}/checkout/fallo`,
     },
-    auto_return: "approved",
   };
   if (appUrl) {
+    preferencia.auto_return = "approved";
     preferencia.notification_url = `${appUrl}/api/webhooks/mercadopago`;
   }
 
