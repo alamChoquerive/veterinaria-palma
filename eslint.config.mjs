@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Skills instaladas en el repo (.agents) y snapshots de impeccable
+    // (.impeccable) son tooling, no código de la app:
+    ".agents/**",
+    ".impeccable/**",
   ]),
 ]);
 

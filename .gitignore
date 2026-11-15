@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# skills/tooling local instalado por OpenCode (no es código de la app)
+.agents/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
