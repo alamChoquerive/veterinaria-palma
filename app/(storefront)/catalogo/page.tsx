@@ -1,5 +1,5 @@
 import { createClient } from "@/core/supabase/server";
-import { ProductoCard } from "@/components/catalogo/producto-card";
+import { CatalogoExplorer } from "@/components/catalogo/catalogo-explorer";
 import type { Producto } from "@/types/database.types";
 
 export default async function CatalogoPage() {
@@ -13,7 +13,8 @@ export default async function CatalogoPage() {
 
   const { data: categorias } = await supabase
     .from("categorias")
-    .select("id, nombre");
+    .select("id, nombre")
+    .order("nombre");
 
   if (error) {
     return (
@@ -24,21 +25,13 @@ export default async function CatalogoPage() {
     );
   }
 
-  const nombreCategoria = (categoriaId: string | null) =>
-    categorias?.find((c) => c.id === categoriaId)?.nombre ?? null;
-
   return (
     <main className="max-w-6xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-semibold mb-6">Catálogo de productos</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {(productos ?? []).map((p) => (
-          <ProductoCard
-            key={p.id}
-            producto={p as Producto}
-            categoria={nombreCategoria(p.categoria_id)}
-          />
-        ))}
-      </div>
+      <CatalogoExplorer
+        productos={(productos ?? []) as Producto[]}
+        categorias={categorias ?? []}
+      />
     </main>
   );
 }

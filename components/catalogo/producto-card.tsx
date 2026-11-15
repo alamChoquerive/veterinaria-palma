@@ -12,10 +12,12 @@ interface ProductoCardProps {
 }
 
 export function ProductoCard({ producto, categoria }: ProductoCardProps) {
-  const { agregar } = useCart();
+  const { agregar, items } = useCart();
   const [agregado, setAgregado] = useState(false);
 
   const sinStock = producto.stock <= 0;
+  const enCarrito = items.find((i) => i.producto.id === producto.id)?.cantidad ?? 0;
+  const maxed = !sinStock && enCarrito >= producto.stock;
 
   function handleAgregar() {
     agregar(producto);
@@ -44,11 +46,19 @@ export function ProductoCard({ producto, categoria }: ProductoCardProps) {
           {formatearMoneda(Number(producto.precio_minorista))}
         </span>
         <button
+          type="button"
           onClick={handleAgregar}
-          disabled={sinStock}
-          className="px-4 py-2 bg-[#1e293b] text-white rounded text-sm font-medium hover:bg-[#0f172a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          disabled={sinStock || maxed}
+          title={maxed ? `Máximo ${producto.stock} en stock` : undefined}
+          className="px-4 py-2 bg-[#1e293b] text-white rounded text-sm font-medium hover:bg-[#0f172a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {sinStock ? "Sin stock" : agregado ? "Agregado ✓" : "Agregar"}
+          {sinStock
+            ? "Sin stock"
+            : maxed
+              ? "Máx. en carrito"
+              : agregado
+                ? "Agregado ✓"
+                : "Agregar"}
         </button>
       </div>
     </article>
