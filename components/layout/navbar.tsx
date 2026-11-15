@@ -3,13 +3,33 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/components/carrito/cart-context";
+import { AuthModal } from "@/components/auth/auth-modal";
 
 export function Navbar({ userEmail }: { userEmail: string | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const { cantidadTotal } = useCart();
 
+  const iconoUsuario = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5.121 17.804A13.9 13.9 0 015 20c-1 0 1.954.177 3.857.586M11 9.885V14m4 0v4.111m-10 .111v1.766c0 .832.096 1.653.274 2.454-.365.05-.73.095-1.095.095-1.886 0-3.427-1.4-3.857-3.172A14.6 14.6 0 0111 9.885zM16.564 16.564a1 1 0 01-1.414 0l-2.829-2.829a1 1 0 011.414-1.414l2.829 2.829a1 1 0 010 1.414z"
+      />
+    </svg>
+  );
+
   return (
-    <nav className="sticky top-0 z-40 border-b border-[#e2e8f0] bg-white/95 backdrop-blur">
+    <>
+      <nav className="sticky top-0 z-40 border-b border-[#e2e8f0] bg-white/95 backdrop-blur">
       <div className="px-4 md:px-6 py-3 flex items-center justify-between">
         <Link
           href="/"
@@ -29,29 +49,29 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* El icono navega directo según la sesión: logueado → /cuenta,
-              sin sesión → /login (el cierre de sesión está en /cuenta) */}
-          <Link
-            href={userEmail ? "/cuenta" : "/login"}
-            className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
-            aria-label={userEmail ? `Mi cuenta (${userEmail})` : "Iniciar sesión o registrarse"}
-            title={userEmail ?? undefined}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {/* Icono de cuenta según la sesión: logueado → /cuenta;
+              sin sesión → abre el AuthModal encima de la página actual
+              (/login sigue como fallback para enlaces directos y redirects
+              del proxy en rutas protegidas) */}
+          {userEmail ? (
+            <Link
+              href="/cuenta"
+              className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+              aria-label={`Mi cuenta (${userEmail})`}
+              title={userEmail}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5.121 17.804A13.9 13.9 0 015 20c-1 0 1.954.177 3.857.586M11 9.885V14m4 0v4.111m-10 .111v1.766c0 .832.096 1.653.274 2.454-.365.05-.73.095-1.095.095-1.886 0-3.427-1.4-3.857-3.172A14.6 14.6 0 0111 9.885zM16.564 16.564a1 1 0 01-1.414 0l-2.829-2.829a1 1 0 011.414-1.414l2.829 2.829a1 1 0 010 1.414z"
-              />
-            </svg>
-          </Link>
+              {iconoUsuario}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+              aria-label="Iniciar sesión o registrarse"
+            >
+              {iconoUsuario}
+            </button>
+          )}
 
           <Link
             href="/turnos"
@@ -136,8 +156,20 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
           >
             Pedir turno
           </Link>
+          {!userEmail && (
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className="block w-full text-left px-4 py-2 text-sm font-medium text-[#64748b] hover:bg-[#f1f5f9]"
+            >
+              Iniciar sesión
+            </button>
+          )}
         </div>
       )}
-    </nav>
+      </nav>
+
+      {authOpen && !userEmail && <AuthModal onClose={() => setAuthOpen(false)} />}
+    </>
   );
 }
