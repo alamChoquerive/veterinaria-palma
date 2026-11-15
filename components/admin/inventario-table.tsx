@@ -22,7 +22,13 @@ interface FormEdicion {
   activo: boolean;
 }
 
-export function InventarioTable({ productos }: { productos: ProductoFila[] }) {
+export function InventarioTable({
+  productos,
+  soloLectura = false,
+}: {
+  productos: ProductoFila[];
+  soloLectura?: boolean;
+}) {
   const router = useRouter();
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -155,28 +161,34 @@ export function InventarioTable({ productos }: { productos: ProductoFila[] }) {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center space-x-1">
-                    <button
-                      onClick={() => ajustarStock(p.id, 1)}
-                      disabled={cargando}
-                      className="px-2.5 py-1.5 text-xs bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
-                      aria-label={`Aumentar stock de ${p.nombre}`}
-                    >
-                      +1
-                    </button>
-                    <button
-                      onClick={() => ajustarStock(p.id, -1)}
-                      disabled={cargando}
-                      className="px-2.5 py-1.5 text-xs bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
-                      aria-label={`Disminuir stock de ${p.nombre}`}
-                    >
-                      -1
-                    </button>
-                    <button
-                      onClick={() => abrirEdicion(p)}
-                      className="px-2.5 py-1.5 text-xs border border-[#e2e8f0] text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
-                    >
-                      Editar
-                    </button>
+                    {soloLectura ? (
+                      <span className="text-xs text-[#94a3b8]">—</span>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => ajustarStock(p.id, 1)}
+                          disabled={cargando}
+                          className="px-2.5 py-1.5 text-xs bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                          aria-label={`Aumentar stock de ${p.nombre}`}
+                        >
+                          +1
+                        </button>
+                        <button
+                          onClick={() => ajustarStock(p.id, -1)}
+                          disabled={cargando}
+                          className="px-2.5 py-1.5 text-xs bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                          aria-label={`Disminuir stock de ${p.nombre}`}
+                        >
+                          -1
+                        </button>
+                        <button
+                          onClick={() => abrirEdicion(p)}
+                          className="px-2.5 py-1.5 text-xs border border-[#e2e8f0] text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
+                        >
+                          Editar
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               );
@@ -187,8 +199,8 @@ export function InventarioTable({ productos }: { productos: ProductoFila[] }) {
 
       {cargando && <p className="text-sm text-[#64748b]">Cargando...</p>}
 
-      {/* Modal de edición */}
-      {editando && form && (
+      {/* Modal de edición (solo en modo editable) */}
+      {!soloLectura && editando && form && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-lg w-full max-w-md p-6">
             <h3 className="text-lg font-bold text-[#1e293b] mb-4">

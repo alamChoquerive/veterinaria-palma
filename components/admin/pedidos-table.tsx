@@ -51,7 +51,13 @@ const TODOS_ESTADOS = [
   "cancelado",
 ] as const;
 
-export function PedidosTable({ pedidos }: { pedidos: PedidoAdminFila[] }) {
+export function PedidosTable({
+  pedidos,
+  puedeCambiarEstado = true,
+}: {
+  pedidos: PedidoAdminFila[];
+  puedeCambiarEstado?: boolean;
+}) {
   const router = useRouter();
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [cargando, setCargando] = useState(false);
@@ -117,7 +123,9 @@ export function PedidosTable({ pedidos }: { pedidos: PedidoAdminFila[] }) {
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Envío</th>
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Estado</th>
               <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Total</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Cambiar estado</th>
+              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">
+                {puedeCambiarEstado ? "Cambiar estado" : "—"}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -145,19 +153,23 @@ export function PedidosTable({ pedidos }: { pedidos: PedidoAdminFila[] }) {
                       {formatearMoneda(Number(p.total))}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <select
-                        value={p.estado}
-                        disabled={cargando}
-                        onChange={(e) =>
-                          cambiarEstado(p.id, e.target.value as (typeof TODOS_ESTADOS)[number])
-                        }
-                        className="border border-[#e2e8f0] rounded-lg px-2 py-1 text-xs bg-white disabled:opacity-50"
-                        aria-label={`Cambiar estado del pedido ${p.id.slice(0, 8)}`}
-                      >
-                        {TODOS_ESTADOS.map((e) => (
-                          <option key={e} value={e}>{ETIQUETA_ESTADO[e]}</option>
-                        ))}
-                      </select>
+                      {puedeCambiarEstado ? (
+                        <select
+                          value={p.estado}
+                          disabled={cargando}
+                          onChange={(e) =>
+                            cambiarEstado(p.id, e.target.value as (typeof TODOS_ESTADOS)[number])
+                          }
+                          className="border border-[#e2e8f0] rounded-lg px-2 py-1 text-xs bg-white disabled:opacity-50"
+                          aria-label={`Cambiar estado del pedido ${p.id.slice(0, 8)}`}
+                        >
+                          {TODOS_ESTADOS.map((e) => (
+                            <option key={e} value={e}>{ETIQUETA_ESTADO[e]}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="text-xs text-[#94a3b8]">—</span>
+                      )}
                     </td>
                   </tr>
                 );

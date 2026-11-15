@@ -124,6 +124,30 @@ export type ActualizarStockInput = z.infer<typeof actualizarStockSchema>;
 export type ActualizarProductoInput = z.infer<typeof actualizarProductoSchema>;
 
 /**
+ * Edición básica de producto para el empleado: SOLO nombre y foto.
+ * Precios, stock y estado quedan reservados al admin; la escritura la
+ * hace la RPC actualizar_producto_basico (service_role) — 0011.
+ */
+export const actualizarProductoBasicoSchema = z.object({
+  productoId: z.string().uuid("ID de producto inválido"),
+  nombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(120, "El nombre es demasiado largo"),
+  imagenUrl: z
+    .string()
+    .trim()
+    .max(500, "La URL de la imagen es demasiado larga")
+    .optional()
+    .or(z.literal("")),
+});
+
+export type ActualizarProductoBasicoInput = z.infer<
+  typeof actualizarProductoBasicoSchema
+>;
+
+/**
  * Creación de pedido: el cliente SOLO envía qué productos quiere y el método
  * de entrega. Precios, costo de envío y total los calcula el servidor
  * (RPC crear_pedido), nunca se aceptan del cliente.

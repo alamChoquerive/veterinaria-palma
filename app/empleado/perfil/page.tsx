@@ -1,9 +1,8 @@
-export default function EmpleadoPerfilPage() {
-  return (
-    <div className="space-y-2">
-      <h2 className="text-2xl font-bold text-[#1e293b]">Mi perfil</h2>
-      <p className="text-[#64748b]">Tus datos personales.</p>
-      <p className="text-sm text-[#94a3b8] pt-6">Sección en construcción.</p>
-    </div>
-  );
+import { getPerfilActual } from "@/core/services/auth.service";
+import { PerfilPropioPanel } from "@/components/empleado/perfil-propio-panel";
+import type { Perfil } from "@/types/database.types";
+
+export default async function EmpleadoPerfilPage() {
+  const { perfil } = await getPerfilActual();
+  return <PerfilPropioPanel perfilActual={(perfil ?? null) as Perfil | null} />;
 }

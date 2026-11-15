@@ -73,6 +73,7 @@ export async function actualizarPerfilPropio(
   }
 
   revalidatePath("/admin/perfil");
+  revalidatePath("/empleado/perfil");
   revalidatePath("/cuenta");
   return { ok: true, data: { actualizado: true } };
 }

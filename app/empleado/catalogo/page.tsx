@@ -1,9 +1,31 @@
-export default function EmpleadoCatalogoPage() {
+import { createClient } from "@/core/supabase/server";
+import {
+  CatalogoEmpleadoTable,
+  type ProductoEmpleadoFila,
+} from "@/components/empleado/catalogo-empleado-table";
+import type { Producto } from "@/types/database.types";
+
+export default async function EmpleadoCatalogoPage() {
+  const supabase = await createClient();
+
+  const [productos, categorias] = await Promise.all([
+    supabase.from("productos").select("*").order("nombre"),
+    supabase.from("categorias").select("id, nombre").order("nombre"),
+  ]);
+
+  const cats = categorias.data ?? [];
+  const filas: ProductoEmpleadoFila[] = (productos.data ?? []).map((p) => ({
+    ...(p as Producto),
+    categoria: cats.find((c) => c.id === p.categoria_id)?.nombre ?? null,
+  }));
+
   return (
-    <div className="space-y-2">
-      <h2 className="text-2xl font-bold text-[#1e293b]">Catálogo</h2>
-      <p className="text-[#64748b]">Solo podés editar foto y nombre del producto.</p>
-      <p className="text-sm text-[#94a3b8] pt-6">Sección en construcción.</p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Catálogo</h2>
+        <p className="text-[#64748b]">Solo podés editar el nombre y la foto del producto.</p>
+      </div>
+      <CatalogoEmpleadoTable productos={filas} />
     </div>
   );
 }

@@ -27,6 +27,14 @@ as $$
   )
 $$;
 
+-- ---------- perfiles: el staff lee los datos de los clientes ----------
+-- (los paneles de turnos, pedidos y POS muestran nombre/email del cliente
+-- y del vendedor)
+
+drop policy if exists "perfil propio lectura" on public.perfiles;
+create policy "perfiles lectura staff" on public.perfiles
+  for select using (id = auth.uid() or public.es_staff());
+
 -- ---------- turnos: el staff lee y gestiona todos ----------
 
 drop policy if exists "turnos propios lectura" on public.turnos;
