@@ -1,9 +1,27 @@
-export default function AdminPerfilPage() {
+import { createClient } from "@/core/supabase/server";
+import { getPerfilActual } from "@/core/services/auth.service";
+import { PerfilAjustesPanel } from "@/components/admin/perfil-ajustes-panel";
+import type { Perfil } from "@/types/database.types";
+
+export default async function AdminPerfilPage() {
+  const supabase = await createClient();
+  const { perfil } = await getPerfilActual();
+
+  const [config, perfiles] = await Promise.all([
+    supabase.from("config_tienda").select("clave, valor"),
+    supabase
+      .from("perfiles")
+      .select("*")
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const configMapa = new Map((config.data ?? []).map((c) => [c.clave, c.valor]));
+
   return (
-    <div className="space-y-2">
-      <h2 className="text-2xl font-bold text-[#1e293b]">Perfil/Ajustes</h2>
-      <p className="text-[#64748b]">Tu perfil, datos de la tienda, notificaciones y equipo.</p>
-      <p className="text-sm text-[#94a3b8] pt-6">Sección en construcción.</p>
-    </div>
+    <PerfilAjustesPanel
+      perfilActual={(perfil ?? null) as Perfil | null}
+      config={Object.fromEntries(configMapa)}
+      usuarios={(perfiles.data ?? []) as Perfil[]}
+    />
   );
 }
