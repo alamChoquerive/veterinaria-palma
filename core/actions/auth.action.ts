@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { esRedirectInterno } from "@/lib/redirect";
 import { ipDelCliente, verificarRateLimit } from "@/core/rate-limit";
+import { registrarIntentoLogin } from "@/core/services/log-acceso.service";
 import {
   loginSchema,
   registroSchema,
@@ -75,6 +76,8 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
       error.status,
       error.message,
     );
+    // Log de acceso fallido (solo service_role puede escribir la tabla)
+    await registrarIntentoLogin({ email, exito: false, ip });
     const mensaje =
       error.code === "invalid_credentials"
         ? "Email o contraseña incorrectos"
@@ -100,6 +103,14 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     .select("rol")
     .eq("id", authData.user?.id ?? "")
     .maybeSingle();
+
+  // Log de acceso exitoso (antes del redirect porque redirect() lanza)
+  await registrarIntentoLogin({
+    email,
+    exito: true,
+    perfilId: authData.user?.id ?? null,
+    ip,
+  });
 
   redirect(perfil?.rol === "admin" ? "/admin/dashboard" : "/");
 }
