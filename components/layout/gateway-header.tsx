@@ -36,7 +36,9 @@ export function GatewayHeader({ tieneSesion }: { tieneSesion: boolean }) {
           <div className="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center text-white text-sm font-medium">
             P
           </div>
-          <span className="font-semibold text-[#1e293b] tracking-tight">Palma</span>
+          <span className="font-semibold text-[#1e293b] tracking-tight hidden sm:inline">
+            Veterinaria Palma
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {tieneSesion ? (

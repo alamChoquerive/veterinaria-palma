@@ -27,8 +27,8 @@ export default async function GatewayPage() {
             d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.4365.9958A1 1 0 007.757 2.112c9.127 3.076 11.866 10.38 4.295 14.677A10.26 10.26 0 0113.464 19c1.985 0 3.84-.76 5.195-2.006L16.23 20.44a1 1 0 001.552-.548M13.789 3.158c-2.676-.9-5.215-.135-6.96 1.978a1 1 0 00-1.083 1.596c.653 1.093 1.736 1.64 2.812 1.488a1 1 0 00.692-.228m0 0a1 1 0 00.692-.228m-1.083-1.596a1 1 0 00-1.083 1.596M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6"
           />
         </svg>
-        <a href="tel:0800VETAYUDA" className="hover:underline">
-          Emergencias 24/7: 0800-VET-AYUDA
+        <a href="tel:+542615551234" className="hover:underline">
+          Emergencias 24/7: +54 261 555-1234
         </a>
       </div>
 
@@ -51,9 +51,11 @@ export default async function GatewayPage() {
           </div>
           <span className="text-xs font-medium uppercase tracking-wider mb-2 opacity-70">Salud y bienestar</span>
           <h2 className="text-3xl md:text-5xl font-bold mb-3">Clínica Veterinaria</h2>
-          <p className="text-md mb-6 max-w-xs text-center">Cuidamos su salud.</p>
+          <p className="text-base mb-6 max-w-xs text-center">
+            Consultas, vacunación y urgencias 24/7 en Maipú.
+          </p>
           <span className="bg-[#0f766e] text-white px-8 py-3 rounded-lg text-sm font-medium hover:bg-[#115e59] transition-colors flex items-center gap-2">
-            Reservar Turno <span>→</span>
+            Pedir turno urgente <span>→</span>
           </span>
         </Link>
 
@@ -69,9 +71,11 @@ export default async function GatewayPage() {
           </div>
           <span className="text-xs font-medium uppercase tracking-wider mb-2 opacity-70">Tienda especializada</span>
           <h2 className="text-3xl md:text-5xl font-bold mb-3">Pet Shop</h2>
-          <p className="text-md mb-6 max-w-xs text-center">Todo lo que necesita.</p>
+          <p className="text-base mb-6 max-w-xs text-center">
+            Alimentos, accesorios e higiene con envío en 24h en Maipú.
+          </p>
           <span className="bg-[#c2410c] text-white px-8 py-3 rounded-lg text-sm font-medium hover:bg-[#a3360a] transition-colors flex items-center gap-2">
-            Comprar Productos <span>→</span>
+            Ver catálogo <span>→</span>
           </span>
         </Link>
       </main>
