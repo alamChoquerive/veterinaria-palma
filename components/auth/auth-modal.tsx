@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginAction, registroAction } from "@/core/actions/auth.action";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-type Tab = "login" | "registro";
+export type AuthTab = "login" | "registro";
 
 /**
  * Modal de autenticación que se abre encima de cualquier página pública
@@ -23,10 +22,22 @@ type Tab = "login" | "registro";
  * /login queda intacta como fallback para enlaces directos y para las
  * redirecciones del proxy en rutas protegidas.
  */
-export function AuthModal({ onClose }: { onClose: () => void }) {
+export function AuthModal({
+  onClose,
+  redirectDestino = null,
+  errorInicial = null,
+  tabInicial = "login",
+}: {
+  onClose: () => void;
+  /** Destino validado (interno) cuando venimos de una ruta protegida: /login?redirect=... */
+  redirectDestino?: string | null;
+  /** Error que viene por URL: /login?error=... (ej. acceso denegado a /admin) */
+  errorInicial?: string | null;
+  tabInicial?: AuthTab;
+}) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("login");
-  const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<AuthTab>(tabInicial);
+  const [error, setError] = useState<string | null>(errorInicial);
   const [loading, setLoading] = useState(false);
   const [registroExitoso, setRegistroExitoso] = useState(false);
 
@@ -49,6 +60,12 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
       setError(result.error);
       return;
     }
+    // Si venimos de una ruta protegida (/login?redirect=/cuenta), navegamos
+    // al destino pedido; si no, cerramos y refrescamos la página actual.
+    if (redirectDestino) {
+      router.replace(redirectDestino);
+      return;
+    }
     onClose();
     router.refresh();
   }
@@ -67,7 +84,7 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
     router.refresh();
   }
 
-  function cambiarTab(t: Tab) {
+  function cambiarTab(t: AuthTab) {
     setTab(t);
     setError(null);
     setRegistroExitoso(false);
@@ -136,6 +153,10 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
+        {errorInicial && (
+          <p className="text-sm text-destructive mb-3">{errorInicial}</p>
+        )}
+
         {tab === "login" ? (
           <form action={handleLogin} className="space-y-3">
             <Input
@@ -196,17 +217,6 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
         )}
 
         {error && <p className="text-sm text-destructive mt-3">{error}</p>}
-
-        <p className="mt-4 text-xs text-center text-[#94a3b8]">
-          ¿Preferís la página completa?{" "}
-          <Link
-            href="/login"
-            onClick={onClose}
-            className="text-[#1e293b] hover:underline"
-          >
-            Ir a /login
-          </Link>
-        </p>
       </div>
     </div>
   );
