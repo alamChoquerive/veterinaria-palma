@@ -33,8 +33,14 @@ function detalleAuthDev(error: {
 
 /**
  * Inicia sesión con email y contraseña.
+ *
+ * Con el flag opcional `modoModal=1` en el FormData (lo envía el AuthModal)
+ * NO se redirige: devuelve el rol y el cliente cierra el modal y hace
+ * router.refresh(). Sin el flag (formulario de /login) el comportamiento
+ * es exactamente el de siempre: redirect según rol o redirect pedido.
  */
 export async function loginAction(formData: FormData): Promise<ActionResult> {
+  const modoModal = formData.get("modoModal") === "1";
   const rawInput: LoginInput = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -111,6 +117,12 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     perfilId: authData.user?.id ?? null,
     ip,
   });
+
+  // Desde el AuthModal no se redirige: el cliente cierra el modal y
+  // router.refresh() actualiza los Server Components en la misma página.
+  if (modoModal) {
+    return { ok: true, data: { rol: perfil?.rol ?? null } };
+  }
 
   // Sin redirect pedido: admin y empleado van a su panel; el resto, al inicio
   redirect(
