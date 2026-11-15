@@ -1,61 +1,40 @@
-"use client";
-
-import { Suspense, useState } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { loginAction } from "@/core/actions/auth.action";
 import { esRedirectInterno } from "@/lib/redirect";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { LoginPageModal } from "@/components/auth/login-page-modal";
+import type { AuthTab } from "@/components/auth/auth-modal";
 
-function LoginForm() {
-  // useSearchParams dentro de Suspense: en build estático el formulario se
-  // renderiza en el cliente, así no hay setState en efecto ni mismatch de hidratación
-  const searchParams = useSearchParams();
-  const errorDesdeUrl = searchParams.get("error");
-  // Solo se propaga si es una ruta interna (anti open redirect)
-  const redirectDesdeUrl = searchParams.get("redirect");
-  const redirectDestino = esRedirectInterno(redirectDesdeUrl)
-    ? redirectDesdeUrl
-    : "/";
-
-  const [error, setError] = useState<string | null>(errorDesdeUrl);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(formData: FormData) {
-    setLoading(true);
-    setError(null);
-    const result = await loginAction(formData);
-    setLoading(false);
-    if (!result.ok) setError(result.error);
-  }
+/**
+ * /login queda como URL delgada que monta el AuthModal: el modal es el
+ * único formulario de login/registro del sitio.
+ *
+ * La URL /login SE MANTIENE porque de ella dependen la seguridad existente:
+ * el proxy manda acá (?redirect=...) al entrar sin sesión a rutas
+ * protegidas (/cuenta, /admin, /empleado), logoutAction vuelve acá, y los
+ * layouts de admin/empleado mandan ?error=... cuando el rol no alcanza.
+ *
+ * ?redirect se valida como ruta interna (anti open redirect) y "/" cuenta
+ * como "sin redirect pedido". ?modo=registro abre la pestaña de registro.
+ */
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const redirectRaw = Array.isArray(sp["redirect"])
+    ? sp["redirect"][0]
+    : sp["redirect"];
+  const redirectDestino =
+    esRedirectInterno(redirectRaw) && redirectRaw !== "/" ? redirectRaw : null;
+  const errorRaw = Array.isArray(sp["error"]) ? sp["error"][0] : sp["error"];
+  const tabInicial: AuthTab = sp["modo"] === "registro" ? "registro" : "login";
 
   return (
-    <main className="flex flex-col items-center justify-center py-20">
-      <h2 className="text-2xl font-semibold mb-6">Iniciar sesión</h2>
-      <form action={handleSubmit} className="w-full max-w-sm space-y-4">
-        <Input name="email" type="email" placeholder="Email" required />
-        <Input name="password" type="password" placeholder="Contraseña" required />
-        <input type="hidden" name="redirect" value={redirectDestino} />
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Entrando..." : "Entrar"}
-        </Button>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-      </form>
-      <p className="mt-4 text-sm">
-        ¿No tenés cuenta?{" "}
-        <Link href="/registro" className="text-[#1e293b] hover:underline">
-          Registrate
-        </Link>
-      </p>
+    <main className="flex items-center justify-center py-20 px-4 min-h-[60vh]">
+      <LoginPageModal
+        redirectDestino={redirectDestino}
+        errorInicial={typeof errorRaw === "string" ? errorRaw : null}
+        tabInicial={tabInicial}
+      />
     </main>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={null}>
-      <LoginForm />
-    </Suspense>
   );
 }
