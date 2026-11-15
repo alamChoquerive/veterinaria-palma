@@ -280,3 +280,60 @@ export const actualizarZonaEnvioSchema = z.object({
 
 export type ToggleMedioPagoInput = z.infer<typeof toggleMedioPagoSchema>;
 export type ActualizarZonaEnvioInput = z.infer<typeof actualizarZonaEnvioSchema>;
+
+/**
+ * Datos del propio perfil (Perfil/Ajustes). OJO: el email NO se incluye:
+ * el trigger proteger_campos_perfil bloquea cambiarlo desde la app.
+ */
+export const actualizarPerfilPropioSchema = z.object({
+  nombre: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(80),
+  apellido: z.string().trim().min(2, "El apellido debe tener al menos 2 caracteres").max(80),
+  telefono: textoOpcional(30, "El teléfono es demasiado largo"),
+  fotoUrl: z
+    .string()
+    .trim()
+    .max(500, "La URL de la foto es demasiado larga")
+    .optional()
+    .or(z.literal("")),
+});
+
+/**
+ * Datos de la tienda (se guardan en config_tienda). Solo admin.
+ */
+export const datosTiendaSchema = z.object({
+  nombreTienda: z.string().trim().min(2, "El nombre de la tienda es obligatorio").max(120),
+  cuit: z.string().trim().max(20, "CUIT inválido").optional().or(z.literal("")),
+  direccion: z.string().trim().max(200, "La dirección es demasiado larga").optional().or(z.literal("")),
+  telefonoTienda: textoOpcional(30, "El teléfono es demasiado largo"),
+});
+
+/**
+ * Preferencias de notificaciones (config_tienda, claves notif_*).
+ */
+export const notificacionesSchema = z.object({
+  stockBajo: z.boolean(),
+  nuevoPedido: z.boolean(),
+  pagoConfirmado: z.boolean(),
+  turnoNuevo: z.boolean(),
+});
+
+/**
+ * Alta de un empleado desde el panel (solo admin). El perfil lo crea
+ * el trigger handle_new_user y después se le asigna el rol 'empleado'.
+ */
+export const crearEmpleadoSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  nombre: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres"),
+  apellido: z.string().trim().min(2, "El apellido debe tener al menos 2 caracteres"),
+});
+
+export const eliminarUsuarioSchema = z.object({
+  perfilId: z.string().uuid("ID de usuario inválido"),
+});
+
+export type ActualizarPerfilPropioInput = z.infer<typeof actualizarPerfilPropioSchema>;
+export type DatosTiendaInput = z.infer<typeof datosTiendaSchema>;
+export type NotificacionesInput = z.infer<typeof notificacionesSchema>;
+export type CrearEmpleadoInput = z.infer<typeof crearEmpleadoSchema>;
+export type EliminarUsuarioInput = z.infer<typeof eliminarUsuarioSchema>;
