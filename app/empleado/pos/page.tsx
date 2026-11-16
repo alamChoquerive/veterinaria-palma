@@ -5,6 +5,9 @@ import {
   type VentaDelDia,
 } from "@/components/empleado/pos-panel";
 import type { Venta, MedioPago } from "@/types/database.types";
+import { METODOS_PAGO_POS } from "@/lib/constants";
+
+export const metadata = { title: "Venta presencial (POS) · Empleado — Veterinaria Palma" };
 
 export default async function EmpleadoPosPage() {
   const supabase = await createClient();
@@ -28,9 +31,9 @@ export default async function EmpleadoPosPage() {
     supabase.from("perfiles").select("id, nombre, apellido, email"),
   ]);
 
-  // Solo efectivo y mercadopago aplican al POS
+  // Solo efectivo y mercadopago aplican al POS (lista centralizada en constants)
   const mediosPos = (medios.data ?? []).filter((m) =>
-    ["efectivo", "mercadopago"].includes(m.clave),
+    (METODOS_PAGO_POS as readonly string[]).includes(m.clave),
   ) as MedioPago[];
 
   const mapaPerfiles = new Map((perfiles.data ?? []).map((p) => [p.id, p]));

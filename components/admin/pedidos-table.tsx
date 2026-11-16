@@ -33,9 +33,12 @@ const TODOS_ESTADOS = [
 export function PedidosTable({
   pedidos,
   puedeCambiarEstado = true,
+  mascararCliente = false,
 }: {
   pedidos: PedidoAdminFila[];
   puedeCambiarEstado?: boolean;
+  /** Panel empleado: enmascara el email del cliente (pantalla del mostrador). */
+  mascararCliente?: boolean;
 }) {
   const router = useRouter();
   const [filtro, setFiltro] = useState<Filtro>("todos");
@@ -117,7 +120,7 @@ export function PedidosTable({
           <tbody>
             {filtrados.length > 0 ? (
               filtrados.map((p) => {
-                const cliente = clienteDe(p);
+                const cliente = clienteDe(p, mascararCliente);
                 const tipo = p.perfil?.rol === "mayorista" ? "Mayorista" : p.perfil?.rol === "admin" ? "Admin" : "Minorista";
                 return (
                   <tr key={p.id} className="border-b hover:bg-muted/50 transition-colors">
@@ -169,7 +172,7 @@ export function PedidosTable({
           descripcion={
             <>
               Pedido <span className="font-mono">#{cancelarPendiente.id.slice(0, 8)}</span> de{" "}
-              <span className="font-medium">{clienteDe(cancelarPendiente)}</span> por{" "}
+              <span className="font-medium">{clienteDe(cancelarPendiente, mascararCliente)}</span> por{" "}
               <span className="font-medium">{formatearMoneda(Number(cancelarPendiente.total))}</span>.
               El stock de los productos no se devuelve automáticamente.{" "}
               <span className="font-semibold text-destructive">No se puede deshacer.</span>
@@ -190,9 +193,18 @@ export function PedidosTable({
   );
 }
 
-// Nombre del cliente de la fila (para el diálogo de confirmación)
-function clienteDe(p: PedidoAdminFila): string {
-  return (
-    (p.perfil ? `${p.perfil.nombre ?? ""} ${p.perfil.apellido ?? ""}`.trim() || p.perfil.email : "Sin cuenta")
-  );
+// Nombre del cliente de la fila (para la tabla y el diálogo de confirmación).
+// Con mascarar=true el email queda oculto ("sm•••@gmail.com"): lo usa el panel
+// empleado, donde la pantalla puede estar a la vista de clientes.
+function clienteDe(p: PedidoAdminFila, mascarar = false): string {
+  if (!p.perfil) return "Sin cuenta";
+  const nombre = `${p.perfil.nombre ?? ""} ${p.perfil.apellido ?? ""}`.trim();
+  if (nombre) return nombre;
+  return mascarar ? enmascararEmail(p.perfil.email) : p.perfil.email;
+}
+
+function enmascararEmail(email: string): string {
+  const [local, dominio] = email.split("@");
+  if (!dominio) return "•••";
+  return `${local.slice(0, 2)}•••@${dominio}`;
 }

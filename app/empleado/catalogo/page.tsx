@@ -5,6 +5,8 @@ import {
 } from "@/components/empleado/catalogo-empleado-table";
 import type { Producto } from "@/types/database.types";
 
+export const metadata = { title: "Catálogo · Empleado — Veterinaria Palma" };
+
 export default async function EmpleadoCatalogoPage() {
   const supabase = await createClient();
 
@@ -22,8 +24,8 @@ export default async function EmpleadoCatalogoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Catálogo</h2>
-        <p className="text-[#64748b]">Solo podés editar el nombre y la foto del producto.</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Catálogo</h2>
+        <p className="text-muted-foreground">Solo podés editar el nombre y la foto del producto.</p>
       </div>
       <CatalogoEmpleadoTable productos={filas} />
     </div>

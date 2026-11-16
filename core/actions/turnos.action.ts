@@ -248,6 +248,7 @@ export async function crearTurnoPresencial(
   }
 
   revalidatePath("/admin/turnos");
+  revalidatePath("/empleado/turnos");
   return {
     ok: true,
     data: { turno_id: (data as { turno_id: string }).turno_id },
@@ -283,6 +284,7 @@ export async function cancelarTurno(turnoId: string): Promise<ActionResult> {
   revalidatePath("/turnos");
   revalidatePath("/cuenta");
   revalidatePath("/admin/turnos");
+  revalidatePath("/empleado/turnos");
   return { ok: true, data: { cancelado: true } };
 }
 
@@ -326,6 +328,7 @@ export async function actualizarEstadoTurno(
   }
 
   revalidatePath("/admin/turnos");
+  revalidatePath("/empleado/turnos");
   revalidatePath("/turnos");
   return { ok: true, data: { estado } };
 }
