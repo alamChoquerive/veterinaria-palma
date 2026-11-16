@@ -147,6 +147,26 @@ https://<tu-dominio>/api/webhooks/mercadopago
 
 Con las credenciales de producción en las variables de entorno del deploy (`MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`).
 
+## Deploy en Vercel (producción)
+
+1. **Crear el proyecto**: en [vercel.com/new](https://vercel.com/new) → *Import Git Repository* → `alamChoquerive/veterinaria-palma` → branch `develop` como Production Branch. Cada push a `develop` despliega solo.
+2. **Variables de entorno** (Settings → Environment Variables → Production; los valores salen de `.env.local`):
+
+   | Variable | Valor en producción |
+   |---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | igual que en `.env.local` |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | igual que en `.env.local` |
+   | `SUPABASE_SERVICE_ROLE_KEY` | igual que en `.env.local` (solo servidor, nunca exponer) |
+   | `NEXT_PUBLIC_APP_URL` | **`https://<tu-dominio>.vercel.app`** (o dominio custom) — en vez de `http://localhost:3000` |
+   | `MERCADOPAGO_ACCESS_TOKEN` | credenciales de **producción** de MP |
+   | `MERCADOPAGO_WEBHOOK_SECRET` | secret del webhook de producción de MP |
+   | `NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY` | public key de **producción** de MP |
+
+   > Con `NEXT_PUBLIC_APP_URL` público, `crearPreferenciaPago` ya manda `auto_return: "approved"` y `notification_url: https://<dominio>/api/webhooks/mercadopago` a Mercado Pago (en local se omiten porque MP rechaza URLs localhost).
+3. **Redirect URLs de Supabase Auth**: en Supabase → Authentication → URL Configuration agregar `https://<tu-dominio>.vercel.app/**` (y el dominio custom si hay) a *Redirect URLs* y *Site URL*.
+4. **Webhook de MP en producción**: panel de MP → Tus integraciones → Webhooks → `https://<tu-dominio>.vercel.app/api/webhooks/mercadopago`, con las credenciales de producción (ver sección de arriba).
+5. **Verificar**: abrir `https://<tu-dominio>.vercel.app`, registrar/login, recorrer `/catalogo` → `/carrito` → `/checkout` con la tarjeta de prueba de MP, y `/admin` + `/empleado` con las cuentas staff. El pago en producción con `auto_return` vuelve solo a `/checkout/exito`.
+
 ## Cómo correr el proyecto
 
 ```bash
@@ -177,7 +197,7 @@ pnpm dev
 - ✅ Páginas institucionales (Nosotros, Contacto, 404)
 - ✅ Seguridad: CSP + headers en el proxy, open redirect cerrado, cookies `secure` en producción, errores genéricos al cliente, RPCs solo service_role
 - ✅ `pnpm exec tsc --noEmit`, `pnpm exec eslint . --max-warnings 0` y `pnpm build` en verde
-- ⏳ Deploy a producción (Vercel u otro) con las variables de entorno y el webhook de MP apuntando al dominio público
+- ✅ Deploy a producción en Vercel: procedimiento documentado (rama `develop` como Production Branch, 7 variables de entorno, redirect URLs de Supabase y webhook de MP al dominio público)
 
 ## Licencia
 
