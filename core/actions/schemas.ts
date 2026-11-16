@@ -34,12 +34,35 @@ export const crearTurnoSchema = z.object({
     .string()
     .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (HH:MM)"),
   motivo: textoOpcional(300, "El motivo es demasiado largo"),
-  // Datos del turno que el flujo online ya recolecta (se guardan en la DB)
+  // Datos del turno que el flujo online recolecta: estos son obligatorios
+  // (el wizard valida inline antes de enviar; acá se vuelve a exigir).
   especialidad: textoOpcional(80, "Especialidad inválida"),
-  mascotaNombre: textoOpcional(80, "El nombre de la mascota es demasiado largo"),
-  mascotaEspecie: textoOpcional(30, "Especie inválida"),
-  responsableNombre: textoOpcional(120, "El nombre del responsable es demasiado largo"),
-  responsableTelefono: textoOpcional(30, "El teléfono es demasiado largo"),
+  mascotaNombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre de la mascota es obligatorio")
+    .max(80, "El nombre de la mascota es demasiado largo"),
+  mascotaEspecie: z.enum(["perro", "gato", "otro"], {
+    message: "Elegí la especie de la mascota",
+  }),
+  responsableNombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre del responsable es obligatorio")
+    .max(120, "El nombre del responsable es demasiado largo"),
+  responsableTelefono: z
+    .string()
+    .trim()
+    .min(8, "Ingresá un teléfono válido")
+    .max(30, "El teléfono es demasiado largo"),
+});
+
+/** Consulta de disponibilidad: solo una fecha AAAA-MM-DD. */
+export const fechaTurnoSchema = z.object({
+  fecha: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida (AAAA-MM-DD)")
+    .refine((d) => !isNaN(Date.parse(d + "T00:00:00")), "Fecha inválida"),
 });
 
 /**
@@ -120,6 +143,9 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type RegistroInput = z.infer<typeof registroSchema>;
 export type CrearTurnoInput = z.infer<typeof crearTurnoSchema>;
 export type CrearTurnoPresencialInput = z.infer<typeof crearTurnoPresencialSchema>;
+export type FechaTurnoInput = z.infer<typeof fechaTurnoSchema>;
+/** Especies válidas de mascota (enum que también usa el turno presencial). */
+export type EspecieMascota = CrearTurnoInput["mascotaEspecie"];
 export type ActualizarStockInput = z.infer<typeof actualizarStockSchema>;
 export type ActualizarProductoInput = z.infer<typeof actualizarProductoSchema>;
 

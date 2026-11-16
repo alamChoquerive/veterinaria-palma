@@ -4,12 +4,14 @@ import { createClient } from "@/core/supabase/server";
 import { createAdminClient } from "@/core/supabase/admin";
 import type { ActionResult } from "@/types/api";
 import { revalidatePath } from "next/cache";
-import { verificarRateLimit } from "@/core/rate-limit";
+import { ipDelCliente, verificarRateLimit } from "@/core/rate-limit";
 import {
   crearTurnoSchema,
   crearTurnoPresencialSchema,
+  fechaTurnoSchema,
   type CrearTurnoInput,
   type CrearTurnoPresencialInput,
+  type FechaTurnoInput,
 } from "@/core/actions/schemas";
 
 /**
@@ -28,6 +30,52 @@ async function rolDelUsuario(userId: string): Promise<string | null> {
 
 function esStaff(rol: string | null): boolean {
   return rol === "admin" || rol === "empleado";
+}
+
+/**
+ * Disponibilidad de turnos para un día: devuelve las horas de inicio ya
+ * ocupadas por turnos ACTIVOS (estado <> 'cancelado'; el índice parcial
+ * turnos_slot_activo_unico garantiza que no hay dos activos en el mismo slot).
+ *
+ * Es pública (no exige sesión) porque el calendario online muestra disponibilidad
+ * antes de pedir login; solo expone hora_inicio, nunca datos del cliente.
+ * Rate limit por IP para que no se use como oráculo de ocupación masiva.
+ */
+export async function obtenerDisponibilidadTurnos(
+  input: FechaTurnoInput,
+): Promise<ActionResult<{ fecha: string; ocupados: string[] }>> {
+  const parsed = fechaTurnoSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Fecha inválida",
+    };
+  }
+  const { fecha } = parsed.data;
+
+  const ip = await ipDelCliente();
+  const permitido = await verificarRateLimit(`disponibilidad-turnos:${ip}`, 60, 60);
+  if (!permitido) {
+    return { ok: false, error: "Demasiadas consultas. Probá de nuevo en un rato." };
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("turnos")
+    .select("hora_inicio")
+    .eq("fecha", fecha)
+    .neq("estado", "cancelado");
+
+  if (error) {
+    console.error("[obtenerDisponibilidadTurnos] Error:", error.message);
+    return { ok: false, error: "No se pudo consultar la disponibilidad" };
+  }
+
+  const ocupados = (data ?? [])
+    .map((t) => String(t.hora_inicio).slice(0, 5))
+    .sort();
+
+  return { ok: true, data: { fecha, ocupados } };
 }
 
 /**

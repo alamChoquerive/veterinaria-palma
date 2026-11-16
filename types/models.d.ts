@@ -15,12 +15,6 @@ export type ProductoPublico = {
   categoria?: string;
 };
 
-export type TurnoDisponible = {
-  fecha: string;
-  hora: string;
-  disponible: boolean;
-};
-
 export type CarritoItem = {
   productoId: string;
   nombre: string;

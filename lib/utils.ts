@@ -28,11 +28,25 @@ export function formatearMoneda(
  * Formatea una fecha ISO a "dd/MM/yyyy".
  */
 export function formatearFecha(iso: string | Date) {
+  // OJO off-by-one: un string "AAAA-MM-DD" parsea como UTC y en UTC-3 puede
+  // mostrar el día anterior. Si es solo fecha, la parseamos como local.
+  const fecha =
+    typeof iso === "string" && /^\d{4}-\d{2}-\d{2}$/.test(iso)
+      ? new Date(`${iso}T00:00:00`)
+      : new Date(iso);
   return new Intl.DateTimeFormat("es-AR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(new Date(iso));
+  }).format(fecha);
+}
+
+/** Devuelve "AAAA-MM-DD" en horario LOCAL (sin pasar por UTC). */
+export function fechaLocalISO(d: Date = new Date()) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 /**
