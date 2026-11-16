@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { actualizarEstadoPedido } from "@/core/actions/pedidos.action";
 import { formatearFecha, formatearMoneda } from "@/lib/utils";
 import {
-  COLOR_ESTADO_PEDIDO as COLOR_ESTADO,
   ETIQUETA_ENVIO,
   ETIQUETA_ESTADO_PEDIDO as ETIQUETA_ESTADO,
 } from "@/lib/constants";
+import { EstadoBadge } from "@/components/ui/estado-badge";
+import { FormFeedback } from "@/components/ui/alert";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { Pedido, Perfil } from "@/types/database.types";
 
 export interface PedidoAdminFila extends Pedido {
@@ -38,7 +40,8 @@ export function PedidosTable({
   const router = useRouter();
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [cargando, setCargando] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null);
+  const [cancelarPendiente, setCancelarPendiente] = useState<PedidoAdminFila | null>(null);
 
   const filtrados = pedidos.filter((p) => {
     if (filtro === "pendiente")
@@ -54,11 +57,21 @@ export function PedidosTable({
     const resultado = await actualizarEstadoPedido({ pedidoId, estado });
     setCargando(false);
     if (resultado.ok) {
-      setMensaje("Estado actualizado");
+      setMensaje({ tipo: "exito", texto: "Estado actualizado" });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
+  }
+
+  // Pasar a "cancelado" es destructivo: pide confirmación con texto a tipear.
+  // El resto de las transiciones se aplican directo (son operativas de rutina).
+  function alElegirEstado(p: PedidoAdminFila, estado: string) {
+    if (estado === "cancelado") {
+      setCancelarPendiente(p);
+      return;
+    }
+    void cambiarEstado(p.id, estado as (typeof TODOS_ESTADOS)[number]);
   }
 
   const estiloFiltro = (activo: boolean) =>
@@ -83,14 +96,10 @@ export function PedidosTable({
         ))}
       </div>
 
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+        <table className="w-full min-w-[860px] text-left border-collapse">
           <thead>
             <tr className="border-b bg-[#f8fafc]">
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">ID pedido</th>
@@ -108,9 +117,7 @@ export function PedidosTable({
           <tbody>
             {filtrados.length > 0 ? (
               filtrados.map((p) => {
-                const cliente = p.perfil
-                  ? `${p.perfil.nombre ?? ""} ${p.perfil.apellido ?? ""}`.trim() || p.perfil.email
-                  : "Sin cuenta";
+                const cliente = clienteDe(p);
                 const tipo = p.perfil?.rol === "mayorista" ? "Mayorista" : p.perfil?.rol === "admin" ? "Admin" : "Minorista";
                 return (
                   <tr key={p.id} className="border-b hover:bg-[#f8fafc] transition-colors">
@@ -120,11 +127,7 @@ export function PedidosTable({
                     <td className="px-4 py-3 text-sm">{tipo}</td>
                     <td className="px-4 py-3 text-sm">{ETIQUETA_ENVIO[p.metodo_entrega] ?? p.metodo_entrega}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-0.5 rounded text-xs font-bold ${COLOR_ESTADO[p.estado] ?? "bg-[#e2e8f0] text-[#64748b]"}`}
-                      >
-                        {ETIQUETA_ESTADO[p.estado] ?? p.estado}
-                      </span>
+                      <EstadoBadge estado={p.estado} tipo="pedido" />
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-medium">
                       {formatearMoneda(Number(p.total))}
@@ -134,10 +137,8 @@ export function PedidosTable({
                         <select
                           value={p.estado}
                           disabled={cargando}
-                          onChange={(e) =>
-                            cambiarEstado(p.id, e.target.value as (typeof TODOS_ESTADOS)[number])
-                          }
-                          className="border border-[#e2e8f0] rounded-lg px-2 py-1 text-xs bg-white disabled:opacity-50"
+                          onChange={(e) => alElegirEstado(p, e.target.value)}
+                          className="border border-[#e2e8f0] rounded-lg px-2 py-2 text-xs bg-white disabled:opacity-50"
                           aria-label={`Cambiar estado del pedido ${p.id.slice(0, 8)}`}
                         >
                           {TODOS_ESTADOS.map((e) => (
@@ -161,6 +162,37 @@ export function PedidosTable({
           </tbody>
         </table>
       </div>
+
+      {cancelarPendiente && (
+        <ConfirmDialog
+          titulo="Cancelar pedido"
+          descripcion={
+            <>
+              Pedido <span className="font-mono">#{cancelarPendiente.id.slice(0, 8)}</span> de{" "}
+              <span className="font-medium">{clienteDe(cancelarPendiente)}</span> por{" "}
+              <span className="font-medium">{formatearMoneda(Number(cancelarPendiente.total))}</span>.
+              El stock de los productos no se devuelve automáticamente.{" "}
+              <span className="font-semibold text-destructive">No se puede deshacer.</span>
+            </>
+          }
+          textoConfirmacion="CANCELAR"
+          etiquetaConfirmar="Cancelar pedido"
+          cargando={cargando}
+          onConfirmar={() => {
+            const p = cancelarPendiente;
+            setCancelarPendiente(null);
+            void cambiarEstado(p.id, "cancelado");
+          }}
+          onCerrar={() => setCancelarPendiente(null)}
+        />
+      )}
     </div>
+  );
+}
+
+// Nombre del cliente de la fila (para el diálogo de confirmación)
+function clienteDe(p: PedidoAdminFila): string {
+  return (
+    (p.perfil ? `${p.perfil.nombre ?? ""} ${p.perfil.apellido ?? ""}`.trim() || p.perfil.email : "Sin cuenta")
   );
 }

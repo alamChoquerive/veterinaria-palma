@@ -7,6 +7,8 @@ import {
   actualizarPreciosProducto,
 } from "@/core/actions/precios.action";
 import { formatearMoneda } from "@/lib/utils";
+import { FormFeedback } from "@/components/ui/alert";
+import { Modal } from "@/components/ui/modal";
 import type { Producto } from "@/types/database.types";
 
 export type ProductoPrecioFila = Producto;
@@ -43,30 +45,47 @@ export function PreciosPanel({
   const [margenMinorista, setMargenMinorista] = useState(String(margenMinoristaInicial));
   const [margenMayorista, setMargenMayorista] = useState(String(margenMayoristaInicial));
   const [aplicando, setAplicando] = useState<"minorista" | "mayorista" | null>(null);
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  // Margen global en dos pasos: primero preview, recién ahí se ejecuta
+  const [margenPendiente, setMargenPendiente] = useState<"minorista" | "mayorista" | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null);
   const [editando, setEditando] = useState<ProductoPrecioFila | null>(null);
   const [form, setForm] = useState<FormPrecio | null>(null);
   const [guardando, setGuardando] = useState(false);
 
-  async function aplicar(tipo: "minorista" | "mayorista") {
+  function pedirAplicar(tipo: "minorista" | "mayorista") {
     const porcentaje = Number(tipo === "minorista" ? margenMinorista : margenMayorista);
     if (isNaN(porcentaje) || porcentaje < 0) {
-      setMensaje("Ingresá un margen válido (0 o más)");
+      setMensaje({ tipo: "error", texto: "Ingresá un margen válido (0 o más)" });
       return;
     }
+    setMensaje(null);
+    setMargenPendiente(tipo);
+  }
+
+  async function ejecutarMargen() {
+    if (!margenPendiente) return;
+    const tipo = margenPendiente;
+    const porcentaje = Number(tipo === "minorista" ? margenMinorista : margenMayorista);
     setAplicando(tipo);
     setMensaje(null);
     const resultado = await aplicarMargenGlobal({ tipo, porcentaje });
     setAplicando(null);
+    setMargenPendiente(null);
     if (resultado.ok) {
-      setMensaje(
-        `Margen del ${porcentaje}% aplicado a ${resultado.data?.actualizados ?? 0} productos con costo cargado`,
-      );
+      setMensaje({
+        tipo: "exito",
+        texto: `Margen del ${porcentaje}% aplicado a ${resultado.data?.actualizados ?? 0} productos con costo cargado`,
+      });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
+
+  // Productos que se van a recalcular con el margen pendiente (los que tienen costo)
+  const productosConCosto = productos.filter(
+    (p) => p.precio_costo != null && Number(p.precio_costo) > 0,
+  ).length;
 
   function abrirEdicion(p: ProductoPrecioFila) {
     setEditando(p);
@@ -96,11 +115,11 @@ export function PreciosPanel({
     });
     setGuardando(false);
     if (resultado.ok) {
-      setMensaje("Precios actualizados");
+      setMensaje({ tipo: "exito", texto: "Precios actualizados" });
       cerrarEdicion();
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
@@ -111,11 +130,8 @@ export function PreciosPanel({
 
   return (
     <div className="space-y-6">
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {/* Con el modal abierto el banner de afuera queda tapado (z-50): se muestra adentro */}
+      {mensaje && !editando && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
       {/* Márgenes globales */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -138,9 +154,9 @@ export function PreciosPanel({
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#64748b]">%</span>
             </div>
             <button
-              onClick={() => aplicar("minorista")}
-              disabled={aplicando !== null}
-              className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+              onClick={() => pedirAplicar("minorista")}
+              disabled={aplicando !== null || margenPendiente !== null}
+              className="px-4 py-2.5 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
             >
               {aplicando === "minorista" ? "Aplicando..." : "Aplicar"}
             </button>
@@ -165,15 +181,49 @@ export function PreciosPanel({
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#64748b]">%</span>
             </div>
             <button
-              onClick={() => aplicar("mayorista")}
-              disabled={aplicando !== null}
-              className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+              onClick={() => pedirAplicar("mayorista")}
+              disabled={aplicando !== null || margenPendiente !== null}
+              className="px-4 py-2.5 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
             >
               {aplicando === "mayorista" ? "Aplicando..." : "Aplicar"}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Preview del margen global antes de tocar todos los precios */}
+      {margenPendiente && (
+        <div role="alert" className="border border-destructive/40 bg-destructive/10 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-3">
+          <p className="flex-1 text-sm text-foreground">
+            Se van a recalcular los precios{" "}
+            <span className="font-bold">{margenPendiente === "minorista" ? "minoristas" : "mayoristas"}</span>{" "}
+            de <span className="font-bold">{productosConCosto} productos</span> con costo cargado al{" "}
+            <span className="font-bold">
+              {Number(margenPendiente === "minorista" ? margenMinorista : margenMayorista)}%
+            </span>{" "}
+            sobre el costo (nuevo precio = costo × (1 + margen/100)).{" "}
+            <span className="font-semibold text-destructive">No hay deshacer.</span>
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setMargenPendiente(null)}
+              disabled={aplicando !== null}
+              className="px-4 py-2.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => void ejecutarMargen()}
+              disabled={aplicando !== null}
+              className="px-4 py-2.5 text-sm bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 disabled:opacity-50"
+            >
+              {aplicando ? "Aplicando..." : `Aplicar a los ${productosConCosto} productos`}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Buscador */}
       <input
@@ -185,8 +235,8 @@ export function PreciosPanel({
       />
 
       {/* Tabla de precios */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+        <table className="w-full min-w-[720px] text-left border-collapse">
           <thead>
             <tr className="border-b bg-[#f8fafc]">
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Producto</th>
@@ -244,11 +294,14 @@ export function PreciosPanel({
 
       {/* Modal edición de precios */}
       {editando && form && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-lg w-full max-w-md p-6">
-            <h3 className="text-lg font-bold text-[#1e293b] mb-1">Editar precios</h3>
-            <p className="text-sm text-[#64748b] mb-4">{editando.nombre}</p>
-            <form onSubmit={guardarEdicion} className="space-y-3">
+        <Modal
+          titulo="Editar precios"
+          descripcion={editando.nombre}
+          onCerrar={cerrarEdicion}
+          ancho="max-w-md"
+        >
+          {mensaje && <FormFeedback tipo={mensaje.tipo} className="mb-3">{mensaje.texto}</FormFeedback>}
+          <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-[#64748b] mb-1">Costo</label>
                 <input
@@ -299,21 +352,20 @@ export function PreciosPanel({
                 <button
                   type="button"
                   onClick={cerrarEdicion}
-                  className="px-4 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                  className="px-4 py-2.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardando}
-                  className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                  className="px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   {guardando ? "Guardando..." : "Guardar"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

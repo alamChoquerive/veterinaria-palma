@@ -11,14 +11,11 @@ import {
   eliminarUsuario,
 } from "@/core/actions/perfil.action";
 import { formatearFecha } from "@/lib/utils";
+import { ETIQUETA_ROL } from "@/lib/constants";
+import { FormFeedback } from "@/components/ui/alert";
+import { Modal } from "@/components/ui/modal";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { Perfil } from "@/types/database.types";
-
-const ETIQUETA_ROL: Record<string, string> = {
-  admin: "Admin",
-  empleado: "Empleado",
-  mayorista: "Mayorista",
-  minorista: "Minorista",
-};
 
 const COLOR_ROL: Record<string, string> = {
   admin: "bg-[#1e293b] text-white",
@@ -70,7 +67,7 @@ export function PerfilAjustesPanel({
   usuarios: Perfil[];
 }) {
   const router = useRouter();
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null);
 
   // Mi perfil
   const [perfilForm, setPerfilForm] = useState({
@@ -109,6 +106,7 @@ export function PerfilAjustesPanel({
   });
   const [guardandoEmpleado, setGuardandoEmpleado] = useState(false);
   const [eliminando, setEliminando] = useState<string | null>(null);
+  const [eliminarPendiente, setEliminarPendiente] = useState<Perfil | null>(null);
 
   async function guardarPerfil(e: React.FormEvent) {
     e.preventDefault();
@@ -121,7 +119,11 @@ export function PerfilAjustesPanel({
       fotoUrl: perfilForm.fotoUrl,
     });
     setGuardandoPerfil(false);
-    setMensaje(resultado.ok ? "Perfil actualizado" : resultado.error);
+    setMensaje(
+      resultado.ok
+        ? { tipo: "exito", texto: "Perfil actualizado" }
+        : { tipo: "error", texto: resultado.error },
+    );
     if (resultado.ok) router.refresh();
   }
 
@@ -136,7 +138,11 @@ export function PerfilAjustesPanel({
       telefonoTienda: tiendaForm.telefonoTienda || undefined,
     });
     setGuardandoTienda(false);
-    setMensaje(resultado.ok ? "Datos de la tienda guardados" : resultado.error);
+    setMensaje(
+      resultado.ok
+        ? { tipo: "exito", texto: "Datos de la tienda guardados" }
+        : { tipo: "error", texto: resultado.error },
+    );
     if (resultado.ok) router.refresh();
   }
 
@@ -146,7 +152,11 @@ export function PerfilAjustesPanel({
     setMensaje(null);
     const resultado = await actualizarNotificaciones(notifForm);
     setGuardandoNotif(false);
-    setMensaje(resultado.ok ? "Notificaciones guardadas" : resultado.error);
+    setMensaje(
+      resultado.ok
+        ? { tipo: "exito", texto: "Notificaciones guardadas" }
+        : { tipo: "error", texto: resultado.error },
+    );
   }
 
   async function guardarEmpleado(e: React.FormEvent) {
@@ -156,21 +166,29 @@ export function PerfilAjustesPanel({
     const resultado = await crearEmpleado(empleadoForm);
     setGuardandoEmpleado(false);
     if (resultado.ok) {
-      setMensaje("Empleado creado con rol empleado");
+      setMensaje({ tipo: "exito", texto: "Empleado creado con rol empleado" });
       setModalEmpleado(false);
       setEmpleadoForm({ email: "", password: "", nombre: "", apellido: "" });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
-  async function eliminar(perfilId: string) {
-    setEliminando(perfilId);
+  // Eliminar usuario pasa por diálogo de confirmación con texto a tipear:
+  // antes era un clic directo sobre un borrado real en Auth
+  async function confirmarEliminar() {
+    if (!eliminarPendiente) return;
+    setEliminando(eliminarPendiente.id);
     setMensaje(null);
-    const resultado = await eliminarUsuario({ perfilId });
+    const resultado = await eliminarUsuario({ perfilId: eliminarPendiente.id });
     setEliminando(null);
-    setMensaje(resultado.ok ? "Usuario eliminado" : resultado.error);
+    setEliminarPendiente(null);
+    setMensaje(
+      resultado.ok
+        ? { tipo: "exito", texto: "Usuario eliminado" }
+        : { tipo: "error", texto: resultado.error },
+    );
     if (resultado.ok) router.refresh();
   }
 
@@ -192,11 +210,7 @@ export function PerfilAjustesPanel({
         <p className="text-[#64748b]">Tu perfil, la tienda, las notificaciones y el equipo.</p>
       </div>
 
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Mi perfil */}
@@ -388,7 +402,7 @@ export function PerfilAjustesPanel({
                         <span className="text-xs text-[#94a3b8]">—</span>
                       ) : (
                         <button
-                          onClick={() => eliminar(u.id)}
+                          onClick={() => setEliminarPendiente(u)}
                           disabled={eliminando !== null}
                           className="text-xs text-destructive hover:underline disabled:opacity-50"
                         >
@@ -406,10 +420,9 @@ export function PerfilAjustesPanel({
 
       {/* Modal agregar empleado */}
       {modalEmpleado && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-lg w-full max-w-md p-6">
-            <h3 className="text-lg font-bold text-[#1e293b] mb-4">Agregar empleado</h3>
-            <form onSubmit={guardarEmpleado} className="space-y-3">
+        <Modal titulo="Agregar empleado" onCerrar={() => setModalEmpleado(false)} ancho="max-w-md">
+          {mensaje && <FormFeedback tipo={mensaje.tipo} className="mb-3">{mensaje.texto}</FormFeedback>}
+          <form onSubmit={guardarEmpleado} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
@@ -460,21 +473,39 @@ export function PerfilAjustesPanel({
                 <button
                   type="button"
                   onClick={() => setModalEmpleado(false)}
-                  className="px-4 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                  className="px-4 py-2.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardandoEmpleado}
-                  className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                  className="px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   {guardandoEmpleado ? "Creando..." : "Crear empleado"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
+      )}
+
+      {/* Confirmación de eliminación (texto a tipear) */}
+      {eliminarPendiente && (
+        <ConfirmDialog
+          titulo={`Eliminar a ${[eliminarPendiente.nombre, eliminarPendiente.apellido].filter(Boolean).join(" ") || eliminarPendiente.email}`}
+          descripcion={
+            <>
+              Se borra el usuario <span className="font-medium">{eliminarPendiente.email}</span> de
+              acceso y su perfil (con sus turnos y pedidos asociados).{" "}
+              <span className="font-semibold text-destructive">Esta acción no se puede deshacer.</span>
+            </>
+          }
+          textoConfirmacion="ELIMINAR"
+          etiquetaConfirmar="Eliminar usuario"
+          cargando={eliminando !== null}
+          onConfirmar={confirmarEliminar}
+          onCerrar={() => setEliminarPendiente(null)}
+        />
       )}
     </div>
   );

@@ -8,10 +8,9 @@ import {
 } from "@/core/actions/turnos.action";
 import { ESPECIALIDADES } from "@/lib/data/especialidades";
 import { formatearFecha } from "@/lib/utils";
-import {
-  COLOR_ESTADO_TURNO as COLOR_ESTADO,
-  ETIQUETA_ESTADO_TURNO as ETIQUETA_ESTADO,
-} from "@/lib/constants";
+import { EstadoBadge } from "@/components/ui/estado-badge";
+import { FormFeedback } from "@/components/ui/alert";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { TurnoFila } from "@/components/admin/turnos-panel";
 
 type FiltroFecha = "todos" | "semana" | "mes" | "fecha";
@@ -32,7 +31,8 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
   const [filtroEspecialidad, setFiltroEspecialidad] = useState("todas");
   const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>("todos");
   const [cargando, setCargando] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null);
+  const [cancelarPendiente, setCancelarPendiente] = useState<TurnoFila | null>(null);
 
   const hoy = new Date();
   hoy.setHours(23, 59, 59, 999);
@@ -71,10 +71,13 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
         : await actualizarEstadoTurno(t.id, estado);
     setCargando(false);
     if (resultado.ok) {
-      setMensaje(`Turno ${estado === "cancelado" ? "cancelado" : estado === "atendido" ? "marcado como atendido" : "confirmado"}`);
+      setMensaje({
+        tipo: "exito",
+        texto: `Turno ${estado === "cancelado" ? "cancelado" : estado === "atendido" ? "marcado como atendido" : "confirmado"}`,
+      });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
@@ -134,15 +137,11 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
         </select>
       </div>
 
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
       {/* Tabla */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+        <table className="w-full min-w-[760px] text-left border-collapse">
           <thead>
             <tr className="border-b bg-[#f8fafc]">
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Fecha</th>
@@ -185,11 +184,7 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-0.5 rounded text-xs font-bold ${COLOR_ESTADO[t.estado] ?? "bg-[#e2e8f0] text-[#64748b]"}`}
-                      >
-                        {ETIQUETA_ESTADO[t.estado] ?? t.estado}
-                      </span>
+                      <EstadoBadge estado={t.estado} tipo="turno" />
                     </td>
                     <td className="px-4 py-3 text-center">
                       {t.estado === "pendiente" && (
@@ -202,7 +197,7 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
                             Confirmar
                           </button>
                           <button
-                            onClick={() => cambiarEstado(t, "cancelado")}
+                            onClick={() => setCancelarPendiente(t)}
                             disabled={cargando}
                             className="text-xs text-destructive hover:underline disabled:opacity-50"
                           >
@@ -220,7 +215,7 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
                             Atendido
                           </button>
                           <button
-                            onClick={() => cambiarEstado(t, "cancelado")}
+                            onClick={() => setCancelarPendiente(t)}
                             disabled={cargando}
                             className="text-xs text-destructive hover:underline disabled:opacity-50"
                           >
@@ -245,6 +240,31 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
           </tbody>
         </table>
       </div>
+
+      {/* Cancelar turno: primero confirmación con texto a tipear */}
+      {cancelarPendiente && (
+        <ConfirmDialog
+          titulo="Cancelar turno"
+          descripcion={
+            <>
+              {formatearFecha(cancelarPendiente.fecha)} ·{" "}
+              {cancelarPendiente.hora_inicio.slice(0, 5)} —{" "}
+              {cancelarPendiente.mascota_nombre || cancelarPendiente.responsable_nombre || "sin datos"}
+              . El cliente va a ver el turno como cancelado.{" "}
+              <span className="font-semibold text-destructive">No se puede deshacer.</span>
+            </>
+          }
+          textoConfirmacion="CANCELAR"
+          etiquetaConfirmar="Cancelar turno"
+          cargando={cargando}
+          onConfirmar={() => {
+            const t = cancelarPendiente;
+            setCancelarPendiente(null);
+            void cambiarEstado(t, "cancelado");
+          }}
+          onCerrar={() => setCancelarPendiente(null)}
+        />
+      )}
     </div>
   );
 }
