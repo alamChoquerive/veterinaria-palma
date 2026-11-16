@@ -281,6 +281,7 @@ export async function cancelarTurno(turnoId: string): Promise<ActionResult> {
   }
 
   revalidatePath("/turnos");
+  revalidatePath("/cuenta");
   revalidatePath("/admin/turnos");
   return { ok: true, data: { cancelado: true } };
 }
