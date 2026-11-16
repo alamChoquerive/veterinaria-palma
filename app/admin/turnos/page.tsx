@@ -2,6 +2,8 @@ import { createClient } from "@/core/supabase/server";
 import { TurnosPanel, type TurnoFila } from "@/components/admin/turnos-panel";
 import type { Turno } from "@/types/database.types";
 
+export const metadata = { title: "Turnos · Admin — Veterinaria Palma" };
+
 export default async function AdminTurnosPage() {
   const supabase = await createClient();
 

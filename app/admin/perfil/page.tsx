@@ -3,6 +3,8 @@ import { getPerfilActual } from "@/core/services/auth.service";
 import { PerfilAjustesPanel } from "@/components/admin/perfil-ajustes-panel";
 import type { Perfil } from "@/types/database.types";
 
+export const metadata = { title: "Perfil y ajustes · Admin — Veterinaria Palma" };
+
 export default async function AdminPerfilPage() {
   const supabase = await createClient();
   const { perfil } = await getPerfilActual();

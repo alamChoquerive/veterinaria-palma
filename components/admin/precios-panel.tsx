@@ -25,9 +25,9 @@ function margenPorcentaje(costo: number | null | undefined, precio: number): num
 }
 
 function MargenBadge({ margen }: { margen: number | null }) {
-  if (margen === null) return <span className="text-[#94a3b8]">—</span>;
+  if (margen === null) return <span className="text-muted-foreground">—</span>;
   const color =
-    margen < 0 ? "text-[#991b1b]" : margen < 10 ? "text-[#92400e]" : "text-[#065f46]";
+    margen < 0 ? "text-destructive" : margen < 10 ? "text-[#92400e]" : "text-[#065f46]";
   return <span className={`font-bold ${color}`}>{margen.toFixed(1)}%</span>;
 }
 
@@ -135,9 +135,9 @@ export function PreciosPanel({
 
       {/* Márgenes globales */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <h3 className="font-semibold text-[#1e293b] mb-1">Margen minorista global</h3>
-          <p className="text-xs text-[#64748b] mb-3">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-primary mb-1">Margen minorista global</h3>
+          <p className="text-xs text-muted-foreground mb-3">
             Se aplica sobre el precio de costo de todos los productos.
           </p>
           <div className="flex gap-2">
@@ -149,22 +149,22 @@ export function PreciosPanel({
                 step="1"
                 value={margenMinorista}
                 onChange={(e) => setMargenMinorista(e.target.value)}
-                className="w-full border border-[#e2e8f0] rounded-lg pl-3 pr-8 py-2 text-sm"
+                className="w-full border border-border rounded-lg pl-3 pr-8 py-2 text-sm"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#64748b]">%</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
             </div>
             <button
               onClick={() => pedirAplicar("minorista")}
               disabled={aplicando !== null || margenPendiente !== null}
-              className="px-4 py-2.5 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+              className="px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
               {aplicando === "minorista" ? "Aplicando..." : "Aplicar"}
             </button>
           </div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <h3 className="font-semibold text-[#1e293b] mb-1">Margen mayorista global</h3>
-          <p className="text-xs text-[#64748b] mb-3">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="font-semibold text-primary mb-1">Margen mayorista global</h3>
+          <p className="text-xs text-muted-foreground mb-3">
             Se aplica sobre el precio de costo de todos los productos.
           </p>
           <div className="flex gap-2">
@@ -176,14 +176,14 @@ export function PreciosPanel({
                 step="1"
                 value={margenMayorista}
                 onChange={(e) => setMargenMayorista(e.target.value)}
-                className="w-full border border-[#e2e8f0] rounded-lg pl-3 pr-8 py-2 text-sm"
+                className="w-full border border-border rounded-lg pl-3 pr-8 py-2 text-sm"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#64748b]">%</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
             </div>
             <button
               onClick={() => pedirAplicar("mayorista")}
               disabled={aplicando !== null || margenPendiente !== null}
-              className="px-4 py-2.5 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+              className="px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
               {aplicando === "mayorista" ? "Aplicando..." : "Aplicar"}
             </button>
@@ -231,21 +231,21 @@ export function PreciosPanel({
         placeholder="Buscar producto..."
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
-        className="w-full md:w-80 border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm bg-white"
+        className="w-full md:w-80 border border-border rounded-lg px-3 py-2 text-sm bg-card"
       />
 
       {/* Tabla de precios */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         <table className="w-full min-w-[720px] text-left border-collapse">
           <thead>
-            <tr className="border-b bg-[#f8fafc]">
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Producto</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Costo</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Precio minorista</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Margen min.</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Precio mayorista</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Margen may.</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Editar</th>
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Producto</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Costo</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Precio minorista</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Margen min.</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Precio mayorista</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Margen may.</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Editar</th>
             </tr>
           </thead>
           <tbody>
@@ -253,10 +253,10 @@ export function PreciosPanel({
               filtrados.map((p) => {
                 const costo = p.precio_costo != null ? Number(p.precio_costo) : null;
                 return (
-                  <tr key={p.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                  <tr key={p.id} className="border-b hover:bg-muted/50 transition-colors">
                     <td className="px-4 py-3 text-sm font-medium">{p.nombre}</td>
                     <td className="px-4 py-3 text-sm text-right">
-                      {costo !== null ? formatearMoneda(costo) : <span className="text-[#94a3b8]">—</span>}
+                      {costo !== null ? formatearMoneda(costo) : <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-medium">
                       {formatearMoneda(Number(p.precio_minorista))}
@@ -264,7 +264,7 @@ export function PreciosPanel({
                     <td className="px-4 py-3 text-sm text-right">
                       <MargenBadge margen={margenPorcentaje(costo, Number(p.precio_minorista))} />
                     </td>
-                    <td className="px-4 py-3 text-sm text-right text-[#64748b]">
+                    <td className="px-4 py-3 text-sm text-right text-muted-foreground">
                       {formatearMoneda(Number(p.precio_mayorista))}
                     </td>
                     <td className="px-4 py-3 text-sm text-right">
@@ -273,7 +273,7 @@ export function PreciosPanel({
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => abrirEdicion(p)}
-                        className="px-2.5 py-1.5 text-xs border border-[#e2e8f0] text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
+                        className="px-2.5 py-1.5 text-xs border border-border text-muted-foreground rounded hover:bg-muted transition-colors"
                       >
                         Editar
                       </button>
@@ -283,7 +283,7 @@ export function PreciosPanel({
               })
             ) : (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-[#64748b]">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No hay productos para la búsqueda
                 </td>
               </tr>
@@ -303,12 +303,12 @@ export function PreciosPanel({
           {mensaje && <FormFeedback tipo={mensaje.tipo} className="mb-3">{mensaje.texto}</FormFeedback>}
           <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Costo</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Costo</label>
                 <input
                   type="number"
                   min={0}
                   step="0.01"
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.precioCosto}
                   onChange={(e) => setForm({ ...form, precioCosto: e.target.value })}
                   placeholder="Sin costo cargado"
@@ -316,24 +316,24 @@ export function PreciosPanel({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Precio minorista</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Precio minorista</label>
                   <input
                     type="number"
                     min={0}
                     step="0.01"
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.precioMinorista}
                     onChange={(e) => setForm({ ...form, precioMinorista: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Precio mayorista</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Precio mayorista</label>
                   <input
                     type="number"
                     min={0}
                     step="0.01"
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.precioMayorista}
                     onChange={(e) => setForm({ ...form, precioMayorista: e.target.value })}
                     required
@@ -341,7 +341,7 @@ export function PreciosPanel({
                 </div>
               </div>
               {form.precioCosto !== "" && !isNaN(Number(form.precioCosto)) && Number(form.precioCosto) > 0 && (
-                <p className="text-xs text-[#64748b]">
+                <p className="text-xs text-muted-foreground">
                   Márgenes actuales: minorista{" "}
                   <MargenBadge margen={margenPorcentaje(Number(form.precioCosto), Number(form.precioMinorista))} />
                   {" · "}mayorista{" "}

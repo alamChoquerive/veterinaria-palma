@@ -6,6 +6,8 @@ import {
 } from "@/components/admin/ventas-panel";
 import type { Pedido, Pago, Turno } from "@/types/database.types";
 
+export const metadata = { title: "Ventas · Admin — Veterinaria Palma" };
+
 export default async function AdminVentasPage() {
   const supabase = await createClient();
 

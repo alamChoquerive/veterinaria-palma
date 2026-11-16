@@ -5,6 +5,8 @@ import {
 } from "@/components/admin/inventario-table";
 import type { Producto } from "@/types/database.types";
 
+export const metadata = { title: "Inventario · Admin — Veterinaria Palma" };
+
 export default async function AdminInventarioPage() {
   const supabase = await createClient();
 
@@ -32,26 +34,26 @@ export default async function AdminInventarioPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Inventario</h2>
-        <p className="text-[#64748b]">Gestión de stock de mercaderías.</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Inventario</h2>
+        <p className="text-muted-foreground">Gestión de stock de mercaderías.</p>
       </div>
 
       {/* Resumen en 3 cuadros */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">
             Stock total
           </div>
-          <div className="text-2xl font-bold text-[#1e293b]">{stockTotal}</div>
+          <div className="text-2xl font-bold text-primary">{stockTotal}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">
             Productos con stock bajo
           </div>
-          <div className="text-2xl font-bold text-[#991b1b]">{stockBajo}</div>
+          <div className="text-2xl font-bold text-destructive">{stockBajo}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">
             Productos con stock óptimo
           </div>
           <div className="text-2xl font-bold text-[#065f46]">{stockOptimo}</div>

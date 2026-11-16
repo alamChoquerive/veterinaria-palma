@@ -77,8 +77,8 @@ export function PedidosTable({
   const estiloFiltro = (activo: boolean) =>
     `px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
       activo
-        ? "bg-[#1e293b] text-white"
-        : "bg-white border border-[#e2e8f0] text-[#64748b] hover:bg-[#f8fafc]"
+        ? "bg-primary text-primary-foreground"
+        : "bg-card border border-border text-muted-foreground hover:bg-muted/50"
     }`;
 
   return (
@@ -98,18 +98,18 @@ export function PedidosTable({
 
       {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         <table className="w-full min-w-[860px] text-left border-collapse">
           <thead>
-            <tr className="border-b bg-[#f8fafc]">
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">ID pedido</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Fecha</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Cliente</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Tipo</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Envío</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Estado</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Total</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">ID pedido</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Fecha</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Cliente</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Tipo</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Envío</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Estado</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Total</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">
                 {puedeCambiarEstado ? "Cambiar estado" : "—"}
               </th>
             </tr>
@@ -120,7 +120,7 @@ export function PedidosTable({
                 const cliente = clienteDe(p);
                 const tipo = p.perfil?.rol === "mayorista" ? "Mayorista" : p.perfil?.rol === "admin" ? "Admin" : "Minorista";
                 return (
-                  <tr key={p.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                  <tr key={p.id} className="border-b hover:bg-muted/50 transition-colors">
                     <td className="px-4 py-3 text-sm font-mono">#{p.id.slice(0, 8)}</td>
                     <td className="px-4 py-3 text-sm">{formatearFecha(p.created_at)}</td>
                     <td className="px-4 py-3 text-sm">{cliente}</td>
@@ -138,7 +138,7 @@ export function PedidosTable({
                           value={p.estado}
                           disabled={cargando}
                           onChange={(e) => alElegirEstado(p, e.target.value)}
-                          className="border border-[#e2e8f0] rounded-lg px-2 py-2 text-xs bg-white disabled:opacity-50"
+                          className="border border-border rounded-lg px-2 py-2 text-xs bg-card disabled:opacity-50"
                           aria-label={`Cambiar estado del pedido ${p.id.slice(0, 8)}`}
                         >
                           {TODOS_ESTADOS.map((e) => (
@@ -146,7 +146,7 @@ export function PedidosTable({
                           ))}
                         </select>
                       ) : (
-                        <span className="text-xs text-[#94a3b8]">—</span>
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>
@@ -154,7 +154,7 @@ export function PedidosTable({
               })
             ) : (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-sm text-[#64748b]">
+                <td colSpan={8} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No hay pedidos para el filtro elegido
                 </td>
               </tr>

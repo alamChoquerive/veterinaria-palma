@@ -15,7 +15,7 @@ const ESTADOS_VENTA = [
 
 function ListaVacia({ mensaje }: { mensaje: string }) {
   return (
-    <p className="text-sm text-[#64748b] text-center py-4">{mensaje}</p>
+    <p className="text-sm text-muted-foreground text-center py-4">{mensaje}</p>
   );
 }
 
@@ -39,7 +39,7 @@ function PedidoItem({
     <div className="flex justify-between items-center p-2 border rounded-lg text-sm">
       <div>
         <div className="font-medium">Pedido #{pedido.id.slice(0, 8)}</div>
-        <div className="text-[#64748b] text-xs">
+        <div className="text-muted-foreground text-xs">
           {ETIQUETA_ENVIO[pedido.metodo_entrega] ?? pedido.metodo_entrega}
         </div>
       </div>
@@ -109,52 +109,52 @@ export async function DashboardContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Dashboard</h2>
-        <p className="text-[#64748b]">Resumen operativo del negocio.</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Dashboard</h2>
+        <p className="text-muted-foreground">Resumen operativo del negocio.</p>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">
             Productos con stock bajo
           </div>
-          <div className="text-2xl font-bold text-[#1e293b]">{stockBajo}</div>
+          <div className="text-2xl font-bold text-primary">{stockBajo}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">
             Turnos pendientes
           </div>
-          <div className="text-2xl font-bold text-[#1e293b]">{turnosPendientes}</div>
+          <div className="text-2xl font-bold text-primary">{turnosPendientes}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">
             Pedidos pendientes
           </div>
-          <div className="text-2xl font-bold text-[#1e293b]">{pedidosPendientes}</div>
+          <div className="text-2xl font-bold text-primary">{pedidosPendientes}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">
             Ventas del mes
           </div>
-          <div className="text-2xl font-bold text-[#1e293b]">
+          <div className="text-2xl font-bold text-primary">
             {formatearMoneda(ventasMes)}
           </div>
         </div>
       </div>
 
       {/* Alertas de stock */}
-      <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-        <h3 className="font-semibold mb-4 text-[#991b1b]">Alertas de stock</h3>
+      <section className="bg-card border border-border rounded-xl p-5">
+        <h3 className="font-semibold mb-4 text-destructive">Alertas de stock</h3>
         {alertasStock.length > 0 ? (
           <ul className="space-y-2">
             {alertasStock.map((p) => (
               <li
                 key={p.id}
-                className="flex justify-between items-center p-2 border border-[#fee2e2] bg-[#fef2f2] rounded-lg text-sm"
+                className="flex justify-between items-center p-2 border border-destructive/30 bg-destructive/10 rounded-lg text-sm"
               >
                 <span className="font-medium">{p.nombre}</span>
-                <span className="text-xs font-bold text-[#991b1b]">
+                <span className="text-xs font-bold text-destructive">
                   Stock: {p.stock} (mínimo: {p.stock_minimo})
                 </span>
               </li>
@@ -167,7 +167,7 @@ export async function DashboardContent() {
 
       {/* Listas recientes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">
+        <section className="bg-card border border-border rounded-xl p-5">
           <h3 className="font-semibold mb-4">Turnos recientes</h3>
           <div className="space-y-3">
             {turnosRecientes.length > 0 ? (
@@ -182,7 +182,7 @@ export async function DashboardContent() {
           </div>
         </section>
 
-        <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">
+        <section className="bg-card border border-border rounded-xl p-5">
           <h3 className="font-semibold mb-4">Pedidos recientes</h3>
           <div className="space-y-3">
             {pedidosRecientes.length > 0 ? (

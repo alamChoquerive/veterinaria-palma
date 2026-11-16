@@ -110,15 +110,15 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
   const estiloPeriodo = (activo: boolean) =>
     `px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
       activo
-        ? "bg-[#1e293b] text-white"
-        : "bg-white border border-[#e2e8f0] text-[#64748b] hover:bg-[#f8fafc]"
+        ? "bg-primary text-primary-foreground"
+        : "bg-card border border-border text-muted-foreground hover:bg-muted/50"
     }`;
 
   return (
     <div className="space-y-6">
       {/* Selector de período */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-semibold text-[#64748b] uppercase mr-1">Período:</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase mr-1">Período:</span>
         {(["semana", "mes", "año", "todo"] as Periodo[]).map((p) => (
           <button
             key={p}
@@ -132,21 +132,21 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Pacientes atendidos</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Pacientes atendidos</div>
           <div className="text-2xl font-bold text-[#065f46]">{atendidos}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Turnos cancelados</div>
-          <div className="text-2xl font-bold text-[#991b1b]">{cancelados}</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Turnos cancelados</div>
+          <div className="text-2xl font-bold text-destructive">{cancelados}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Especialidad más solicitada</div>
-          <div className="text-lg font-bold text-[#1e293b] leading-8">{especialidadTop}</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Especialidad más solicitada</div>
+          <div className="text-lg font-bold text-primary leading-8">{especialidadTop}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Promedio de turnos por día</div>
-          <div className="text-2xl font-bold text-[#1e293b]">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Promedio de turnos por día</div>
+          <div className="text-2xl font-bold text-primary">
             {promedioPorDia.toLocaleString("es-AR", { maximumFractionDigits: 1 })}
           </div>
         </div>
@@ -161,13 +161,13 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
               etiqueta={DIAS_CORTOS[i]}
               valor={porDiaSemana[i]}
               max={maxDia}
-              color="#1e293b"
+              color="var(--color-primary)"
             />
           ))}
         </PanelGrafico>
 
         <PanelGrafico titulo="Atendidos vs cancelados por día">
-          <div className="flex gap-4 text-xs text-[#64748b] mb-1">
+          <div className="flex gap-4 text-xs text-muted-foreground mb-1">
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: "#059669" }} />
               Atendidos
@@ -179,9 +179,9 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
           </div>
           {DIAS_ORDEN.map((d, i) => (
             <div key={d} className="flex items-center gap-3">
-              <span className="w-36 shrink-0 text-xs text-[#64748b]">{DIAS_CORTOS[i]}</span>
+              <span className="w-36 shrink-0 text-xs text-muted-foreground">{DIAS_CORTOS[i]}</span>
               <div className="flex-1 space-y-1">
-                <div className="h-2.5 bg-[#f1f5f9] rounded-md overflow-hidden">
+                <div className="h-2.5 bg-muted rounded-md overflow-hidden">
                   <div
                     className="h-full rounded-md"
                     style={{
@@ -190,7 +190,7 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
                     }}
                   />
                 </div>
-                <div className="h-2.5 bg-[#f1f5f9] rounded-md overflow-hidden">
+                <div className="h-2.5 bg-muted rounded-md overflow-hidden">
                   <div
                     className="h-full rounded-md"
                     style={{
@@ -200,7 +200,7 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
                   />
                 </div>
               </div>
-              <span className="w-8 shrink-0 text-right text-xs font-bold text-[#1e293b]">
+              <span className="w-8 shrink-0 text-right text-xs font-bold text-primary">
                 {atendidosPorDia[i]}/{canceladosPorDia[i]}
               </span>
             </div>
@@ -219,7 +219,7 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
               />
             ))
           ) : (
-            <p className="text-sm text-[#64748b] text-center py-4">Sin turnos en el período</p>
+            <p className="text-sm text-muted-foreground text-center py-4">Sin turnos en el período</p>
           )}
         </PanelGrafico>
 
@@ -235,7 +235,7 @@ export function EstadisticasView({ turnos }: { turnos: TurnoFila[] }) {
               />
             ))
           ) : (
-            <p className="text-sm text-[#64748b] text-center py-4">
+            <p className="text-sm text-muted-foreground text-center py-4">
               Sin pacientes atendidos en el período
             </p>
           )}

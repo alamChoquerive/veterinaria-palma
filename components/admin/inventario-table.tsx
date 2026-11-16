@@ -100,25 +100,25 @@ export function InventarioTable({
       {/* Con el modal abierto el banner de afuera queda tapado (z-50): se muestra adentro */}
       {mensaje && !editando && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         <table className="w-full min-w-[760px] text-left border-collapse">
           <thead>
-            <tr className="border-b bg-[#f8fafc]">
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Foto</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Producto</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Precio Minorista</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Precio Mayorista</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Stock</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Mínimo</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Estado</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Acciones</th>
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Foto</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Producto</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Precio Minorista</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Precio Mayorista</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Stock</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Mínimo</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Estado</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {productos.map((p) => {
               const bajo = Number(p.stock) <= Number(p.stock_minimo);
               return (
-                <tr key={p.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                <tr key={p.id} className="border-b hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3">
                     <Image
                       src={p.imagen_url ?? "/placeholder.svg"}
@@ -130,30 +130,30 @@ export function InventarioTable({
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-medium">{p.nombre}</div>
-                    <div className="text-xs text-[#64748b]">{p.categoria ?? "-"}</div>
+                    <div className="text-xs text-muted-foreground">{p.categoria ?? "-"}</div>
                   </td>
                   <td className="px-4 py-3 text-right font-medium">
                     {formatearMoneda(Number(p.precio_minorista))}
                   </td>
-                  <td className="px-4 py-3 text-right font-medium text-[#64748b]">
+                  <td className="px-4 py-3 text-right font-medium text-muted-foreground">
                     {formatearMoneda(Number(p.precio_mayorista))}
                   </td>
                   <td className="px-4 py-3 text-center font-medium">
                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                      bajo ? "bg-[#fee2e2] text-[#991b1b]" : "bg-[#d1fae5] text-[#065f46]"
+                      bajo ? "bg-destructive/10 text-destructive" : "bg-[#d1fae5] text-[#065f46]"
                     }`}>
                       {p.stock}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-xs text-[#64748b]">
+                  <td className="px-4 py-3 text-center text-xs text-muted-foreground">
                     {p.stock_minimo}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                       !p.activo
-                        ? "bg-[#e2e8f0] text-[#64748b]"
+                        ? "bg-muted text-muted-foreground"
                         : bajo
-                          ? "bg-[#fee2e2] text-[#991b1b]"
+                          ? "bg-destructive/10 text-destructive"
                           : "bg-[#d1fae5] text-[#065f46]"
                     }`}>
                       {!p.activo ? "Inactivo" : bajo ? "Crítico" : "Óptimo"}
@@ -161,13 +161,13 @@ export function InventarioTable({
                   </td>
                   <td className="px-4 py-3 text-center space-x-1">
                     {soloLectura ? (
-                      <span className="text-xs text-[#94a3b8]">—</span>
+                      <span className="text-xs text-muted-foreground">—</span>
                     ) : (
                       <>
                         <button
                           onClick={() => ajustarStock(p.id, 1)}
                           disabled={cargando}
-                          className="inline-flex items-center justify-center min-w-11 min-h-11 px-2 text-sm font-bold bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                          className="inline-flex items-center justify-center min-w-11 min-h-11 px-2 text-sm font-bold bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 transition-colors"
                           aria-label={`Aumentar stock de ${p.nombre}`}
                         >
                           +1
@@ -175,14 +175,14 @@ export function InventarioTable({
                         <button
                           onClick={() => ajustarStock(p.id, -1)}
                           disabled={cargando}
-                          className="inline-flex items-center justify-center min-w-11 min-h-11 px-2 text-sm font-bold bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                          className="inline-flex items-center justify-center min-w-11 min-h-11 px-2 text-sm font-bold bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 transition-colors"
                           aria-label={`Disminuir stock de ${p.nombre}`}
                         >
                           -1
                         </button>
                         <button
                           onClick={() => abrirEdicion(p)}
-                          className="inline-flex items-center justify-center min-h-11 px-3 text-xs border border-[#e2e8f0] text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
+                          className="inline-flex items-center justify-center min-h-11 px-3 text-xs border border-border text-muted-foreground rounded hover:bg-muted transition-colors"
                         >
                           Editar
                         </button>
@@ -196,7 +196,7 @@ export function InventarioTable({
         </table>
       </div>
 
-      {cargando && <p className="text-sm text-[#64748b]">Cargando...</p>}
+      {cargando && <p className="text-sm text-muted-foreground">Cargando...</p>}
 
       {/* Modal de edición (solo en modo editable) */}
       {!soloLectura && editando && form && (
@@ -204,9 +204,9 @@ export function InventarioTable({
           {mensaje && <FormFeedback tipo={mensaje.tipo} className="mb-3">{mensaje.texto}</FormFeedback>}
           <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Nombre</label>
                 <input
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                   required
@@ -214,9 +214,9 @@ export function InventarioTable({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Descripción</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Descripción</label>
                 <textarea
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.descripcion}
                   onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
                   maxLength={500}
@@ -225,24 +225,24 @@ export function InventarioTable({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Precio minorista</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Precio minorista</label>
                   <input
                     type="number"
                     min={0}
                     step="0.01"
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.precioMinorista}
                     onChange={(e) => setForm({ ...form, precioMinorista: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Precio mayorista</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Precio mayorista</label>
                   <input
                     type="number"
                     min={0}
                     step="0.01"
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.precioMayorista}
                     onChange={(e) => setForm({ ...form, precioMayorista: e.target.value })}
                     required
@@ -251,31 +251,31 @@ export function InventarioTable({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Stock</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Stock</label>
                   <input
                     type="number"
                     min={0}
                     step={1}
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.stock}
                     onChange={(e) => setForm({ ...form, stock: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Stock mínimo</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Stock mínimo</label>
                   <input
                     type="number"
                     min={0}
                     step={1}
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.stockMinimo}
                     onChange={(e) => setForm({ ...form, stockMinimo: e.target.value })}
                     required
                   />
                 </div>
               </div>
-              <label className="flex items-center gap-2 text-sm text-[#64748b]">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
                 <input
                   type="checkbox"
                   checked={form.activo}

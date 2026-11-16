@@ -84,15 +84,15 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
   const estiloFiltro = (activo: boolean) =>
     `px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
       activo
-        ? "bg-[#1e293b] text-white"
-        : "bg-white border border-[#e2e8f0] text-[#64748b] hover:bg-[#f8fafc]"
+        ? "bg-primary text-primary-foreground"
+        : "bg-card border border-border text-muted-foreground hover:bg-muted/50"
     }`;
 
   return (
     <div className="space-y-4">
       {/* Filtros horizontales */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-[#64748b] uppercase mr-1">Fecha:</span>
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold text-muted-foreground uppercase mr-1">Fecha:</span>
         {(["todos", "semana", "mes", "fecha"] as FiltroFecha[]).map((f) => (
           <button
             key={f}
@@ -107,15 +107,15 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
             type="date"
             value={fechaElegida}
             onChange={(e) => setFechaElegida(e.target.value)}
-            className="border border-[#e2e8f0] rounded-lg px-3 py-1.5 text-xs"
+            className="border border-border rounded-lg px-3 py-1.5 text-xs"
           />
         )}
 
-        <span className="text-xs font-semibold text-[#64748b] uppercase mx-1 ml-3">Especialidad:</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase mx-1 ml-3">Especialidad:</span>
         <select
           value={filtroEspecialidad}
           onChange={(e) => setFiltroEspecialidad(e.target.value)}
-          className="border border-[#e2e8f0] rounded-lg px-3 py-1.5 text-xs bg-white text-[#1e293b]"
+          className="border border-border rounded-lg px-3 py-1.5 text-xs bg-card text-primary"
         >
           <option value="todas">Todas</option>
           {ESPECIALIDADES.map((e) => (
@@ -123,11 +123,11 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
           ))}
         </select>
 
-        <span className="text-xs font-semibold text-[#64748b] uppercase mx-1 ml-3">Estado:</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase mx-1 ml-3">Estado:</span>
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value as FiltroEstado)}
-          className="border border-[#e2e8f0] rounded-lg px-3 py-1.5 text-xs bg-white text-[#1e293b]"
+          className="border border-border rounded-lg px-3 py-1.5 text-xs bg-card text-primary"
         >
           <option value="todos">Todos</option>
           <option value="pendiente">Pendiente</option>
@@ -140,17 +140,17 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
       {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
       {/* Tabla */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         <table className="w-full min-w-[760px] text-left border-collapse">
           <thead>
-            <tr className="border-b bg-[#f8fafc]">
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Fecha</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Hora</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Especialidad</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Mascota</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Responsable</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Estado</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Acciones</th>
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Fecha</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Hora</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Especialidad</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Mascota</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Responsable</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Estado</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -167,9 +167,9 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
                   ? `${t.mascota_nombre}${t.mascota_especie ? ` (${t.mascota_especie})` : ""}`
                   : "—";
                 return (
-                  <tr key={t.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                  <tr key={t.id} className="border-b hover:bg-muted/50 transition-colors">
                     <td className="px-4 py-3 text-sm font-medium">{formatearFecha(t.fecha)}</td>
-                    <td className="px-4 py-3 text-sm font-mono text-[#1e293b]">
+                    <td className="px-4 py-3 text-sm font-mono text-primary">
                       {t.hora_inicio.slice(0, 5)} - {t.hora_fin.slice(0, 5)}
                     </td>
                     <td className="px-4 py-3 text-sm">{t.especialidad ?? "Sin especialidad"}</td>
@@ -177,10 +177,10 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
                     <td className="px-4 py-3 text-sm">
                       <div>{responsable}</div>
                       {(t.responsable_telefono ?? "").trim() && (
-                        <div className="text-xs text-[#64748b]">{t.responsable_telefono}</div>
+                        <div className="text-xs text-muted-foreground">{t.responsable_telefono}</div>
                       )}
                       {t.motivo && (
-                        <div className="text-xs text-[#64748b] italic">{t.motivo}</div>
+                        <div className="text-xs text-muted-foreground italic">{t.motivo}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -224,7 +224,7 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
                         </span>
                       )}
                       {(t.estado === "atendido" || t.estado === "cancelado") && (
-                        <span className="text-xs text-[#64748b]">—</span>
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>
@@ -232,7 +232,7 @@ export function AgendaView({ turnos }: { turnos: TurnoFila[] }) {
               })
             ) : (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-[#64748b]">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No hay turnos para los filtros elegidos
                 </td>
               </tr>

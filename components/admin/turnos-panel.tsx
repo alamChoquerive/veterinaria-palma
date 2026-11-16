@@ -129,17 +129,17 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
       {/* Título + tabs + botón nuevo turno */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Turnos veterinarios</h2>
-          <p className="text-[#64748b]">Agenda y estadísticas de los turnos de la clínica.</p>
+          <h2 className="text-2xl font-bold text-primary mb-2">Turnos veterinarios</h2>
+          <p className="text-muted-foreground">Agenda y estadísticas de los turnos de la clínica.</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-[#e2e8f0] bg-white overflow-hidden">
+          <div className="flex rounded-lg border border-border bg-card overflow-hidden">
             <button
               onClick={() => setVista("agenda")}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
                 vista === "agenda"
-                  ? "bg-[#1e293b] text-white"
-                  : "text-[#64748b] hover:bg-[#f8fafc]"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted/50"
               }`}
             >
               Agenda
@@ -148,8 +148,8 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
               onClick={() => setVista("estadisticas")}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
                 vista === "estadisticas"
-                  ? "bg-[#1e293b] text-white"
-                  : "text-[#64748b] hover:bg-[#f8fafc]"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted/50"
               }`}
             >
               Estadísticas
@@ -160,7 +160,7 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
               setMensaje(null);
               setModalAbierto(true);
             }}
-            className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] transition-colors font-medium"
+            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
           >
             + Nuevo turno
           </button>
@@ -187,22 +187,22 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
           <form onSubmit={guardarTurno} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Fecha</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Fecha</label>
                   <input
                     type="date"
                     min={hoyISO()}
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.fecha}
                     onChange={(e) => setForm({ ...form, fecha: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
                     Hora ({horaFinCalculada(form.horaInicio)} fin, {duracion} min)
                   </label>
                   <select
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.horaInicio}
                     onChange={(e) => setForm({ ...form, horaInicio: e.target.value })}
                     required
@@ -214,9 +214,9 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Especialidad</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Especialidad</label>
                 <select
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.especialidad}
                   onChange={(e) => setForm({ ...form, especialidad: e.target.value })}
                   required
@@ -230,9 +230,9 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Mascota</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Mascota</label>
                   <input
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     placeholder="Nombre de la mascota"
                     value={form.mascotaNombre}
                     onChange={(e) => setForm({ ...form, mascotaNombre: e.target.value })}
@@ -240,9 +240,9 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Especie</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Especie</label>
                   <select
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.mascotaEspecie}
                     onChange={(e) =>
                       setForm({ ...form, mascotaEspecie: e.target.value as FormPresencial["mascotaEspecie"] })
@@ -257,11 +257,11 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">
-                    Responsable <span className="text-[#991b1b]">*</span>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Responsable <span className="text-destructive">*</span>
                   </label>
                   <input
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     placeholder="Nombre del dueño"
                     value={form.responsableNombre}
                     onChange={(e) => setForm({ ...form, responsableNombre: e.target.value })}
@@ -271,9 +271,9 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Teléfono (opcional)</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Teléfono (opcional)</label>
                   <input
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     placeholder="Teléfono"
                     value={form.responsableTelefono}
                     onChange={(e) => setForm({ ...form, responsableTelefono: e.target.value })}
@@ -282,9 +282,9 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Motivo</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Motivo</label>
                 <textarea
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   placeholder="Control, consulta, vacunación..."
                   value={form.motivo}
                   onChange={(e) => setForm({ ...form, motivo: e.target.value })}

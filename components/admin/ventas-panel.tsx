@@ -97,8 +97,8 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
   const estiloFiltro = (activo: boolean) =>
     `px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
       activo
-        ? "bg-[#1e293b] text-white"
-        : "bg-white border border-[#e2e8f0] text-[#64748b] hover:bg-[#f8fafc]"
+        ? "bg-primary text-primary-foreground"
+        : "bg-card border border-border text-muted-foreground hover:bg-muted/50"
     }`;
 
   return (
@@ -110,7 +110,7 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
             etiqueta={DIAS_CORTOS[i]}
             valor={Math.round(porDia[i])}
             max={Math.round(maxDia)}
-            color="#1e293b"
+            color="var(--color-primary)"
             sufijo=""
           />
         ))}
@@ -118,17 +118,17 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
 
       {/* Cuadros: semana / día / ticket promedio */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Total ventas de la semana</div>
-          <div className="text-2xl font-bold text-[#1e293b]">{formatearMoneda(totalSemana)}</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Total ventas de la semana</div>
+          <div className="text-2xl font-bold text-primary">{formatearMoneda(totalSemana)}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Total ventas del día</div>
-          <div className="text-2xl font-bold text-[#1e293b]">{formatearMoneda(totalHoy)}</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Total ventas del día</div>
+          <div className="text-2xl font-bold text-primary">{formatearMoneda(totalHoy)}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Ticket promedio</div>
-          <div className="text-2xl font-bold text-[#1e293b]">{formatearMoneda(ticketPromedio)}</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Ticket promedio</div>
+          <div className="text-2xl font-bold text-primary">{formatearMoneda(ticketPromedio)}</div>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
           placeholder="Buscar por ID de compra o cliente..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="flex-1 border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm bg-white"
+          className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-card"
         />
         <div className="flex gap-2">
           {(["todos", "cobrado", "pendiente"] as FiltroEstado[]).map((f) => (
@@ -155,23 +155,23 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         <table className="w-full min-w-[720px] text-left border-collapse">
           <thead>
-            <tr className="border-b bg-[#f8fafc]">
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">ID compra</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Cliente</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Fecha</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Items</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Método de pago</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Estado</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Monto</th>
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">ID compra</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Cliente</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Fecha</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Items</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Método de pago</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Estado</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Monto</th>
             </tr>
           </thead>
           <tbody>
             {filtrados.length > 0 ? (
               filtrados.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                <tr key={p.id} className="border-b hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3 text-sm font-mono">#{p.id.slice(0, 8)}</td>
                   <td className="px-4 py-3 text-sm">{clienteDe(p)}</td>
                   <td className="px-4 py-3 text-sm">{formatearFecha(p.created_at)}</td>
@@ -179,7 +179,7 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
                   <td className="px-4 py-3 text-sm">{metodoPagoDe(p)}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-bold ${COLOR_ESTADO[p.estado] ?? "bg-[#e2e8f0] text-[#64748b]"}`}
+                      className={`px-2 py-0.5 rounded text-xs font-bold ${COLOR_ESTADO[p.estado] ?? "bg-muted text-muted-foreground"}`}
                     >
                       {ETIQUETA_ESTADO[p.estado] ?? p.estado}
                     </span>
@@ -191,7 +191,7 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-[#64748b]">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No hay transacciones para los filtros elegidos
                 </td>
               </tr>
@@ -199,11 +199,11 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
           </tbody>
           {filtrados.length > 0 && (
             <tfoot>
-              <tr className="border-t bg-[#f8fafc]">
-                <td colSpan={6} className="px-4 py-3 text-sm font-bold text-[#1e293b] text-right">
+              <tr className="border-t bg-muted/50">
+                <td colSpan={6} className="px-4 py-3 text-sm font-bold text-primary text-right">
                   Total de ventas
                 </td>
-                <td className="px-4 py-3 text-sm font-bold text-[#1e293b] text-right">
+                <td className="px-4 py-3 text-sm font-bold text-primary text-right">
                   {formatearMoneda(totalFiltrado)}
                 </td>
               </tr>
@@ -244,37 +244,37 @@ function VeterinariaView({ turnos }: { turnos: TurnoVentaFila[] }) {
       </PanelGrafico>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Turnos de la semana</div>
-          <div className="text-2xl font-bold text-[#1e293b]">{deLaSemana.length}</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Turnos de la semana</div>
+          <div className="text-2xl font-bold text-primary">{deLaSemana.length}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Turnos del día</div>
-          <div className="text-2xl font-bold text-[#1e293b]">{deHoy.length}</div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Turnos del día</div>
+          <div className="text-2xl font-bold text-primary">{deHoy.length}</div>
         </div>
-        <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-          <div className="text-xs font-medium text-[#64748b] uppercase mb-1">Promedio por día</div>
-          <div className="text-2xl font-bold text-[#1e293b]">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs font-medium text-muted-foreground uppercase mb-1">Promedio por día</div>
+          <div className="text-2xl font-bold text-primary">
             {promedioDia.toLocaleString("es-AR", { maximumFractionDigits: 1 })}
           </div>
         </div>
       </div>
 
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         <table className="w-full min-w-[680px] text-left border-collapse">
           <thead>
-            <tr className="border-b bg-[#f8fafc]">
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Fecha</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Hora</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Especialidad</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Mascota / Responsable</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Estado</th>
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Fecha</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Hora</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Especialidad</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Mascota / Responsable</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Estado</th>
             </tr>
           </thead>
           <tbody>
             {deLaSemana.length > 0 ? (
               deLaSemana.map((t) => (
-                <tr key={t.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                <tr key={t.id} className="border-b hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3 text-sm font-medium">{formatearFecha(t.fecha)}</td>
                   <td className="px-4 py-3 text-sm font-mono">
                     {t.hora_inicio.slice(0, 5)} - {t.hora_fin.slice(0, 5)}
@@ -304,7 +304,7 @@ function VeterinariaView({ turnos }: { turnos: TurnoVentaFila[] }) {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-[#64748b]">
+                <td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No hay turnos esta semana
                 </td>
               </tr>
@@ -331,18 +331,18 @@ export function VentasPanel({
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Ventas</h2>
-          <p className="text-[#64748b]">Registro de todas las transacciones.</p>
+          <h2 className="text-2xl font-bold text-primary mb-2">Ventas</h2>
+          <p className="text-muted-foreground">Registro de todas las transacciones.</p>
         </div>
-        <div className="flex rounded-lg border border-[#e2e8f0] bg-white overflow-hidden">
+        <div className="flex rounded-lg border border-border bg-card overflow-hidden">
           {(["ambos", "petshop", "veterinaria"] as Vista[]).map((v) => (
             <button
               key={v}
               onClick={() => setVista(v)}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
                 vista === v
-                  ? "bg-[#1e293b] text-white"
-                  : "text-[#64748b] hover:bg-[#f8fafc]"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted/50"
               }`}
             >
               {v === "ambos" ? "Ambos" : v === "petshop" ? "Petshop" : "Veterinaria"}
@@ -354,7 +354,7 @@ export function VentasPanel({
       {(vista === "ambos" || vista === "petshop") && (
         <>
           {vista === "ambos" && (
-            <h3 className="text-lg font-bold text-[#1e293b]">Petshop</h3>
+            <h3 className="text-lg font-bold text-primary">Petshop</h3>
           )}
           <PetshopView pedidos={pedidos} />
         </>
@@ -362,7 +362,7 @@ export function VentasPanel({
       {(vista === "ambos" || vista === "veterinaria") && (
         <>
           {vista === "ambos" && (
-            <h3 className="text-lg font-bold text-[#1e293b] pt-2">Clínica veterinaria</h3>
+            <h3 className="text-lg font-bold text-primary pt-2">Clínica veterinaria</h3>
           )}
           <VeterinariaView turnos={turnos} />
         </>

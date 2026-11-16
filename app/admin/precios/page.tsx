@@ -2,6 +2,8 @@ import { createClient } from "@/core/supabase/server";
 import { PreciosPanel, type ProductoPrecioFila } from "@/components/admin/precios-panel";
 import type { Producto } from "@/types/database.types";
 
+export const metadata = { title: "Precios · Admin — Veterinaria Palma" };
+
 export default async function AdminPreciosPage() {
   const supabase = await createClient();
 
@@ -22,8 +24,8 @@ export default async function AdminPreciosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Precios</h2>
-        <p className="text-[#64748b]">Márgenes globales sobre el costo y precios individuales.</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Precios</h2>
+        <p className="text-muted-foreground">Márgenes globales sobre el costo y precios individuales.</p>
       </div>
       <PreciosPanel
         productos={filas}

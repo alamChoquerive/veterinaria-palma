@@ -117,12 +117,12 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Proveedores</h2>
-          <p className="text-[#64748b]">Proveedores actuales de la tienda.</p>
+          <h2 className="text-2xl font-bold text-primary mb-2">Proveedores</h2>
+          <p className="text-muted-foreground">Proveedores actuales de la tienda.</p>
         </div>
         <button
           onClick={abrirNuevo}
-          className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] transition-colors font-medium"
+          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
         >
           + Nuevo proveedor
         </button>
@@ -138,66 +138,66 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
             return (
               <div
                 key={p.id}
-                className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden"
+                className="bg-card border border-border rounded-xl overflow-hidden"
               >
                 <button
                   onClick={() => setExpandido(abierto ? null : p.id)}
-                  className="w-full flex flex-wrap items-center justify-between gap-2 px-5 py-4 text-left hover:bg-[#f8fafc] transition-colors"
+                  className="w-full flex flex-wrap items-center justify-between gap-2 px-5 py-4 text-left hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-[#1e293b]">{p.nombre}</span>
+                    <span className="font-semibold text-primary">{p.nombre}</span>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-bold ${
                         p.activo
                           ? "bg-[#d1fae5] text-[#065f46]"
-                          : "bg-[#e2e8f0] text-[#64748b]"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {p.activo ? "Activo" : "Inactivo"}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-[#64748b]">Provee: {p.categoria}</span>
+                    <span className="text-muted-foreground">Provee: {p.categoria}</span>
                     {Number(p.monto_pendiente) > 0 ? (
-                      <span className="font-bold text-[#991b1b]">
+                      <span className="font-bold text-destructive">
                         Pendiente: {formatearMoneda(Number(p.monto_pendiente))}
                       </span>
                     ) : (
                       <span className="font-bold text-[#065f46]">Pagado</span>
                     )}
-                    <span className="text-[#94a3b8] text-xs">{abierto ? "▲" : "▼"}</span>
+                    <span className="text-muted-foreground text-xs">{abierto ? "▲" : "▼"}</span>
                   </div>
                 </button>
 
                 {/* Desplegable con el detalle */}
                 {abierto && (
-                  <div className="border-t border-[#e2e8f0] px-5 py-4 bg-[#f8fafc] space-y-2 text-sm">
+                  <div className="border-t border-border px-5 py-4 bg-muted/50 space-y-2 text-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <div>
-                        <span className="text-[#64748b]">Contacto: </span>
+                        <span className="text-muted-foreground">Contacto: </span>
                         <span className="font-medium">{p.contacto_nombre || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-[#64748b]">Email: </span>
+                        <span className="text-muted-foreground">Email: </span>
                         <span className="font-medium">{p.email || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-[#64748b]">Teléfono: </span>
+                        <span className="text-muted-foreground">Teléfono: </span>
                         <span className="font-medium">{p.telefono || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-[#64748b]">Categoría: </span>
+                        <span className="text-muted-foreground">Categoría: </span>
                         <span className="font-medium">{p.categoria}</span>
                       </div>
                       <div>
-                        <span className="text-[#64748b]">Último pedido: </span>
+                        <span className="text-muted-foreground">Último pedido: </span>
                         <span className="font-medium">
                           {p.ultimo_pedido_fecha ? formatearFecha(p.ultimo_pedido_fecha) : "—"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[#64748b]">Monto pendiente: </span>
-                        <span className={`font-bold ${Number(p.monto_pendiente) > 0 ? "text-[#991b1b]" : "text-[#065f46]"}`}>
+                        <span className="text-muted-foreground">Monto pendiente: </span>
+                        <span className={`font-bold ${Number(p.monto_pendiente) > 0 ? "text-destructive" : "text-[#065f46]"}`}>
                           {Number(p.monto_pendiente) > 0
                             ? formatearMoneda(Number(p.monto_pendiente))
                             : "Pagado"}
@@ -206,14 +206,14 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
                     </div>
                     {p.descripcion && (
                       <div>
-                        <span className="text-[#64748b]">Descripción: </span>
+                        <span className="text-muted-foreground">Descripción: </span>
                         <span>{p.descripcion}</span>
                       </div>
                     )}
                     <div className="pt-2">
                       <button
                         onClick={() => abrirEditar(p)}
-                        className="px-3 py-1.5 text-xs border border-[#e2e8f0] bg-white text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
+                        className="px-3 py-1.5 text-xs border border-border bg-card text-muted-foreground rounded hover:bg-muted transition-colors"
                       >
                         Editar proveedor
                       </button>
@@ -224,7 +224,7 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
             );
           })
         ) : (
-          <div className="bg-white border border-[#e2e8f0] rounded-xl p-8 text-center text-sm text-[#64748b]">
+          <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
             Todavía no hay proveedores cargados
           </div>
         )}
@@ -240,11 +240,11 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
           {error && <FormFeedback tipo="error" className="mb-4">{error}</FormFeedback>}
           <form onSubmit={guardar} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">
-                  Nombre del proveedor <span className="text-[#991b1b]">*</span>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
+                  Nombre del proveedor <span className="text-destructive">*</span>
                 </label>
                 <input
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                   required
@@ -254,18 +254,18 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Contacto</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Contacto</label>
                   <input
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.contactoNombre}
                     onChange={(e) => setForm({ ...form, contactoNombre: e.target.value })}
                     maxLength={120}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Teléfono</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Teléfono</label>
                   <input
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.telefono}
                     onChange={(e) => setForm({ ...form, telefono: e.target.value })}
                     maxLength={30}
@@ -273,10 +273,10 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Email</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Email</label>
                 <input
                   type="email"
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   maxLength={200}
@@ -284,11 +284,11 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">
-                    ¿Qué provee? <span className="text-[#991b1b]">*</span>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    ¿Qué provee? <span className="text-destructive">*</span>
                   </label>
                   <input
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     placeholder="Alimentos, farmacia, accesorios..."
                     value={form.categoria}
                     onChange={(e) => setForm({ ...form, categoria: e.target.value })}
@@ -298,40 +298,40 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Último pedido</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Último pedido</label>
                   <input
                     type="date"
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.ultimoPedidoFecha}
                     onChange={(e) => setForm({ ...form, ultimoPedidoFecha: e.target.value })}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
                   Monto pendiente a pagar
                 </label>
                 <input
                   type="number"
                   min={0}
                   step="0.01"
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.montoPendiente}
                   onChange={(e) => setForm({ ...form, montoPendiente: e.target.value })}
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Descripción</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Descripción</label>
                 <textarea
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.descripcion}
                   onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
                   maxLength={1000}
                   rows={3}
                 />
               </div>
-              <label className="flex items-center gap-2 text-sm text-[#64748b]">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
                 <input
                   type="checkbox"
                   checked={form.activo}

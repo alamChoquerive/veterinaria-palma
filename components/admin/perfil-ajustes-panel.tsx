@@ -18,10 +18,10 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { Perfil } from "@/types/database.types";
 
 const COLOR_ROL: Record<string, string> = {
-  admin: "bg-[#1e293b] text-white",
+  admin: "bg-primary text-primary-foreground",
   empleado: "bg-[#dbeafe] text-[#1e40af]",
   mayorista: "bg-[#fef3c7] text-[#92400e]",
-  minorista: "bg-[#e2e8f0] text-[#64748b]",
+  minorista: "bg-muted text-muted-foreground",
 };
 
 function Panel({
@@ -34,9 +34,9 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-      <h3 className="font-semibold text-[#1e293b] mb-1">{titulo}</h3>
-      {descripcion && <p className="text-xs text-[#64748b] mb-4">{descripcion}</p>}
+    <section className="bg-card border border-border rounded-xl p-5">
+      <h3 className="font-semibold text-primary mb-1">{titulo}</h3>
+      {descripcion && <p className="text-xs text-muted-foreground mb-4">{descripcion}</p>}
       {children}
     </section>
   );
@@ -47,7 +47,7 @@ function BotonGuardar({ cargando, children }: { cargando: boolean; children: Rea
     <button
       type="submit"
       disabled={cargando}
-      className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+      className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
     >
       {cargando ? "Guardando..." : children}
     </button>
@@ -55,7 +55,7 @@ function BotonGuardar({ cargando, children }: { cargando: boolean; children: Rea
 }
 
 const inputCls =
-  "w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm";
+  "w-full border border-border rounded-lg px-3 py-2 text-sm";
 
 export function PerfilAjustesPanel({
   perfilActual,
@@ -206,8 +206,8 @@ export function PerfilAjustesPanel({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Perfil/Ajustes</h2>
-        <p className="text-[#64748b]">Tu perfil, la tienda, las notificaciones y el equipo.</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Perfil/Ajustes</h2>
+        <p className="text-muted-foreground">Tu perfil, la tienda, las notificaciones y el equipo.</p>
       </div>
 
       {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
@@ -225,10 +225,10 @@ export function PerfilAjustesPanel({
                 alt="Foto de perfil"
                 width={56}
                 height={56}
-                className="w-14 h-14 rounded-full object-cover border border-[#e2e8f0]"
+                className="w-14 h-14 rounded-full object-cover border border-border"
               />
               <div className="flex-1">
-                <label className="block text-xs font-medium text-[#64748b] mb-1">URL de la foto</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">URL de la foto</label>
                 <input
                   type="url"
                   className={inputCls}
@@ -240,7 +240,7 @@ export function PerfilAjustesPanel({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Nombre</label>
                 <input
                   className={inputCls}
                   value={perfilForm.nombre}
@@ -250,7 +250,7 @@ export function PerfilAjustesPanel({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Apellido</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Apellido</label>
                 <input
                   className={inputCls}
                   value={perfilForm.apellido}
@@ -261,7 +261,7 @@ export function PerfilAjustesPanel({
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">Teléfono</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Teléfono</label>
               <input
                 className={inputCls}
                 value={perfilForm.telefono}
@@ -270,8 +270,8 @@ export function PerfilAjustesPanel({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">Email (solo lectura)</label>
-              <input className={`${inputCls} bg-[#f8fafc] text-[#64748b]`} value={perfilActual?.email ?? ""} disabled readOnly />
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Email (solo lectura)</label>
+              <input className={`${inputCls} bg-muted/50 text-muted-foreground`} value={perfilActual?.email ?? ""} disabled readOnly />
             </div>
             <div className="flex justify-end">
               <BotonGuardar cargando={guardandoPerfil}>Guardar perfil</BotonGuardar>
@@ -283,7 +283,7 @@ export function PerfilAjustesPanel({
         <Panel titulo="Datos de la tienda" descripcion="Se muestran en la tienda y los comprobantes.">
           <form onSubmit={guardarTienda} className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Nombre</label>
               <input
                 className={inputCls}
                 value={tiendaForm.nombreTienda}
@@ -293,7 +293,7 @@ export function PerfilAjustesPanel({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">CUIT</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">CUIT</label>
               <input
                 className={inputCls}
                 value={tiendaForm.cuit}
@@ -302,7 +302,7 @@ export function PerfilAjustesPanel({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">Dirección</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Dirección</label>
               <input
                 className={inputCls}
                 value={tiendaForm.direccion}
@@ -311,7 +311,7 @@ export function PerfilAjustesPanel({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">Teléfono</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Teléfono</label>
               <input
                 className={inputCls}
                 value={tiendaForm.telefonoTienda}
@@ -333,7 +333,7 @@ export function PerfilAjustesPanel({
             {NOTIFICACIONES.map((n) => (
               <label
                 key={n.clave}
-                className="flex items-start gap-3 border border-[#e2e8f0] rounded-lg px-4 py-3 cursor-pointer hover:bg-[#f8fafc] transition-colors"
+                className="flex items-start gap-3 border border-border rounded-lg px-4 py-3 cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <input
                   type="checkbox"
@@ -342,8 +342,8 @@ export function PerfilAjustesPanel({
                   className="mt-1"
                 />
                 <span>
-                  <span className="block text-sm font-medium text-[#1e293b]">{n.titulo}</span>
-                  <span className="block text-xs text-[#64748b]">{n.descripcion}</span>
+                  <span className="block text-sm font-medium text-primary">{n.titulo}</span>
+                  <span className="block text-xs text-muted-foreground">{n.descripcion}</span>
                 </span>
               </label>
             ))}
@@ -362,7 +362,7 @@ export function PerfilAjustesPanel({
         <div className="flex justify-end mb-4">
           <button
             onClick={() => setModalEmpleado(true)}
-            className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] transition-colors font-medium"
+            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
           >
             + Agregar empleado
           </button>
@@ -370,12 +370,12 @@ export function PerfilAjustesPanel({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b bg-[#f8fafc]">
-                <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Nombre</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Email</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Rol</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Alta</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Eliminar</th>
+              <tr className="border-b bg-muted/50">
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Nombre</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Email</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Rol</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Alta</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Eliminar</th>
               </tr>
             </thead>
             <tbody>
@@ -383,15 +383,15 @@ export function PerfilAjustesPanel({
                 const esYo = u.id === perfilActual?.id;
                 const esAdmin = u.rol === "admin";
                 return (
-                  <tr key={u.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                  <tr key={u.id} className="border-b hover:bg-muted/50 transition-colors">
                     <td className="px-4 py-3 text-sm font-medium">
                       {`${u.nombre ?? ""} ${u.apellido ?? ""}`.trim() || "—"}
-                      {esYo && <span className="ml-2 text-xs text-[#64748b]">(vos)</span>}
+                      {esYo && <span className="ml-2 text-xs text-muted-foreground">(vos)</span>}
                     </td>
                     <td className="px-4 py-3 text-sm">{u.email}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-0.5 rounded text-xs font-bold ${COLOR_ROL[u.rol] ?? "bg-[#e2e8f0] text-[#64748b]"}`}
+                        className={`px-2 py-0.5 rounded text-xs font-bold ${COLOR_ROL[u.rol] ?? "bg-muted text-muted-foreground"}`}
                       >
                         {ETIQUETA_ROL[u.rol] ?? u.rol}
                       </span>
@@ -399,7 +399,7 @@ export function PerfilAjustesPanel({
                     <td className="px-4 py-3 text-sm">{formatearFecha(u.created_at)}</td>
                     <td className="px-4 py-3 text-center">
                       {esYo || esAdmin ? (
-                        <span className="text-xs text-[#94a3b8]">—</span>
+                        <span className="text-xs text-muted-foreground">—</span>
                       ) : (
                         <button
                           onClick={() => setEliminarPendiente(u)}
@@ -425,7 +425,7 @@ export function PerfilAjustesPanel({
           <form onSubmit={guardarEmpleado} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Nombre</label>
                   <input
                     className={inputCls}
                     value={empleadoForm.nombre}
@@ -435,7 +435,7 @@ export function PerfilAjustesPanel({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Apellido</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Apellido</label>
                   <input
                     className={inputCls}
                     value={empleadoForm.apellido}
@@ -446,7 +446,7 @@ export function PerfilAjustesPanel({
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Email</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Email</label>
                 <input
                   type="email"
                   className={inputCls}
@@ -456,7 +456,7 @@ export function PerfilAjustesPanel({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Contraseña</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Contraseña</label>
                 <input
                   type="password"
                   className={inputCls}
@@ -466,7 +466,7 @@ export function PerfilAjustesPanel({
                   minLength={6}
                 />
               </div>
-              <p className="text-xs text-[#64748b]">
+              <p className="text-xs text-muted-foreground">
                 El empleado entra con rol &ldquo;empleado&rdquo; y ve su panel restringido.
               </p>
               <div className="flex justify-end gap-2 pt-2">

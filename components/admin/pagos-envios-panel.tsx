@@ -85,28 +85,28 @@ export function PagosEnviosPanel({
       {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
       {/* Medios de pago */}
-      <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-        <h3 className="font-semibold text-[#1e293b] mb-1">Medios de pago</h3>
-        <p className="text-xs text-[#64748b] mb-4">
+      <section className="bg-card border border-border rounded-xl p-5">
+        <h3 className="font-semibold text-primary mb-1">Medios de pago</h3>
+        <p className="text-xs text-muted-foreground mb-4">
           Elegí qué medios de pago quedan habilitados para los clientes.
         </p>
         <div className="space-y-2">
           {medios.map((m) => (
             <div
               key={m.id}
-              className="flex items-center justify-between border border-[#e2e8f0] rounded-lg px-4 py-3"
+              className="flex items-center justify-between border border-border rounded-lg px-4 py-3"
             >
               <div>
-                <div className="font-medium text-sm text-[#1e293b]">{m.nombre}</div>
-                <div className="text-xs text-[#64748b]">{m.clave}</div>
+                <div className="font-medium text-sm text-primary">{m.nombre}</div>
+                <div className="text-xs text-muted-foreground">{m.clave}</div>
               </div>
               <button
                 onClick={() => cambiarMedio(m, !m.activo)}
                 disabled={cargando}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 ${
                   m.activo
-                    ? "bg-[#d1fae5] text-[#065f46] hover:bg-[#fee2e2] hover:text-[#991b1b]"
-                    : "bg-[#e2e8f0] text-[#64748b] hover:bg-[#d1fae5] hover:text-[#065f46]"
+                    ? "bg-[#d1fae5] text-[#065f46] hover:bg-destructive/20 hover:text-destructive"
+                    : "bg-muted text-muted-foreground hover:bg-[#d1fae5] hover:text-[#065f46]"
                 }`}
               >
                 {m.activo ? "Habilitado" : "Deshabilitado"}
@@ -117,40 +117,40 @@ export function PagosEnviosPanel({
       </section>
 
       {/* Opciones de envío */}
-      <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-        <h3 className="font-semibold text-[#1e293b] mb-1">Opciones de envío</h3>
-        <p className="text-xs text-[#64748b] mb-4">
+      <section className="bg-card border border-border rounded-xl p-5">
+        <h3 className="font-semibold text-primary mb-1">Opciones de envío</h3>
+        <p className="text-xs text-muted-foreground mb-4">
           Zonas de envío con su costo y si están habilitadas.
         </p>
         <div className="space-y-2">
           {zonas.map((z) => (
             <div
               key={z.id}
-              className="flex flex-wrap items-center justify-between gap-3 border border-[#e2e8f0] rounded-lg px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 border border-border rounded-lg px-4 py-3"
             >
               <div>
-                <div className="font-medium text-sm text-[#1e293b]">{z.nombre}</div>
-                <div className="text-xs text-[#64748b]">
+                <div className="font-medium text-sm text-primary">{z.nombre}</div>
+                <div className="text-xs text-muted-foreground">
                   {ETIQUETA_TIPO_ZONA[z.tipo] ?? z.tipo}
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#64748b]">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
                   <input
                     type="number"
                     min={0}
                     step="0.01"
                     value={costos[z.id] ?? String(z.costo)}
                     onChange={(e) => setCostos({ ...costos, [z.id]: e.target.value })}
-                    className="w-32 border border-[#e2e8f0] rounded-lg pl-7 pr-3 py-1.5 text-sm"
+                    className="w-32 border border-border rounded-lg pl-7 pr-3 py-1.5 text-sm"
                     aria-label={`Costo de ${z.nombre}`}
                   />
                 </div>
                 <button
                   onClick={() => guardarZona(z)}
                   disabled={cargando}
-                  className="px-3 py-1.5 text-xs bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                  className="px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   Guardar
                 </button>
@@ -159,8 +159,8 @@ export function PagosEnviosPanel({
                   disabled={cargando}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 ${
                     z.activo
-                      ? "bg-[#d1fae5] text-[#065f46] hover:bg-[#fee2e2] hover:text-[#991b1b]"
-                      : "bg-[#e2e8f0] text-[#64748b] hover:bg-[#d1fae5] hover:text-[#065f46]"
+                      ? "bg-[#d1fae5] text-[#065f46] hover:bg-destructive/20 hover:text-destructive"
+                      : "bg-muted text-muted-foreground hover:bg-[#d1fae5] hover:text-[#065f46]"
                   }`}
                 >
                   {z.activo ? "Habilitada" : "Deshabilitada"}
@@ -169,7 +169,7 @@ export function PagosEnviosPanel({
             </div>
           ))}
         </div>
-        <p className="text-xs text-[#94a3b8] mt-3">
+        <p className="text-xs text-muted-foreground mt-3">
           Costo actual de referencia: retiro en tienda {formatearMoneda(0)} — el costo de cada zona se define acá.
         </p>
       </section>

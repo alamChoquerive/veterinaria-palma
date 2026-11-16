@@ -104,12 +104,12 @@ export function CatalogoTable({
           placeholder="Buscar producto..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="flex-1 border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm bg-white"
+          className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-card"
         />
         <select
           value={filtroCategoria}
           onChange={(e) => setFiltroCategoria(e.target.value)}
-          className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm bg-white text-[#1e293b]"
+          className="border border-border rounded-lg px-3 py-2 text-sm bg-card text-primary"
         >
           <option value="todas">Todas las categorías</option>
           {categorias.map((c) => (
@@ -122,23 +122,23 @@ export function CatalogoTable({
       {mensaje && !editando && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
       {/* Lista de productos */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
         <table className="w-full min-w-[640px] text-left border-collapse">
           <thead>
-            <tr className="border-b bg-[#f8fafc]">
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Foto</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Producto</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Categoría</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Minorista</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-right">Mayorista</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Stock</th>
-              <th className="px-4 py-3 text-xs font-medium text-[#64748b] text-center">Editar</th>
+            <tr className="border-b bg-muted/50">
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Foto</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Producto</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Categoría</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Minorista</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right">Mayorista</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Stock</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center">Editar</th>
             </tr>
           </thead>
           <tbody>
             {filtrados.length > 0 ? (
               filtrados.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-[#f8fafc] transition-colors">
+                <tr key={p.id} className="border-b hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3">
                     <Image
                       src={p.imagen_url ?? "/placeholder.svg"}
@@ -151,21 +151,21 @@ export function CatalogoTable({
                   <td className="px-4 py-3">
                     <div className="font-medium text-sm">{p.nombre}</div>
                     {!p.activo && (
-                      <span className="text-xs text-[#64748b]">Inactivo</span>
+                      <span className="text-xs text-muted-foreground">Inactivo</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm">{p.categoria ?? "—"}</td>
                   <td className="px-4 py-3 text-sm text-right font-medium">
                     {formatearMoneda(Number(p.precio_minorista))}
                   </td>
-                  <td className="px-4 py-3 text-sm text-right text-[#64748b]">
+                  <td className="px-4 py-3 text-sm text-right text-muted-foreground">
                     {formatearMoneda(Number(p.precio_mayorista))}
                   </td>
                   <td className="px-4 py-3 text-sm text-center">{p.stock}</td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => abrirEdicion(p)}
-                      className="px-2.5 py-1.5 text-xs border border-[#e2e8f0] text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
+                      className="px-2.5 py-1.5 text-xs border border-border text-muted-foreground rounded hover:bg-muted transition-colors"
                     >
                       Editar
                     </button>
@@ -174,7 +174,7 @@ export function CatalogoTable({
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-[#64748b]">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No hay productos para los filtros elegidos
                 </td>
               </tr>
@@ -189,9 +189,9 @@ export function CatalogoTable({
           {mensaje && <FormFeedback tipo={mensaje.tipo} className="mb-3">{mensaje.texto}</FormFeedback>}
           <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Nombre</label>
                 <input
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                   required
@@ -199,19 +199,19 @@ export function CatalogoTable({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">URL de la foto</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">URL de la foto</label>
                 <input
                   type="url"
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   placeholder="https://..."
                   value={form.imagenUrl}
                   onChange={(e) => setForm({ ...form, imagenUrl: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Categoría</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Categoría</label>
                 <select
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm bg-white"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-card"
                   value={form.categoriaId}
                   onChange={(e) => setForm({ ...form, categoriaId: e.target.value })}
                 >
@@ -223,24 +223,24 @@ export function CatalogoTable({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Precio minorista</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Precio minorista</label>
                   <input
                     type="number"
                     min={0}
                     step="0.01"
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.precioMinorista}
                     onChange={(e) => setForm({ ...form, precioMinorista: e.target.value })}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#64748b] mb-1">Precio mayorista</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Precio mayorista</label>
                   <input
                     type="number"
                     min={0}
                     step="0.01"
-                    className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                     value={form.precioMayorista}
                     onChange={(e) => setForm({ ...form, precioMayorista: e.target.value })}
                     required
@@ -248,12 +248,12 @@ export function CatalogoTable({
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#64748b] mb-1">Stock</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Stock</label>
                 <input
                   type="number"
                   min={0}
                   step={1}
-                  className="w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm"
                   value={form.stock}
                   onChange={(e) => setForm({ ...form, stock: e.target.value })}
                   required

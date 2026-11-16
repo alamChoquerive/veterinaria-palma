@@ -6,6 +6,8 @@ import {
 } from "@/components/admin/catalogo-table";
 import type { Producto } from "@/types/database.types";
 
+export const metadata = { title: "Catálogo · Admin — Veterinaria Palma" };
+
 export default async function AdminCatalogoPage() {
   const supabase = await createClient();
 
@@ -24,8 +26,8 @@ export default async function AdminCatalogoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Catálogo</h2>
-        <p className="text-[#64748b]">Editá los productos cargados en el inventario.</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Catálogo</h2>
+        <p className="text-muted-foreground">Editá los productos cargados en el inventario.</p>
       </div>
       <CatalogoTable productos={filas} categorias={cats} />
     </div>
