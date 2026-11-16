@@ -6,6 +6,7 @@
 export const ROLES = {
   MINORISTA: "minorista",
   MAYORISTA: "mayorista",
+  EMPLEADO: "empleado",
   ADMIN: "admin",
 } as const;
 
@@ -144,3 +145,15 @@ export const ETIQUETA_ROL: Record<string, string> = {
   admin: "Administrador",
   empleado: "Empleado",
 };
+
+/**
+ * Panel de gestión según el rol: admin y empleado tienen el suyo propio.
+ * Los clientes (minorista/mayorista) no tienen panel → null (usan /cuenta).
+ * Lo usan el redirect post-login del AuthModal y el ícono de cuenta del
+ * navbar/gateway, para que el staff llegue directo a su panel.
+ */
+export function rutaPanelPorRol(rol: string | null | undefined): string | null {
+  if (rol === ROLES.ADMIN) return "/admin/dashboard";
+  if (rol === ROLES.EMPLEADO) return "/empleado/dashboard";
+  return null;
+}

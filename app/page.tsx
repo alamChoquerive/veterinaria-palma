@@ -3,12 +3,23 @@ import { createClient } from "@/core/supabase/server";
 import { GatewayHeader } from "@/components/layout/gateway-header";
 
 export default async function GatewayPage() {
-  // Sesión solo para decidir el header: con sesión → /cuenta; sin sesión el
+  // Sesión solo para decidir el header: con sesión el ícono va al panel del
+  // rol (admin/empleado) o a /cuenta si es cliente; sin sesión el
   // GatewayHeader abre el AuthModal (la misma entrada que el Navbar).
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  let rol: string | null = null;
+  if (user) {
+    const { data: perfil } = await supabase
+      .from("perfiles")
+      .select("rol")
+      .eq("id", user.id)
+      .maybeSingle();
+    rol = perfil?.rol ?? null;
+  }
   return (
     <div className="flex flex-col min-h-screen bg-[#f8fafc] text-[#1e293b]">
       {/* Barra de emergencias */}
@@ -34,7 +45,7 @@ export default async function GatewayPage() {
 
       {/* Header restringido del gateway: sin sesión abre el AuthModal,
           igual que el Navbar; /login queda como fallback de redirects */}
-      <GatewayHeader tieneSesion={!!user} />
+      <GatewayHeader tieneSesion={!!user} rol={rol} />
 
       {/* Split screen: cada mitad ocupa todo el alto y la mitad del ancho,
           y navega directo a su sección (sin pantalla intermedia) */}

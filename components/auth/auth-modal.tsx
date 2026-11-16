@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginAction, registroAction } from "@/core/actions/auth.action";
+import { rutaPanelPorRol } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -97,9 +98,18 @@ export function AuthModal({
       return;
     }
     // Si venimos de una ruta protegida (/login?redirect=/cuenta), navegamos
-    // al destino pedido; si no, cerramos y refrescamos la página actual.
+    // al destino pedido.
     if (redirectDestino) {
       router.replace(redirectDestino);
+      return;
+    }
+    // Sin destino pedido: el staff (admin/empleado) va directo a su panel de
+    // gestión (antes se quedaba en la página pública y el ícono de cuenta lo
+    // mandaba a /cuenta). El cliente queda en la página actual con la sesión
+    // refrescada, igual que el redirect a "/" del server en modo no-modal.
+    const panel = rutaPanelPorRol(result.data.rol);
+    if (panel) {
+      router.replace(panel);
       return;
     }
     onClose();

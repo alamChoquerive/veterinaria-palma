@@ -39,7 +39,9 @@ function detalleAuthDev(error: {
  * router.refresh(). Sin el flag (formulario de /login) el comportamiento
  * es exactamente el de siempre: redirect según rol o redirect pedido.
  */
-export async function loginAction(formData: FormData): Promise<ActionResult> {
+export async function loginAction(
+  formData: FormData,
+): Promise<ActionResult<{ rol: string | null }>> {
   const modoModal = formData.get("modoModal") === "1";
   const rawInput: LoginInput = {
     email: formData.get("email") as string,

@@ -4,11 +4,27 @@ import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/components/carrito/cart-context";
 import { AuthModal } from "@/components/auth/auth-modal";
+import { ROLES, rutaPanelPorRol } from "@/lib/constants";
 
-export function Navbar({ userEmail }: { userEmail: string | null }) {
+export function Navbar({
+  userEmail,
+  userRol = null,
+}: {
+  userEmail: string | null;
+  userRol?: string | null;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const { cantidadTotal } = useCart();
+  // Con sesión, el ícono de cuenta lleva al panel del rol (admin/empleado)
+  // o a /cuenta si es cliente
+  const panel = rutaPanelPorRol(userRol);
+  const hrefCuenta = panel ?? "/cuenta";
+  const etiquetaCuenta = panel
+    ? userRol === ROLES.ADMIN
+      ? "Ir al panel de administración"
+      : "Ir al panel de empleado"
+    : `Mi cuenta (${userEmail})`;
 
   const iconoUsuario = (
     <svg
@@ -49,15 +65,15 @@ export function Navbar({ userEmail }: { userEmail: string | null }) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Icono de cuenta según la sesión: logueado → /cuenta;
-              sin sesión → abre el AuthModal encima de la página actual
-              (/login sigue como fallback para enlaces directos y redirects
-              del proxy en rutas protegidas) */}
+          {/* Icono de cuenta según la sesión y el rol: staff → su panel de
+              gestión; cliente → /cuenta. Sin sesión → AuthModal encima de la
+              página actual (/login sigue como fallback para enlaces directos
+              y redirects del proxy en rutas protegidas) */}
           {userEmail ? (
             <Link
-              href="/cuenta"
+              href={hrefCuenta}
               className="w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
-              aria-label={`Mi cuenta (${userEmail})`}
+              aria-label={etiquetaCuenta}
               title={userEmail}
             >
               {iconoUsuario}

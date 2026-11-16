@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/auth-modal";
+import { ROLES, rutaPanelPorRol } from "@/lib/constants";
 
 const iconoUsuario = (
   <svg
@@ -22,12 +23,26 @@ const iconoUsuario = (
 );
 
 /**
- * Header del gateway (home). Igual que el Navbar: con sesión el ícono va a
- * /cuenta; sin sesión abre el AuthModal encima del gateway en vez de navegar
- * a /login, así el modal es la única entrada de login/registro.
+ * Header del gateway (home). Igual que el Navbar: con sesión el ícono lleva
+ * al panel del rol (admin/empleado) o a /cuenta si es cliente; sin sesión
+ * abre el AuthModal encima del gateway en vez de navegar a /login, así el
+ * modal es la única entrada de login/registro.
  */
-export function GatewayHeader({ tieneSesion }: { tieneSesion: boolean }) {
+export function GatewayHeader({
+  tieneSesion,
+  rol = null,
+}: {
+  tieneSesion: boolean;
+  rol?: string | null;
+}) {
   const [authOpen, setAuthOpen] = useState(false);
+  const panel = rutaPanelPorRol(rol);
+  const hrefCuenta = panel ?? "/cuenta";
+  const etiquetaCuenta = panel
+    ? rol === ROLES.ADMIN
+      ? "Ir al panel de administración"
+      : "Ir al panel de empleado"
+    : "Ir a mi cuenta";
 
   return (
     <>
@@ -43,9 +58,9 @@ export function GatewayHeader({ tieneSesion }: { tieneSesion: boolean }) {
         <div className="flex items-center gap-3">
           {tieneSesion ? (
             <Link
-              href="/cuenta"
+              href={hrefCuenta}
               className="w-8 h-8 rounded-full border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
-              aria-label="Ir a mi cuenta"
+              aria-label={etiquetaCuenta}
             >
               {iconoUsuario}
             </Link>
