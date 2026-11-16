@@ -48,3 +48,17 @@ export const HORARIOS_TURNO = {
   HASTA: "17:00",
   INTERVALO_MINUTOS: 30,
 } as const;
+
+/**
+ * Datos de contacto que se muestran en footer, /contacto y home.
+ * Fuente única para no tener el teléfono/dirección hardcodeados en cada lado.
+ */
+export const CONTACTO = {
+  DIRECCION: "Palma 189, Maipú, Mendoza",
+  TELEFONO: "+54 261 555-1234",
+  TELEFONO_HREF: "tel:+542615551234",
+  /** Email al que apunta el formulario de /contacto vía mailto:. */
+  EMAIL: "contacto.palma@gmail.com",
+  /** Emergencias fuera de horario de atención. */
+  EMERGENCIAS_24_7: true,
+} as const;

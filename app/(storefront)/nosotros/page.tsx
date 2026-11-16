@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { HORARIOS_TURNO } from "@/lib/constants";
+
 export default function NosotrosPage() {
   return (
     <main className="max-w-4xl mx-auto py-10 px-4">
@@ -33,10 +36,11 @@ export default function NosotrosPage() {
           </p>
         </div>
         <div className="bg-[#f8fafc] p-6 rounded-xl border border-[#e2e8f0]">
-          <h3 className="font-semibold text-[#1e293b] mb-2">Turnos 24/7</h3>
+          <h3 className="font-semibold text-[#1e293b] mb-2">Turnos online</h3>
           <p className="text-sm text-[#64748b]">
-            Reserva tu turno online desde cualquier lugar y horario. Atendemos
-            cuando más nos necesites.
+            Reservá tu turno online cuando quieras y te confirmamos en horario
+            de atención: lun a vie de {HORARIOS_TURNO.DESDE} a {HORARIOS_TURNO.HASTA}.
+            Emergencias 24/7 por teléfono.
           </p>
         </div>
       </section>
@@ -44,14 +48,22 @@ export default function NosotrosPage() {
       <section className="bg-white border border-[#e2e8f0] rounded-xl p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">¿Tenés una consulta?</h2>
         <p className="text-[#64748b] mb-6">
-          Visitanos o escribínos. Estamos para ayudarte.
+          Visitános o escribínos. Estamos para ayudarte.
         </p>
-        <a
-          href="/contacto"
-          className="px-6 py-3 bg-[#1e293b] text-white rounded-lg font-medium hover:bg-[#0f172a] transition-colors"
-        >
-          Contactarnos
-        </a>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
+            href="/turnos"
+            className="px-6 py-3 bg-[#1e293b] text-white rounded-lg font-medium hover:bg-[#0f172a] transition-colors"
+          >
+            Reservar turno
+          </Link>
+          <Link
+            href="/contacto"
+            className="px-6 py-3 border border-[#e2e8f0] rounded-lg font-medium text-[#1e293b] hover:bg-[#f8fafc] transition-colors"
+          >
+            Contactarnos
+          </Link>
+        </div>
       </section>
     </main>
   );

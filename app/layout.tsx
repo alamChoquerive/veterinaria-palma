@@ -7,7 +7,8 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: "Veterinaria Palma",
-  description: "Veterinaria y tienda para mascotas — turnos y e-commerce 24/7",
+  description:
+    "Veterinaria y pet shop en Maipú, Mendoza. Turnos online y tienda, lun a vie de 9:00 a 17:00. Emergencias 24/7.",
 };
 
 export default function RootLayout({

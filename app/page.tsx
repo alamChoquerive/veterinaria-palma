@@ -52,7 +52,8 @@ export default async function GatewayPage() {
           <span className="text-xs font-medium uppercase tracking-wider mb-2 opacity-70">Salud y bienestar</span>
           <h2 className="text-3xl md:text-5xl font-bold mb-3">Clínica Veterinaria</h2>
           <p className="text-base mb-6 max-w-xs text-center">
-            Consultas, vacunación y urgencias 24/7 en Maipú.
+            Consultas y vacunación en Maipú, lun a vie de 9:00 a 17:00.
+            Urgencias 24/7 por teléfono.
           </p>
           <span className="bg-[#0f766e] text-white px-8 py-3 rounded-lg text-sm font-medium hover:bg-[#115e59] transition-colors flex items-center gap-2">
             Pedir turno urgente <span>→</span>

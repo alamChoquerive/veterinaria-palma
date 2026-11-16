@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONTACTO, HORARIOS_TURNO } from "@/lib/constants";
 
 export default function Footer() {
   return (
@@ -23,21 +24,25 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-[#1e293b] mb-4">Contacto</h4>
             <ul className="space-y-2 text-sm text-[#64748b]">
-              <li>Palma 189, Maipú, Mendoza</li>
-              <li>+54 261 555-1234</li>
+              <li>{CONTACTO.DIRECCION}</li>
+              <li>
+                <a href={CONTACTO.TELEFONO_HREF} className="hover:text-[#1e293b]">
+                  {CONTACTO.TELEFONO}
+                </a>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold text-[#1e293b] mb-4">Horarios</h4>
             <ul className="space-y-2 text-sm text-[#64748b]">
-              <li>Lun a vie: 9:00 a 19:00</li>
-              <li>Sábados: 9:00 a 14:00</li>
-              <li>Domingos: cerrado</li>
+              <li>Lun a vie: {HORARIOS_TURNO.DESDE} a {HORARIOS_TURNO.HASTA}</li>
+              <li>Sábados y domingos: cerrado</li>
             </ul>
           </div>
         </div>
         <div className="border-t border-[#e2e8f0] pt-4 text-xs text-[#94a3b8] text-center">
-          © 2026 Veterinaria Palma · Emergencias 24/7: +54 261 555-1234
+          © 2026 Veterinaria Palma · Emergencias 24/7:{" "}
+          <a href={CONTACTO.TELEFONO_HREF} className="hover:underline">{CONTACTO.TELEFONO}</a>
         </div>
       </div>
     </footer>
