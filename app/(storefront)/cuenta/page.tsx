@@ -4,6 +4,7 @@ import { createClient } from "@/core/supabase/server";
 import { formatearFecha, formatearMoneda } from "@/lib/utils";
 import { ETIQUETA_ENVIO, ETIQUETA_ROL } from "@/lib/constants";
 import { EstadoBadge } from "@/components/ui/estado-badge";
+import { FormFeedback } from "@/components/ui/alert";
 import { LogoutButton } from "@/components/cuenta/logout-button";
 import { MisDatosForm } from "@/components/cuenta/mis-datos-form";
 import { AccionesTurno, AccionesPedido } from "@/components/cuenta/acciones-fila";
@@ -17,7 +18,13 @@ export const metadata = {
   title: "Mi cuenta — Veterinaria Palma",
 };
 
-export default async function CuentaPage() {
+export default async function CuentaPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  // aviso=sin-permisos llega cuando un usuario logueado sin rol admin entra a /admin/*
+  const { aviso } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -91,6 +98,13 @@ export default async function CuentaPage() {
         </div>
         <LogoutButton />
       </div>
+
+      {aviso === "sin-permisos" && (
+        <FormFeedback tipo="error">
+          No tenés permisos de administrador para entrar a esa sección. Si creés que es un error,
+          contactanos.
+        </FormFeedback>
+      )}
 
       <section className="bg-card border border-border rounded-xl p-5">
         <h2 className="font-semibold mb-4">Mis datos</h2>
