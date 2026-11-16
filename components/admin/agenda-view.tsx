@@ -8,24 +8,14 @@ import {
 } from "@/core/actions/turnos.action";
 import { ESPECIALIDADES } from "@/lib/data/especialidades";
 import { formatearFecha } from "@/lib/utils";
+import {
+  COLOR_ESTADO_TURNO as COLOR_ESTADO,
+  ETIQUETA_ESTADO_TURNO as ETIQUETA_ESTADO,
+} from "@/lib/constants";
 import type { TurnoFila } from "@/components/admin/turnos-panel";
 
 type FiltroFecha = "todos" | "semana" | "mes" | "fecha";
 type FiltroEstado = "todos" | "pendiente" | "confirmado" | "atendido" | "cancelado";
-
-const COLOR_ESTADO: Record<string, string> = {
-  pendiente: "bg-[#fef3c7] text-[#92400e]",
-  confirmado: "bg-[#dbeafe] text-[#1e40af]",
-  atendido: "bg-[#d1fae5] text-[#065f46]",
-  cancelado: "bg-[#fee2e2] text-[#991b1b]",
-};
-
-const ETIQUETA_ESTADO: Record<string, string> = {
-  pendiente: "Pendiente",
-  confirmado: "Confirmado",
-  atendido: "Atendido",
-  cancelado: "Cancelado",
-};
 
 function inicioDeSemana(d: Date): Date {
   const copia = new Date(d);

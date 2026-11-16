@@ -62,3 +62,60 @@ export const CONTACTO = {
   /** Emergencias fuera de horario de atención. */
   EMERGENCIAS_24_7: true,
 } as const;
+
+/**
+ * Etiquetas y colores de estado HUMANIZADOS, compartidos por /cuenta y los
+ * paneles (antes había 4 copias de COLOR_ESTADO con valores divergentes,
+ * ej. retiro_pendiente ámbar en /cuenta vs verde en el admin).
+ * OJO: las clases Tailwind deben quedar literales acá para que el compilador
+ * las genere (constants.ts se escanea igual que los .tsx).
+ */
+export const ETIQUETA_ESTADO_TURNO: Record<string, string> = {
+  pendiente: "Pendiente",
+  confirmado: "Confirmado",
+  atendido: "Atendido",
+  cancelado: "Cancelado",
+};
+
+export const COLOR_ESTADO_TURNO: Record<string, string> = {
+  pendiente: "bg-[#fef3c7] text-[#92400e]",
+  confirmado: "bg-[#dbeafe] text-[#1e40af]",
+  atendido: "bg-[#d1fae5] text-[#065f46]",
+  cancelado: "bg-[#fee2e2] text-[#991b1b]",
+};
+
+export const ETIQUETA_ESTADO_PEDIDO: Record<string, string> = {
+  pendiente: "Pendiente",
+  pago_pendiente: "Pago pendiente",
+  pagado: "Pagado",
+  preparando: "En preparación",
+  enviado: "En camino",
+  entregado: "Entregado",
+  retiro_pendiente: "Listo para retirar",
+  cancelado: "Cancelado",
+};
+
+export const COLOR_ESTADO_PEDIDO: Record<string, string> = {
+  pendiente: "bg-[#fef3c7] text-[#92400e]",
+  pago_pendiente: "bg-[#fef3c7] text-[#92400e]",
+  pagado: "bg-[#d1fae5] text-[#065f46]",
+  preparando: "bg-[#dbeafe] text-[#1e40af]",
+  enviado: "bg-[#dbeafe] text-[#1e40af]",
+  entregado: "bg-[#d1fae5] text-[#065f46]",
+  // ámbar: todavía falta una acción (retirar en la tienda)
+  retiro_pendiente: "bg-[#fef3c7] text-[#92400e]",
+  cancelado: "bg-[#fee2e2] text-[#991b1b]",
+};
+
+export const ETIQUETA_ENVIO: Record<string, string> = {
+  retiro_tienda: "Retiro en local",
+  envio_local: "Envío local",
+  envio_provincial: "Envío provincial",
+};
+
+export const ETIQUETA_ROL: Record<string, string> = {
+  minorista: "Minorista",
+  mayorista: "Mayorista",
+  admin: "Administrador",
+  empleado: "Empleado",
+};

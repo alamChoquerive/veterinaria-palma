@@ -4,6 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { actualizarEstadoPedido } from "@/core/actions/pedidos.action";
 import { formatearFecha, formatearMoneda } from "@/lib/utils";
+import {
+  COLOR_ESTADO_PEDIDO as COLOR_ESTADO,
+  ETIQUETA_ENVIO,
+  ETIQUETA_ESTADO_PEDIDO as ETIQUETA_ESTADO,
+} from "@/lib/constants";
 import type { Pedido, Perfil } from "@/types/database.types";
 
 export interface PedidoAdminFila extends Pedido {
@@ -11,34 +16,6 @@ export interface PedidoAdminFila extends Pedido {
 }
 
 type Filtro = "todos" | "pendiente" | "en_camino" | "entregado";
-
-const ETIQUETA_ESTADO: Record<string, string> = {
-  pendiente: "Pendiente",
-  pago_pendiente: "Pago pendiente",
-  pagado: "Pagado",
-  preparando: "Preparando",
-  enviado: "En camino",
-  entregado: "Entregado",
-  retiro_pendiente: "Retiro pendiente",
-  cancelado: "Cancelado",
-};
-
-const COLOR_ESTADO: Record<string, string> = {
-  pendiente: "bg-[#fef3c7] text-[#92400e]",
-  pago_pendiente: "bg-[#fef3c7] text-[#92400e]",
-  pagado: "bg-[#d1fae5] text-[#065f46]",
-  preparando: "bg-[#dbeafe] text-[#1e40af]",
-  enviado: "bg-[#dbeafe] text-[#1e40af]",
-  entregado: "bg-[#d1fae5] text-[#065f46]",
-  retiro_pendiente: "bg-[#d1fae5] text-[#065f46]",
-  cancelado: "bg-[#fee2e2] text-[#991b1b]",
-};
-
-const ETIQUETA_ENVIO: Record<string, string> = {
-  retiro_tienda: "Retiro en local",
-  envio_local: "Envío local",
-  envio_provincial: "Envío provincial",
-};
 
 const TODOS_ESTADOS = [
   "pendiente",
