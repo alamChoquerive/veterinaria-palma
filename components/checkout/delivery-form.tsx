@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { METODOS_ENTREGA } from "@/lib/constants";
 import { formatearMoneda } from "@/lib/utils";
 import {
   calcularCostoEnvio,
   requiereDireccionEnvio,
 } from "@/core/services/envios.service";
+import { Input } from "@/components/ui/input";
 import type { MetodoEntrega, ZonaEnvio } from "@/types/database.types";
 
 const OPCIONES: { metodo: MetodoEntrega; label: string }[] = [
@@ -18,6 +18,8 @@ const OPCIONES: { metodo: MetodoEntrega; label: string }[] = [
 interface DeliveryFormProps {
   zonas: ZonaEnvio[];
   subtotal: number;
+  metodo: MetodoEntrega;
+  direccion: string;
   onChange: (datos: {
     metodo: MetodoEntrega;
     direccion: string;
@@ -26,55 +28,65 @@ interface DeliveryFormProps {
   }) => void;
 }
 
-export function DeliveryForm({ zonas, subtotal, onChange }: DeliveryFormProps) {
-  const [metodo, setMetodo] = useState<MetodoEntrega>(
-    METODOS_ENTREGA.RETIRO_TIENDA
-  );
-  const [direccion, setDireccion] = useState<string>("");
-
-  const { costo } = calcularCostoEnvio({ metodo, zonas });
-  const total = subtotal + costo;
+/**
+ * Formulario de entrega CONTROLADO: el estado vive en CheckoutFlow (una sola
+ * fuente) y acá solo se emite onChange. Así no hay estado duplicado metodo/direccion.
+ */
+export function DeliveryForm({
+  zonas,
+  subtotal,
+  metodo,
+  direccion,
+  onChange,
+}: DeliveryFormProps) {
+  const { costo, zona } = calcularCostoEnvio({ metodo, zonas });
   const requiereDireccion = requiereDireccionEnvio(metodo);
+  const envioOK = metodo === "retiro_tienda" || Boolean(zona);
 
   function seleccionar(nuevoMetodo: MetodoEntrega) {
-    setMetodo(nuevoMetodo);
-    setDireccion("");
-    const nuevoCosto = calcularCostoEnvio({ metodo: nuevoMetodo, zonas }).costo;
+    const nuevo = calcularCostoEnvio({ metodo: nuevoMetodo, zonas });
     onChange({
       metodo: nuevoMetodo,
       direccion: "",
-      costoEnvio: nuevoCosto,
-      total: subtotal + nuevoCosto,
+      costoEnvio: nuevo.costo,
+      total: subtotal + nuevo.costo,
     });
   }
 
-  return (
-    <div className="bg-white border border-[#e2e8f0] rounded-xl p-6 space-y-6">
-      <h3 className="text-lg font-bold text-[#1e293b]">Método de entrega</h3>
+  const foco =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
-      <div className="space-y-3">
+  return (
+    <div className="bg-white border border-border rounded-xl p-6 space-y-6">
+      <h3 className="text-lg font-bold text-primary">Método de entrega</h3>
+
+      <div className="space-y-3" role="group" aria-label="Método de entrega">
         {OPCIONES.map((op) => {
           const seleccionado = metodo === op.metodo;
-          const costoOp = calcularCostoEnvio({ metodo: op.metodo, zonas }).costo;
+          const { costo: costoOp, zona: zonaOp } = calcularCostoEnvio({
+            metodo: op.metodo,
+            zonas,
+          });
+          const sinZona = op.metodo !== METODOS_ENTREGA.RETIRO_TIENDA && !zonaOp;
           return (
             <button
               key={op.metodo}
               type="button"
+              aria-pressed={seleccionado}
               onClick={() => seleccionar(op.metodo)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${foco} ${
                 seleccionado
-                  ? "bg-[#1e293b] text-white border-[#1e293b]"
-                  : "bg-[#f8fafc] border-[#e2e8f0] hover:border-[#cbd5e1]"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-muted border-border hover:border-[#cbd5e1]"
               }`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className={`w-5 h-5 ${
-                  seleccionado ? "text-white" : "text-[#64748b]"
-                }`}
+                className={`w-5 h-5 ${seleccionado ? "text-primary-foreground" : "text-muted-foreground"}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -85,20 +97,18 @@ export function DeliveryForm({ zonas, subtotal, onChange }: DeliveryFormProps) {
               </svg>
               <div>
                 <div
-                  className={`font-medium ${
-                    seleccionado ? "text-white" : "text-[#1e293b]"
-                  }`}
+                  className={`font-medium ${seleccionado ? "text-primary-foreground" : "text-primary"}`}
                 >
                   {op.label}
                 </div>
                 <div
-                  className={`text-xs ${
-                    seleccionado ? "text-[#94a3b8]" : "text-[#64748b]"
-                  }`}
+                  className={`text-xs ${seleccionado ? "text-primary-foreground/70" : "text-muted-foreground"}`}
                 >
                   {op.metodo === METODOS_ENTREGA.RETIRO_TIENDA
                     ? "Gratis"
-                    : formatearMoneda(costoOp)}
+                    : sinZona
+                      ? "Sin envío configurado"
+                      : formatearMoneda(costoOp)}
                 </div>
               </div>
             </button>
@@ -108,24 +118,27 @@ export function DeliveryForm({ zonas, subtotal, onChange }: DeliveryFormProps) {
 
       {requiereDireccion && (
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#64748b]">
+          <label htmlFor="direccion-envio" className="block text-sm font-medium text-muted-foreground">
             Dirección de envío
           </label>
-          <input
+          <Input
+            id="direccion-envio"
             type="text"
             value={direccion}
             onChange={(e) => {
-              setDireccion(e.target.value);
-              onChange({
-                metodo,
-                direccion: e.target.value,
-                costoEnvio: costo,
-                total,
-              });
+              onChange({ metodo, direccion: e.target.value, costoEnvio: costo, total: subtotal + costo });
             }}
             placeholder="Calle y número"
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e293b]"
+            required
+            aria-required="true"
+            aria-invalid={!envioOK || undefined}
+            autoComplete="street-address"
           />
+          {!envioOK && (
+            <p className="text-xs text-[#991b1b]" role="alert">
+              Este método de envío no tiene zona activa configurada.
+            </p>
+          )}
         </div>
       )}
     </div>

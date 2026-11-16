@@ -189,8 +189,18 @@ export const preferenciaPagoSchema = z.object({
   pedidoId: z.string().uuid("ID de pedido inválido"),
 });
 
+/**
+ * Cancelación de un pedido propio todavía no pagado: permite "modificar" el
+ * pedido desde el checkout sin dejar huérfanos en pago_pendiente (RLS solo
+ * deja cancelar estados pendiente/pago_pendiente).
+ */
+export const cancelarPedidoSchema = z.object({
+  pedidoId: z.string().uuid("ID de pedido inválido"),
+});
+
 export type CrearPedidoInput = z.infer<typeof crearPedidoSchema>;
 export type PreferenciaPagoInput = z.infer<typeof preferenciaPagoSchema>;
+export type CancelarPedidoInput = z.infer<typeof cancelarPedidoSchema>;
 
 /**
  * Cambio de estado de un pedido desde el panel admin (solo admin).
