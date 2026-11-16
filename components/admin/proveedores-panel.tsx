@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FormFeedback } from "@/components/ui/alert";
+import { Modal } from "@/components/ui/modal";
 import { useRouter } from "next/navigation";
 import {
   crearProveedor,
@@ -126,11 +128,7 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
         </button>
       </div>
 
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <FormFeedback tipo="exito">{mensaje}</FormFeedback>}
 
       {/* Lista vertical de bloques */}
       <div className="space-y-3">
@@ -234,17 +232,13 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
 
       {/* Modal nuevo/editar */}
       {modalAbierto && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-lg w-full max-w-lg p-6 max-h-[90vh] overflow-auto">
-            <h3 className="text-lg font-bold text-[#1e293b] mb-4">
-              {editando ? "Editar proveedor" : "Nuevo proveedor"}
-            </h3>
-            {error && (
-              <div className="p-3 rounded-lg bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca] mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={guardar} className="space-y-3">
+        <Modal
+          titulo={editando ? "Editar proveedor" : "Nuevo proveedor"}
+          onCerrar={cerrarModal}
+          ancho="max-w-lg"
+        >
+          {error && <FormFeedback tipo="error" className="mb-4">{error}</FormFeedback>}
+          <form onSubmit={guardar} className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-[#64748b] mb-1">
                   Nombre del proveedor <span className="text-[#991b1b]">*</span>
@@ -349,21 +343,20 @@ export function ProveedoresPanel({ proveedores }: { proveedores: Proveedor[] }) 
                 <button
                   type="button"
                   onClick={cerrarModal}
-                  className="px-4 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                  className="px-4 py-2.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardando}
-                  className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                  className="px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   {guardando ? "Guardando..." : editando ? "Guardar cambios" : "Crear proveedor"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

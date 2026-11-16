@@ -7,6 +7,7 @@ import {
   actualizarZonaEnvio,
 } from "@/core/actions/pagos-envios.action";
 import { formatearMoneda } from "@/lib/utils";
+import { FormFeedback } from "@/components/ui/alert";
 import type { MedioPago, ZonaEnvio } from "@/types/database.types";
 
 const ETIQUETA_TIPO_ZONA: Record<string, string> = {
@@ -23,7 +24,7 @@ export function PagosEnviosPanel({
 }) {
   const router = useRouter();
   const [cargando, setCargando] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null);
   // Costos editables en memoria por zona (se guardan con el botón de cada fila)
   const [costos, setCostos] = useState<Record<string, string>>(() =>
     Object.fromEntries(zonas.map((z) => [z.id, String(z.costo)])),
@@ -35,17 +36,17 @@ export function PagosEnviosPanel({
     const resultado = await toggleMedioPago({ medioPagoId: m.id, activo });
     setCargando(false);
     if (resultado.ok) {
-      setMensaje(`${m.nombre} ${activo ? "habilitado" : "deshabilitado"}`);
+      setMensaje({ tipo: "exito", texto: `${m.nombre} ${activo ? "habilitado" : "deshabilitado"}` });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
   async function guardarZona(z: ZonaEnvio) {
     const costo = Number(costos[z.id]);
     if (isNaN(costo) || costo < 0) {
-      setMensaje("Ingresá un costo válido");
+      setMensaje({ tipo: "error", texto: "Ingresá un costo válido" });
       return;
     }
     setCargando(true);
@@ -57,34 +58,31 @@ export function PagosEnviosPanel({
     });
     setCargando(false);
     if (resultado.ok) {
-      setMensaje(`Zona "${z.nombre}" actualizada`);
+      setMensaje({ tipo: "exito", texto: `Zona "${z.nombre}" actualizada` });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
   async function cambiarZonaActivo(z: ZonaEnvio, activo: boolean) {
     setCargando(true);
     setMensaje(null);
-    const costo = Number(costos[z.id] ?? z.costo);
-    const resultado = await actualizarZonaEnvio({ zonaId: z.id, costo, activo });
+    // Solo se cambia el flag: el costo editado en memoria NO se persiste acá
+    // (antes el toggle guardaba el costo sin haber tocado "Guardar")
+    const resultado = await actualizarZonaEnvio({ zonaId: z.id, costo: z.costo, activo });
     setCargando(false);
     if (resultado.ok) {
-      setMensaje(`Zona "${z.nombre}" ${activo ? "habilitada" : "deshabilitada"}`);
+      setMensaje({ tipo: "exito", texto: `Zona "${z.nombre}" ${activo ? "habilitada" : "deshabilitada"}` });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
   return (
     <div className="space-y-6">
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
       {/* Medios de pago */}
       <section className="bg-white border border-[#e2e8f0] rounded-xl p-5">

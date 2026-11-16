@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { FilaBarra, PanelGrafico } from "@/components/admin/grafico-barras";
 import { formatearFecha, formatearMoneda } from "@/lib/utils";
+import {
+  COLOR_ESTADO_PEDIDO as COLOR_ESTADO,
+  COLOR_ESTADO_TURNO,
+  ETIQUETA_ESTADO_PEDIDO as ETIQUETA_ESTADO,
+  ETIQUETA_ESTADO_TURNO,
+} from "@/lib/constants";
 import type { Pedido, Pago, Turno, Perfil } from "@/types/database.types";
 
 export interface PedidoFila extends Pedido {
@@ -21,28 +27,6 @@ type FiltroEstado = "todos" | "cobrado" | "pendiente";
 // Estados que cuentan como venta cobrada (pagada y no cancelada)
 const ESTADOS_COBRADO = ["pagado", "preparando", "enviado", "entregado", "retiro_pendiente"];
 const ESTADOS_PENDIENTE = ["pendiente", "pago_pendiente"];
-
-const ETIQUETA_ESTADO: Record<string, string> = {
-  pendiente: "Pendiente",
-  pago_pendiente: "Pago pendiente",
-  pagado: "Cobrado",
-  preparando: "Preparando",
-  enviado: "En camino",
-  entregado: "Entregado",
-  retiro_pendiente: "Retiro pendiente",
-  cancelado: "Cancelado",
-};
-
-const COLOR_ESTADO: Record<string, string> = {
-  pendiente: "bg-[#fef3c7] text-[#92400e]",
-  pago_pendiente: "bg-[#fef3c7] text-[#92400e]",
-  pagado: "bg-[#d1fae5] text-[#065f46]",
-  preparando: "bg-[#dbeafe] text-[#1e40af]",
-  enviado: "bg-[#dbeafe] text-[#1e40af]",
-  entregado: "bg-[#d1fae5] text-[#065f46]",
-  retiro_pendiente: "bg-[#d1fae5] text-[#065f46]",
-  cancelado: "bg-[#fee2e2] text-[#991b1b]",
-};
 
 const DIAS_ORDEN = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
 const DIAS_CORTOS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -171,8 +155,8 @@ function PetshopView({ pedidos }: { pedidos: PedidoFila[] }) {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+        <table className="w-full min-w-[720px] text-left border-collapse">
           <thead>
             <tr className="border-b bg-[#f8fafc]">
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">ID compra</th>
@@ -276,8 +260,8 @@ function VeterinariaView({ turnos }: { turnos: TurnoVentaFila[] }) {
         </div>
       </div>
 
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+        <table className="w-full min-w-[680px] text-left border-collapse">
           <thead>
             <tr className="border-b bg-[#f8fafc]">
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Fecha</th>
@@ -311,17 +295,9 @@ function VeterinariaView({ turnos }: { turnos: TurnoVentaFila[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-bold ${
-                        t.estado === "atendido"
-                          ? "bg-[#d1fae5] text-[#065f46]"
-                          : t.estado === "cancelado"
-                            ? "bg-[#fee2e2] text-[#991b1b]"
-                            : t.estado === "confirmado"
-                              ? "bg-[#dbeafe] text-[#1e40af]"
-                              : "bg-[#fef3c7] text-[#92400e]"
-                      }`}
+                      className={`px-2 py-0.5 rounded text-xs font-bold ${COLOR_ESTADO_TURNO[t.estado] ?? "bg-muted text-muted-foreground"}`}
                     >
-                      {t.estado.charAt(0).toUpperCase() + t.estado.slice(1)}
+                      {ETIQUETA_ESTADO_TURNO[t.estado] ?? t.estado}
                     </span>
                   </td>
                 </tr>

@@ -1,4 +1,7 @@
 import { createClient } from "@/core/supabase/server";
+import { formatearMoneda } from "@/lib/utils";
+import { ETIQUETA_ENVIO } from "@/lib/constants";
+import { EstadoBadge } from "@/components/ui/estado-badge";
 import type { Pedido, Turno } from "@/types/database.types";
 
 // Estados que cuentan como venta concretada (pagada y no cancelada)
@@ -19,13 +22,10 @@ function ListaVacia({ mensaje }: { mensaje: string }) {
 function TurnoItem({ turno }: { turno: Pick<Turno, "fecha" | "estado"> }) {
   return (
     <div className="flex justify-between items-center p-2 border rounded-lg text-sm">
-      <div>
-        <div className="font-medium">
-          {new Date(turno.fecha).toLocaleDateString("es-AR")}
-        </div>
-        <div className="text-[#64748b] text-xs">{turno.estado}</div>
+      <div className="font-medium">
+        {new Date(turno.fecha).toLocaleDateString("es-AR")}
       </div>
-      <span className="text-xs font-medium">{turno.estado}</span>
+      <EstadoBadge estado={turno.estado} tipo="turno" />
     </div>
   );
 }
@@ -39,9 +39,11 @@ function PedidoItem({
     <div className="flex justify-between items-center p-2 border rounded-lg text-sm">
       <div>
         <div className="font-medium">Pedido #{pedido.id.slice(0, 8)}</div>
-        <div className="text-[#64748b] text-xs">{pedido.metodo_entrega}</div>
+        <div className="text-[#64748b] text-xs">
+          {ETIQUETA_ENVIO[pedido.metodo_entrega] ?? pedido.metodo_entrega}
+        </div>
       </div>
-      <span className="text-xs font-medium">${pedido.total}</span>
+      <span className="text-xs font-medium">{formatearMoneda(Number(pedido.total))}</span>
     </div>
   );
 }
@@ -136,7 +138,7 @@ export async function DashboardContent() {
             Ventas del mes
           </div>
           <div className="text-2xl font-bold text-[#1e293b]">
-            ${ventasMes.toLocaleString("es-AR")}
+            {formatearMoneda(ventasMes)}
           </div>
         </div>
       </div>

@@ -7,6 +7,8 @@ import { ESPECIALIDADES } from "@/lib/data/especialidades";
 import { HORARIOS_TURNO } from "@/lib/constants";
 import { AgendaView } from "@/components/admin/agenda-view";
 import { EstadisticasView } from "@/components/admin/estadisticas-view";
+import { FormFeedback } from "@/components/ui/alert";
+import { Modal } from "@/components/ui/modal";
 import type { Turno } from "@/types/database.types";
 
 export interface TurnoFila extends Turno {
@@ -165,11 +167,7 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
         </div>
       </div>
 
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <FormFeedback tipo="exito">{mensaje}</FormFeedback>}
 
       {vista === "agenda" ? (
         <AgendaView turnos={turnos} />
@@ -179,18 +177,14 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
 
       {/* Modal: nuevo turno presencial */}
       {modalAbierto && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-lg w-full max-w-lg p-6 max-h-[90vh] overflow-auto">
-            <h3 className="text-lg font-bold text-[#1e293b] mb-1">Nuevo turno (presencial)</h3>
-            <p className="text-sm text-[#64748b] mb-4">
-              Atención en el local, sin cuenta de cliente.
-            </p>
-            {error && (
-              <div className="p-3 rounded-lg bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca] mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={guardarTurno} className="space-y-3">
+        <Modal
+          titulo="Nuevo turno (presencial)"
+          descripcion="Atención en el local, sin cuenta de cliente."
+          onCerrar={cerrarModal}
+          ancho="max-w-lg"
+        >
+          {error && <FormFeedback tipo="error" className="mb-4">{error}</FormFeedback>}
+          <form onSubmit={guardarTurno} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-[#64748b] mb-1">Fecha</label>
@@ -302,21 +296,20 @@ export function TurnosPanel({ turnos }: { turnos: TurnoFila[] }) {
                 <button
                   type="button"
                   onClick={cerrarModal}
-                  className="px-4 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                  className="px-4 py-2.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardando}
-                  className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                  className="px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   {guardando ? "Guardando..." : "Registrar turno"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { actualizarStock } from "@/core/actions/stock.action";
 import { actualizarProducto } from "@/core/actions/producto.action";
 import { formatearMoneda } from "@/lib/utils";
+import { FormFeedback } from "@/components/ui/alert";
+import { Modal } from "@/components/ui/modal";
 import type { Producto } from "@/types/database.types";
 
 export interface ProductoFila extends Producto {
@@ -31,7 +33,7 @@ export function InventarioTable({
 }) {
   const router = useRouter();
   const [cargando, setCargando] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null);
   const [editando, setEditando] = useState<ProductoFila | null>(null);
   const [form, setForm] = useState<FormEdicion | null>(null);
   const [guardando, setGuardando] = useState(false);
@@ -42,10 +44,10 @@ export function InventarioTable({
     const resultado = await actualizarStock({ productoId: id, cantidad });
     setCargando(false);
     if (resultado.ok) {
-      setMensaje("Stock actualizado correctamente");
+      setMensaje({ tipo: "exito", texto: "Stock actualizado correctamente" });
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
@@ -85,24 +87,21 @@ export function InventarioTable({
     });
     setGuardando(false);
     if (resultado.ok) {
-      setMensaje("Producto actualizado correctamente");
+      setMensaje({ tipo: "exito", texto: "Producto actualizado correctamente" });
       cerrarEdicion();
       router.refresh();
     } else {
-      setMensaje(resultado.error);
+      setMensaje({ tipo: "error", texto: resultado.error });
     }
   }
 
   return (
     <div className="space-y-4">
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
+      {/* Con el modal abierto el banner de afuera queda tapado (z-50): se muestra adentro */}
+      {mensaje && !editando && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
-      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-x-auto">
+        <table className="w-full min-w-[760px] text-left border-collapse">
           <thead>
             <tr className="border-b bg-[#f8fafc]">
               <th className="px-4 py-3 text-xs font-medium text-[#64748b]">Foto</th>
@@ -168,7 +167,7 @@ export function InventarioTable({
                         <button
                           onClick={() => ajustarStock(p.id, 1)}
                           disabled={cargando}
-                          className="px-2.5 py-1.5 text-xs bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                          className="inline-flex items-center justify-center min-w-11 min-h-11 px-2 text-sm font-bold bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
                           aria-label={`Aumentar stock de ${p.nombre}`}
                         >
                           +1
@@ -176,14 +175,14 @@ export function InventarioTable({
                         <button
                           onClick={() => ajustarStock(p.id, -1)}
                           disabled={cargando}
-                          className="px-2.5 py-1.5 text-xs bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                          className="inline-flex items-center justify-center min-w-11 min-h-11 px-2 text-sm font-bold bg-[#1e293b] text-white rounded hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
                           aria-label={`Disminuir stock de ${p.nombre}`}
                         >
                           -1
                         </button>
                         <button
                           onClick={() => abrirEdicion(p)}
-                          className="px-2.5 py-1.5 text-xs border border-[#e2e8f0] text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
+                          className="inline-flex items-center justify-center min-h-11 px-3 text-xs border border-[#e2e8f0] text-[#64748b] rounded hover:bg-[#f1f5f9] transition-colors"
                         >
                           Editar
                         </button>
@@ -201,12 +200,9 @@ export function InventarioTable({
 
       {/* Modal de edición (solo en modo editable) */}
       {!soloLectura && editando && form && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-lg w-full max-w-md p-6">
-            <h3 className="text-lg font-bold text-[#1e293b] mb-4">
-              Editar producto
-            </h3>
-            <form onSubmit={guardarEdicion} className="space-y-3">
+        <Modal titulo="Editar producto" onCerrar={cerrarEdicion} ancho="max-w-md">
+          {mensaje && <FormFeedback tipo={mensaje.tipo} className="mb-3">{mensaje.texto}</FormFeedback>}
+          <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
                 <input
@@ -291,21 +287,20 @@ export function InventarioTable({
                 <button
                   type="button"
                   onClick={cerrarEdicion}
-                  className="px-4 py-2 text-sm border border-[#e2e8f0] rounded-lg text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                  className="px-4 py-2.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardando}
-                  className="px-4 py-2 text-sm bg-[#1e293b] text-white rounded-lg hover:bg-[#0f172a] disabled:opacity-50 transition-colors"
+                  className="px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
                 >
                   {guardando ? "Guardando..." : "Guardar"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
