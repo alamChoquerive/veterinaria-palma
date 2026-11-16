@@ -4,9 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { actualizarPerfilPropio } from "@/core/actions/perfil.action";
+import { FormFeedback } from "@/components/ui/alert";
 import type { Perfil } from "@/types/database.types";
 
-const inputCls = "w-full border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm";
+const inputCls = "w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background";
 
 /**
  * Perfil del empleado: solo sus datos personales (nombre, apellido,
@@ -23,14 +24,12 @@ export function PerfilPropioPanel({ perfilActual }: { perfilActual: Perfil | nul
     fotoUrl: perfilActual?.foto_url ?? "",
   });
   const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<{ tipo: "exito" | "error"; texto: string } | null>(null);
 
   async function guardar(e: React.FormEvent) {
     e.preventDefault();
     setGuardando(true);
     setMensaje(null);
-    setError(null);
     const resultado = await actualizarPerfilPropio({
       nombre: form.nombre,
       apellido: form.apellido,
@@ -38,35 +37,26 @@ export function PerfilPropioPanel({ perfilActual }: { perfilActual: Perfil | nul
       fotoUrl: form.fotoUrl,
     });
     setGuardando(false);
-    if (resultado.ok) {
-      setMensaje("Perfil actualizado");
-      router.refresh();
-    } else {
-      setError(resultado.error);
-    }
+    setMensaje(
+      resultado.ok
+        ? { tipo: "exito", texto: "Perfil actualizado" }
+        : { tipo: "error", texto: resultado.error },
+    );
+    if (resultado.ok) router.refresh();
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#1e293b] mb-2">Mi perfil</h2>
-        <p className="text-[#64748b]">Tus datos personales.</p>
+        <h2 className="text-2xl font-bold text-primary mb-2">Mi perfil</h2>
+        <p className="text-muted-foreground">Tus datos personales.</p>
       </div>
 
-      {mensaje && (
-        <div className="p-3 rounded-lg bg-[#f0fdf4] text-[#065f46] text-sm border border-[#bbf7d0]">
-          {mensaje}
-        </div>
-      )}
-      {error && (
-        <div className="p-3 rounded-lg bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca]">
-          {error}
-        </div>
-      )}
+      {mensaje && <FormFeedback tipo={mensaje.tipo}>{mensaje.texto}</FormFeedback>}
 
-      <section className="bg-white border border-[#e2e8f0] rounded-xl p-5 max-w-xl">
-        <h3 className="font-semibold text-[#1e293b] mb-1">Mis datos</h3>
-        <p className="text-xs text-[#64748b] mb-4">
+      <section className="bg-card border border-border rounded-xl p-5 max-w-xl">
+        <h3 className="font-semibold text-primary mb-1">Mis datos</h3>
+        <p className="text-xs text-muted-foreground mb-4">
           El email no es editable desde acá (por seguridad).
         </p>
         <form onSubmit={guardar} className="space-y-3">
@@ -76,10 +66,10 @@ export function PerfilPropioPanel({ perfilActual }: { perfilActual: Perfil | nul
               alt="Foto de perfil"
               width={56}
               height={56}
-              className="w-14 h-14 rounded-full object-cover border border-[#e2e8f0]"
+              className="w-14 h-14 rounded-full object-cover border border-border"
             />
             <div className="flex-1">
-              <label className="block text-xs font-medium text-[#64748b] mb-1">URL de la foto</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">URL de la foto</label>
               <input
                 type="url"
                 className={inputCls}
@@ -91,7 +81,7 @@ export function PerfilPropioPanel({ perfilActual }: { perfilActual: Perfil | nul
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">Nombre</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Nombre</label>
               <input
                 className={inputCls}
                 value={form.nombre}
@@ -101,7 +91,7 @@ export function PerfilPropioPanel({ perfilActual }: { perfilActual: Perfil | nul
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#64748b] mb-1">Apellido</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Apellido</label>
               <input
                 className={inputCls}
                 value={form.apellido}
@@ -112,7 +102,7 @@ export function PerfilPropioPanel({ perfilActual }: { perfilActual: Perfil | nul
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#64748b] mb-1">Teléfono</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Teléfono</label>
             <input
               className={inputCls}
               value={form.telefono}
@@ -121,19 +111,20 @@ export function PerfilPropioPanel({ perfilActual }: { perfilActual: Perfil | nul
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#64748b] mb-1">Email (solo lectura)</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Email (solo lectura)</label>
+            {/* readOnly (no disabled): los lectores de pantalla anuncian el valor */}
             <input
-              className={`${inputCls} bg-[#f8fafc] text-[#64748b]`}
+              className={`${inputCls} bg-muted/50 text-muted-foreground`}
               value={perfilActual?.email ?? ""}
-              disabled
               readOnly
+              aria-label="Email (solo lectura)"
             />
           </div>
           <div className="flex justify-end">
             <button
               type="submit"
               disabled={guardando}
-              className="px-4 py-2 text-sm bg-[#0e7490] text-white rounded-lg hover:bg-[#155e75] disabled:opacity-50 transition-colors"
+              className="px-4 py-3 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
               {guardando ? "Guardando..." : "Guardar perfil"}
             </button>
