@@ -23,7 +23,8 @@ export default async function CuentaPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  // aviso=sin-permisos llega cuando un usuario logueado sin rol admin entra a /admin/*
+  // aviso=sin-permisos llega cuando un usuario logueado sin el rol necesario
+  // entra a /admin/* o /empleado/* (el mensaje es genérico a propósito)
   const { aviso } = await searchParams;
   const supabase = await createClient();
   const {
@@ -101,8 +102,7 @@ export default async function CuentaPage({
 
       {aviso === "sin-permisos" && (
         <FormFeedback tipo="error">
-          No tenés permisos de administrador para entrar a esa sección. Si creés que es un error,
-          contactanos.
+          No tenés permisos para entrar a esa sección. Si creés que es un error, contactanos.
         </FormFeedback>
       )}
 
