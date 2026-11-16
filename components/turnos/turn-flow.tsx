@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { crearTurno } from "@/core/actions/turnos.action";
+import type { EspecieMascota } from "@/core/actions/schemas";
 import type { Especialidad } from "@/lib/data/especialidades";
 import { ESPECIALIDADES } from "@/lib/data/especialidades";
 import { StepIndicator } from "@/components/turnos/step-indicator";
@@ -13,14 +15,15 @@ import { formatearFecha } from "@/lib/utils";
 
 interface DatosFormulario {
   mascotaNombre: string;
-  mascotaEspecie: string;
+  mascotaEspecie: EspecieMascota | "";
   mascotaRaza: string;
   mascotaEdad: string;
   responsableNombre: string;
   responsableTelefono: string;
-  responsableEmail: string;
   motivo: string;
 }
+
+type ErroresDatos = Partial<Record<keyof DatosFormulario, string>>;
 
 const DATOS_INICIALES: DatosFormulario = {
   mascotaNombre: "",
@@ -29,19 +32,42 @@ const DATOS_INICIALES: DatosFormulario = {
   mascotaEdad: "",
   responsableNombre: "",
   responsableTelefono: "",
-  responsableEmail: "",
   motivo: "",
 };
 
-export function TurnFlow() {
+const foco =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+const cta = `bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${foco}`;
+const secundario = `text-muted-foreground hover:text-primary transition-colors ${foco}`;
+
+function validarDatos(d: DatosFormulario): ErroresDatos {
+  const errores: ErroresDatos = {};
+  if (d.mascotaNombre.trim().length < 2) {
+    errores.mascotaNombre = "Ingresá el nombre de la mascota";
+  }
+  if (!["perro", "gato", "otro"].includes(d.mascotaEspecie)) {
+    errores.mascotaEspecie = "Elegí la especie";
+  }
+  if (d.responsableNombre.trim().length < 2) {
+    errores.responsableNombre = "Ingresá tu nombre completo";
+  }
+  if (!/^[\d\s()+-]{8,30}$/.test(d.responsableTelefono.trim())) {
+    errores.responsableTelefono = "Ingresá un teléfono válido";
+  }
+  return errores;
+}
+
+export function TurnFlow({ autenticado }: { autenticado: boolean }) {
   const [paso, setPaso] = useState(1);
   const [especialidadSeleccionada, setEspecialidadSeleccionada] = useState<Especialidad | null>(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState<string | null>(null);
   const [horaSeleccionada, setHoraSeleccionada] = useState<string | null>(null);
   const [datos, setDatos] = useState<DatosFormulario>(DATOS_INICIALES);
+  const [erroresDatos, setErroresDatos] = useState<ErroresDatos>({});
   const [enviando, setEnviando] = useState(false);
   const [turnoCreado, setTurnoCreado] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [disponibilidadKey, setDisponibilidadKey] = useState(0);
 
   const especialidad = ESPECIALIDADES.find((e) => e.id === especialidadSeleccionada?.id) ?? undefined;
 
@@ -64,10 +90,11 @@ export function TurnFlow() {
       horaFin: horaFinStr,
       motivo: datos.motivo || undefined,
       especialidad: especialidad.nombre,
-      mascotaNombre: datos.mascotaNombre || undefined,
-      mascotaEspecie: datos.mascotaEspecie || undefined,
-      responsableNombre: datos.responsableNombre || undefined,
-      responsableTelefono: datos.responsableTelefono || undefined,
+      mascotaNombre: datos.mascotaNombre,
+      // validarDatos() garantiza que en este punto es un enum válido
+      mascotaEspecie: datos.mascotaEspecie as EspecieMascota,
+      responsableNombre: datos.responsableNombre,
+      responsableTelefono: datos.responsableTelefono,
     });
 
     setEnviando(false);
@@ -75,7 +102,14 @@ export function TurnFlow() {
     if (resultado.ok) {
       setTurnoCreado(true);
     } else {
-      setError(resultado.error || "No se pudo crear el turno");
+      const mensaje = resultado.error || "No se pudo crear el turno";
+      setError(mensaje);
+      // Si el slot se ocupó entre que se eligió y se confirmó, volvemos al
+      // paso 2 y reconsultamos disponibilidad en vez de quedarnos en el error.
+      if (/ocupado|solap|reservado/i.test(mensaje)) {
+        setPaso(2);
+        setDisponibilidadKey((k) => k + 1);
+      }
     }
   };
 
@@ -104,17 +138,48 @@ export function TurnFlow() {
             setFechaSeleccionada(null);
             setHoraSeleccionada(null);
             setDatos(DATOS_INICIALES);
+            setErroresDatos({});
+            setError(null);
           }}
         />
       </div>
     );
   }
 
+  const resumenSeleccion = especialidad
+    ? `${especialidad.nombre} · ${fechaSeleccionada ? formatearFecha(fechaSeleccionada) : "fecha"} · ${horaSeleccionada ?? "hora"} · ${especialidad.duracion ?? 30} min`
+    : null;
+
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-      <StepIndicator pasoActual={paso} />
+      {!autenticado && (
+        <div
+          className="mb-6 p-3 rounded-lg bg-[#fef3c7] text-[#92400e] text-sm border border-[#fde68a] flex flex-col sm:flex-row sm:items-center gap-3"
+          role="status"
+        >
+          <span>Para confirmar el turno necesitás iniciar sesión.</span>
+          <Link
+            href="/login?redirect=/turnos"
+            className={`underline font-medium ${foco}`}
+          >
+            Iniciar sesión
+          </Link>
+        </div>
+      )}
 
-      {/* Paso 1: Especialidad */}
+      <StepIndicator
+        pasoActual={paso}
+        onIrPaso={(n) => {
+          if (n < paso) setPaso(n);
+        }}
+      />
+
+      {paso >= 2 && resumenSeleccion && (
+        <p className="mb-6 text-center text-sm text-muted-foreground" aria-live="polite">
+          {resumenSeleccion}
+        </p>
+      )}
+
       {paso === 1 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Seleccioná una especialidad</h2>
@@ -124,15 +189,19 @@ export function TurnFlow() {
             onSeleccionar={(id) => {
               const esp = ESPECIALIDADES.find((e) => e.id === id);
               setEspecialidadSeleccionada(esp ?? null);
+              // cambiar de especialidad invalida fecha/hora elegidas antes
+              setFechaSeleccionada(null);
+              setHoraSeleccionada(null);
             }}
           />
           <div className="flex justify-end">
             <button
+              type="button"
               onClick={() => {
                 if (especialidadSeleccionada) cambiarPaso(2);
               }}
               disabled={!especialidadSeleccionada}
-              className="px-6 py-2 bg-[#1e293b] text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0f172a] transition-colors"
+              className={`px-6 py-2 rounded-lg text-sm font-medium ${cta}`}
             >
               Continuar →
             </button>
@@ -140,7 +209,6 @@ export function TurnFlow() {
         </div>
       )}
 
-      {/* Paso 2: Fecha y hora */}
       {paso === 2 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Fecha y hora</h2>
@@ -148,22 +216,26 @@ export function TurnFlow() {
             especialidad={especialidad ?? ESPECIALIDADES[0]}
             fechaSeleccionada={fechaSeleccionada}
             horaSeleccionada={horaSeleccionada}
-            onSeleccionarFecha={setFechaSeleccionada}
+            disponibilidadKey={disponibilidadKey}
+            onSeleccionarFecha={(f) => {
+              if (f !== fechaSeleccionada) {
+                setFechaSeleccionada(f);
+                setHoraSeleccionada(null);
+              }
+            }}
             onSeleccionarHora={setHoraSeleccionada}
           />
           <div className="flex justify-between">
-            <button
-              onClick={() => cambiarPaso(1)}
-              className="px-6 py-2 text-sm text-[#64748b] hover:text-[#1e293b]"
-            >
+            <button type="button" onClick={() => cambiarPaso(1)} className={`px-6 py-2 text-sm ${secundario}`}>
               ← Volver
             </button>
             <button
+              type="button"
               onClick={() => {
                 if (fechaSeleccionada && horaSeleccionada) cambiarPaso(3);
               }}
               disabled={!fechaSeleccionada || !horaSeleccionada}
-              className="px-6 py-2 bg-[#1e293b] text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0f172a] transition-colors"
+              className={`px-6 py-2 rounded-lg text-sm font-medium ${cta}`}
             >
               Continuar →
             </button>
@@ -171,7 +243,6 @@ export function TurnFlow() {
         </div>
       )}
 
-      {/* Paso 3: Datos */}
       {paso === 3 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Datos del turno</h2>
@@ -182,22 +253,30 @@ export function TurnFlow() {
             mascotaEdad={datos.mascotaEdad}
             responsableNombre={datos.responsableNombre}
             responsableTelefono={datos.responsableTelefono}
-            responsableEmail={datos.responsableEmail}
             motivo={datos.motivo}
+            errores={erroresDatos}
             onChange={(campo, valor) => {
               setDatos((prev) => ({ ...prev, [campo]: valor }));
+              setErroresDatos((prev) => ({ ...prev, [campo]: undefined }));
             }}
           />
           <div className="flex justify-between">
-            <button
-              onClick={() => cambiarPaso(2)}
-              className="px-6 py-2 text-sm text-[#64748b] hover:text-[#1e293b]"
-            >
+            <button type="button" onClick={() => cambiarPaso(2)} className={`px-6 py-2 text-sm ${secundario}`}>
               ← Volver
             </button>
             <button
-              onClick={() => cambiarPaso(4)}
-              className="px-6 py-2 bg-[#1e293b] text-white rounded-lg text-sm font-medium hover:bg-[#0f172a] transition-colors"
+              type="button"
+              onClick={() => {
+                const errores = validarDatos(datos);
+                setErroresDatos(errores);
+                if (Object.values(errores).some(Boolean)) {
+                  setError("Revisá los campos marcados antes de continuar.");
+                  return;
+                }
+                setError(null);
+                cambiarPaso(4);
+              }}
+              className={`px-6 py-2 rounded-lg text-sm font-medium ${cta}`}
             >
               Revisar →
             </button>
@@ -205,59 +284,69 @@ export function TurnFlow() {
         </div>
       )}
 
-      {/* Paso 4: Confirmación */}
       {paso === 4 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Confirmar turno</h2>
           {error && (
-            <div className="p-3 rounded-lg bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca]">
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="p-3 rounded-lg bg-[#fee2e2] text-[#991b1b] text-sm border border-[#fecaca]"
+            >
               {error}
             </div>
           )}
-          <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-6 space-y-4">
+          <div className="bg-muted border border-border rounded-xl p-6 space-y-4">
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748b]">Especialidad</span>
+              <span className="text-muted-foreground">Especialidad</span>
               <span className="font-medium">{especialidad?.nombre}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748b]">Veterinario</span>
+              <span className="text-muted-foreground">Veterinario</span>
               <span className="font-medium">{especialidad?.profesional}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748b]">Fecha</span>
+              <span className="text-muted-foreground">Fecha</span>
               <span className="font-medium">{formatearFecha(fechaSeleccionada ?? "")}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748b]">Hora</span>
+              <span className="text-muted-foreground">Hora</span>
               <span className="font-medium">{horaSeleccionada}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748b]">Duración</span>
+              <span className="text-muted-foreground">Duración</span>
               <span className="font-medium">{especialidad?.duracion} min</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748b]">Mascota</span>
+              <span className="text-muted-foreground">Mascota</span>
               <span className="font-medium">{datos.mascotaNombre}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748b]">Responsable</span>
+              <span className="text-muted-foreground">Responsable</span>
               <span className="font-medium">{datos.responsableNombre}</span>
             </div>
           </div>
-          <div className="flex justify-between">
-            <button
-              onClick={() => cambiarPaso(3)}
-              className="px-6 py-2 text-sm text-[#64748b] hover:text-[#1e293b]"
-            >
+          <div className="flex justify-between gap-3">
+            <button type="button" onClick={() => cambiarPaso(3)} className={`px-6 py-2 text-sm ${secundario}`}>
               ← Volver
             </button>
-            <button
-              onClick={manejarCrearTurno}
-              disabled={enviando}
-              className="px-6 py-2 bg-[#1e293b] text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0f172a] transition-colors"
-            >
-              {enviando ? "Guardando..." : "Confirmar turno"}
-            </button>
+            {autenticado ? (
+              <button
+                type="button"
+                onClick={manejarCrearTurno}
+                disabled={enviando}
+                className={`px-6 py-2 rounded-lg text-sm font-medium ${cta}`}
+              >
+                {enviando ? "Guardando..." : "Confirmar turno"}
+              </button>
+            ) : (
+              <Link
+                href="/login?redirect=/turnos"
+                className={`px-6 py-2 rounded-lg text-sm font-medium ${cta}`}
+              >
+                Iniciar sesión para confirmar
+              </Link>
+            )}
           </div>
         </div>
       )}
