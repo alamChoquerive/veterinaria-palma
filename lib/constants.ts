@@ -113,6 +113,31 @@ export const ETIQUETA_ENVIO: Record<string, string> = {
   envio_provincial: "Envío provincial",
 };
 
+/**
+ * Estados de las ventas presenciales (tabla `ventas`, POS del empleado).
+ * Antes vivían duplicados dentro de pos-panel.tsx.
+ */
+export const ESTADOS_VENTA = {
+  PAGADA: "pagada",
+  PAGO_PENDIENTE: "pago_pendiente",
+  CANCELADA: "cancelada",
+} as const;
+
+export const ETIQUETA_ESTADO_VENTA: Record<string, string> = {
+  pagada: "Pagada",
+  pago_pendiente: "Pago pendiente",
+  cancelado: "Cancelada",
+};
+
+export const COLOR_ESTADO_VENTA: Record<string, string> = {
+  pagada: "bg-[#d1fae5] text-[#065f46]",
+  pago_pendiente: "bg-[#fef3c7] text-[#92400e]",
+  cancelado: "bg-[#fee2e2] text-[#991b1b]",
+};
+
+/** Métodos de pago que acepta el POS (coinciden con el enum del schema). */
+export const METODOS_PAGO_POS = ["efectivo", "mercadopago"] as const;
+
 export const ETIQUETA_ROL: Record<string, string> = {
   minorista: "Minorista",
   mayorista: "Mayorista",
